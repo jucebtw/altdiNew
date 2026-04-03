@@ -82,6 +82,30 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
    либо по HTTPS (для приватного репо — [Personal Access Token](https://github.com/settings/tokens) или [deploy key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/managing-deploy-keys) с доступом **read**).
 2. Убедиться, что **`git fetch` / `git pull`** работают без запроса пароля (SSH-ключ на сервере или `credential.helper`).
 
+### Git pull с Personal Access Token (HTTPS)
+
+Подходит для **приватного** репозитория, если не используешь SSH.
+
+1. Создай токен: [GitHub → Settings → Developer settings → Personal access tokens](https://github.com/settings/tokens).  
+   - **Classic:** scope **`repo`** (полный доступ к приватным репозиториям).  
+   - **Fine-grained:** выбери репозиторий и право **Contents: Read** (и при необходимости **Metadata**).
+2. Remote только HTTPS, без токена в URL:
+   ```bash
+   git remote set-url origin https://github.com/USER/REPO.git
+   ```
+3. Один раз сохранить логин/пароль для `git pull` / `git fetch`:
+   ```bash
+   git config --global credential.helper store
+   cd /path/to/clone
+   git pull origin main
+   ```
+   Когда спросит **Username** — твой логин GitHub (или произвольная строка для HTTPS).  
+   **Password** — вставь **только PAT**, не пароль от аккаунта GitHub.  
+   Учётные данные попадут в `~/.git-credentials` — выставь права: `chmod 600 ~/.git-credentials`.
+4. Вариант без сохранения в файл: каждый раз вводить PAT при `git pull` (неудобно) или использовать [SSH deploy key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/managing-deploy-keys) вместо PAT.
+
+**Не рекомендуется** держать токен прямо в URL (`https://USER:TOKEN@github.com/...`) — он виден в `git config` и может попасть в логи; если уже так сделал, смени remote на вариант из п.2 и перевыпусти токен.
+
 ### Что делает GitHub Actions при push в `main`
 
 1. Генерирует **`.env`** из секретов и **копирует** его на сервер (`scp`).

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-: "${CERTBOT_EMAIL:?Set CERTBOT_EMAIL for Let's Encrypt}"
+: "${CERTBOT_EMAIL:?Set CERTBOT_EMAIL for certbot}"
 PUBLIC_DOMAIN="${PUBLIC_DOMAIN:-altdi.ru}"
 APP_PORT="${APP_PORT:-3000}"
 INCLUDE_WWW="${INCLUDE_WWW:-false}"

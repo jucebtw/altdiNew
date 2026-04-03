@@ -67,14 +67,34 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 - `prisma/schema.prisma` — схема БД
 - `prisma/seed.ts` — демо-данные
 
-## Деплой (полностью автоматически, VPS + GitHub Actions)
+## Деплой (git pull на сервере + GitHub Actions)
 
-При **push в `main`** [workflow](.github/workflows/deploy.yml) сам:
+Код на VPS лежит в **git clone**; обновление — **`git fetch` + `reset` на `origin`** (не rsync). В [`DEPLOY_PATH`](.github/workflows/deploy.yml) должен быть **репозиторий с `.git`**.
 
-1. Собирает **`.env` на сервере** из секретов GitHub (ручной `.env` на VPS не нужен).
-2. Создаёт каталог **`DEPLOY_PATH`**, если его ещё нет (нужны права на запись у SSH-пользователя — удобно, например, `DEPLOY_PATH=/home/deploy/altdi.ru`).
-3. Делает **rsync** кода, затем на сервере: toolchain **Node + pm2**, `prisma`, сборка, **PM2**.
-4. Если задан **`CERTBOT_EMAIL`**: ставит **Nginx** и **Certbot**, проксирует на порт приложения, получает **Let's Encrypt** и редирект HTTP→HTTPS (скрипт [`scripts/setup-nginx-ssl.sh`](scripts/setup-nginx-ssl.sh)).
+### Один раз на сервере
+
+1. Клонировать репозиторий в каталог деплоя, например:
+   ```bash
+   git clone git@github.com:USER/REPO.git /var/www/altdi.ru
+   ```
+   либо по HTTPS (для приватного репо — [Personal Access Token](https://github.com/settings/tokens) или [deploy key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/managing-deploy-keys) с доступом **read**).
+2. Убедиться, что **`git fetch` / `git pull`** работают без запроса пароля (SSH-ключ на сервере или `credential.helper`).
+
+### Что делает GitHub Actions при push в `main`
+
+1. Генерирует **`.env`** из секретов и **копирует** его на сервер (`scp`).
+2. По SSH: `git fetch`, `checkout`, **`git reset --hard origin/<ветка>`** (ветка — секрет `DEPLOY_BRANCH`, по умолчанию `main`), затем [`scripts/deploy-on-server.sh`](scripts/deploy-on-server.sh) (Node/pm2, Prisma, сборка, PM2).
+3. Если задан **`CERTBOT_EMAIL`**: [`scripts/setup-nginx-ssl.sh`](scripts/setup-nginx-ssl.sh) — Nginx + Let's Encrypt.
+
+### Деплой только с сервера (без Actions)
+
+В корне клона:
+
+```bash
+./scripts/server-pull-deploy.sh
+```
+
+Или вручную: `DEPLOY_BRANCH=main git pull origin main && ./scripts/deploy-on-server.sh`. Без CI создай **`.env`** по образцу `.env.example`; при деплое через Actions `.env` подставляется из секретов.
 
 ### Один раз: секреты в GitHub
 
@@ -85,11 +105,12 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 | `SSH_HOST` | да | IP или домен VPS |
 | `SSH_USER` | да | пользователь SSH |
 | `SSH_PRIVATE_KEY` | да | приватный ключ целиком (`BEGIN … END`) |
-| `DEPLOY_PATH` | да | абсолютный путь к каталогу приложения на сервере |
+| `DEPLOY_PATH` | да | абсолютный путь к **корню git clone** (каталог с `.git`) |
 | `AUTH_SECRET` | да | секрет сессий (например `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`) |
 | `NEXTAUTH_URL` | нет | по умолчанию `https://altdi.ru` |
 | `DATABASE_URL` | нет | по умолчанию `file:./prisma/prod.db` (SQLite на сервере) |
 | `SSH_PORT` | нет | по умолчанию `22` |
+| `DEPLOY_BRANCH` | нет | ветка на сервере, по умолчанию `main` |
 | `CERTBOT_EMAIL` | нет | если задан — авто-установка **Nginx + Let's Encrypt** |
 | `PUBLIC_DOMAIN` | нет | домен для сертификата, по умолчанию `altdi.ru` |
 | `INCLUDE_WWW` | нет | `true` или `1` — добавить `www` (нужна **A-запись** для `www`) |
@@ -101,13 +122,15 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 
 Если **`CERTBOT_EMAIL` не задан**, шаг Nginx пропускается — приложение доступно по порту PM2 (например `:3000`), HTTPS нужно настроить вручную.
 
-### Каждый деплой — одна команда
+### Каждый деплой через CI
+
+Локально:
 
 ```bash
 git push origin main
 ```
 
-Скрипт [`scripts/ensure-toolchain.sh`](scripts/ensure-toolchain.sh) ставит **Node.js** и **pm2** в `~/.local/share/altdi-ru`. Переменная **`NODE_VERSION`** на сервере переопределяет версию Node при деплое. Ручной запуск на сервере (если код уже лежит в `DEPLOY_PATH`): `./scripts/deploy-on-server.sh`.
+Скрипт [`scripts/ensure-toolchain.sh`](scripts/ensure-toolchain.sh) на сервере ставит **Node.js** и **pm2** в `~/.local/share/altdi-ru`. Переменная **`NODE_VERSION`** переопределяет версию Node.
 
 ## Безопасность
 

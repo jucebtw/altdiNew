@@ -1,20 +1,16 @@
-# Полностью автоматический деплой: push в main → rsync кода + .env из секретов → сборка и PM2 на сервере.
+# Деплой: код на сервере обновляется через git (fetch + reset на origin), не через rsync.
+# Runner только: генерирует .env из секретов, копирует по SSH, запускает сборку на VPS.
 #
-# Один раз в GitHub → Settings → Secrets and variables → Actions:
-#   SSH_HOST, SSH_USER, SSH_PRIVATE_KEY, DEPLOY_PATH  — доступ по SSH
-#   AUTH_SECRET — обязательно (например: node -e "console.log(require('crypto').randomBytes(32).toString('base64'))")
-# Опционально:
-#   NEXTAUTH_URL — по умолчанию https://altdi.ru
-#   DATABASE_URL — по умолчанию file:./prisma/prod.db
-#   SSH_PORT — по умолчанию 22
-# Nginx + Let's Encrypt (если задан CERTBOT_EMAIL):
-#   CERTBOT_EMAIL — email для соглашения Let's Encrypt (обязателен для шага nginx)
-#   PUBLIC_DOMAIN — по умолчанию altdi.ru
-#   INCLUDE_WWW — true/1 чтобы включить www и сертификат на www (нужна A-запись www)
-#   APP_PORT — порт PM2/Next, по умолчанию 3000
+# Один раз на сервере: git clone репозитория в DEPLOY_PATH и настройка доступа к GitHub
+# (SSH deploy key / HTTPS token в credential helper), чтобы git pull/fetch работал без пароля.
 #
-# Ручной .env на сервере не нужен — workflow записывает его при каждом деплое.
-# Для HTTPS: A-запись домена должна указывать на IP сервера; у пользователя SSH должен быть sudo без пароля (типично для VPS).
+# Секреты GitHub → Settings → Actions:
+#   SSH_HOST, SSH_USER, SSH_PRIVATE_KEY, DEPLOY_PATH
+#   AUTH_SECRET (обязательно)
+# Опционально: NEXTAUTH_URL, DATABASE_URL, SSH_PORT, DEPLOY_BRANCH (по умолчанию main)
+# Nginx/Certbot: CERTBOT_EMAIL, PUBLIC_DOMAIN, INCLUDE_WWW, APP_PORT
+#
+# Для HTTPS: sudo без пароля; DNS A-запись на сервер.
 
 name: Deploy
 
@@ -31,15 +27,14 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Generate .env and deploy to server
+      - name: Generate .env, git pull on server, deploy
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USER: ${{ secrets.SSH_USER }}
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
           SSH_PORT: ${{ secrets.SSH_PORT }}
+          DEPLOY_BRANCH: ${{ secrets.DEPLOY_BRANCH || 'main' }}
           AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
           NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL || 'https://altdi.ru' }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -53,11 +48,11 @@ jobs:
           test -n "${SSH_HOST:-}" || { echo "Missing SSH_HOST"; exit 1; }
           test -n "${SSH_USER:-}" || { echo "Missing SSH_USER"; exit 1; }
           test -n "${DEPLOY_PATH:-}" || { echo "Missing DEPLOY_PATH"; exit 1; }
-          test -n "${AUTH_SECRET:-}" || { echo "Missing AUTH_SECRET — add in repo Secrets"; exit 1; }
+          test -n "${AUTH_SECRET:-}" || { echo "Missing AUTH_SECRET"; exit 1; }
 
           python3 << 'PY'
           import os
-          def esc(s: str) -> str:
+          def esc(s):
               return s.replace("\\", "\\\\").replace('"', '\\"')
           auth = os.environ.get("AUTH_SECRET", "").strip()
           if not auth:
@@ -71,31 +66,31 @@ jobs:
           PY
 
           PORT="${SSH_PORT:-22}"
+          BRANCH="${DEPLOY_BRANCH:-main}"
           mkdir -p ~/.ssh
           printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -p "$PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
 
           SSH_OPTS="-i ~/.ssh/deploy_key -p $PORT -o StrictHostKeyChecking=accept-new"
+          SCP_OPTS=(-i ~/.ssh/deploy_key -P "$PORT" -o StrictHostKeyChecking=accept-new)
 
-          ssh $SSH_OPTS "${SSH_USER}@${SSH_HOST}" "mkdir -p $(printf %q "$DEPLOY_PATH")"
-
-          rsync -avz --delete \
-            -e "ssh $SSH_OPTS" \
-            --exclude node_modules \
-            --exclude .next \
-            --exclude .git \
-            --exclude prisma/*.db \
-            --exclude prisma/*.db-journal \
-            ./ "${SSH_USER}@${SSH_HOST}:${DEPLOY_PATH}/"
+          scp "${SCP_OPTS[@]}" .env "${SSH_USER}@${SSH_HOST}:${DEPLOY_PATH}/.env"
 
           ssh $SSH_OPTS "${SSH_USER}@${SSH_HOST}" \
-            "cd $(printf %q "$DEPLOY_PATH") && chmod 600 .env 2>/dev/null || true && chmod +x scripts/deploy-on-server.sh 2>/dev/null || true && ./scripts/deploy-on-server.sh"
+            "cd $(printf %q "$DEPLOY_PATH") && \
+             test -d .git || { echo 'В DEPLOY_PATH должен быть git clone. См. README.'; exit 1; } && \
+             git fetch origin && \
+             git checkout $(printf %q "$BRANCH") && \
+             git reset --hard $(printf %q "origin/${BRANCH}") && \
+             chmod 600 .env && \
+             (chmod +x scripts/deploy-on-server.sh 2>/dev/null || true) && \
+             ./scripts/deploy-on-server.sh"
 
           if [ -n "${CERTBOT_EMAIL:-}" ]; then
             echo "Настройка Nginx и Certbot..."
             ssh $SSH_OPTS "${SSH_USER}@${SSH_HOST}" \
               "cd $(printf %q "$DEPLOY_PATH") && chmod +x scripts/setup-nginx-ssl.sh && sudo CERTBOT_EMAIL=$(printf %q "$CERTBOT_EMAIL") PUBLIC_DOMAIN=$(printf %q "$PUBLIC_DOMAIN") INCLUDE_WWW=$(printf %q "${INCLUDE_WWW:-}") APP_PORT=$(printf %q "${APP_PORT:-3000}") bash scripts/setup-nginx-ssl.sh"
           else
-            echo "CERTBOT_EMAIL не задан — шаг Nginx/Certbot пропущен (добавьте секрет для авто-HTTPS)"
+            echo "CERTBOT_EMAIL не задан — шаг Nginx/Certbot пропущен"
           fi

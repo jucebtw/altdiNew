@@ -74,6 +74,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 1. Собирает **`.env` на сервере** из секретов GitHub (ручной `.env` на VPS не нужен).
 2. Создаёт каталог **`DEPLOY_PATH`**, если его ещё нет (нужны права на запись у SSH-пользователя — удобно, например, `DEPLOY_PATH=/home/deploy/altdi.ru`).
 3. Делает **rsync** кода, затем на сервере: toolchain **Node + pm2**, `prisma`, сборка, **PM2**.
+4. Если задан **`CERTBOT_EMAIL`**: ставит **Nginx** и **Certbot**, проксирует на порт приложения, получает **Let's Encrypt** и редирект HTTP→HTTPS (скрипт [`scripts/setup-nginx-ssl.sh`](scripts/setup-nginx-ssl.sh)).
 
 ### Один раз: секреты в GitHub
 
@@ -89,8 +90,16 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 | `NEXTAUTH_URL` | нет | по умолчанию `https://altdi.ru` |
 | `DATABASE_URL` | нет | по умолчанию `file:./prisma/prod.db` (SQLite на сервере) |
 | `SSH_PORT` | нет | по умолчанию `22` |
+| `CERTBOT_EMAIL` | нет | если задан — авто-установка **Nginx + Let's Encrypt** |
+| `PUBLIC_DOMAIN` | нет | домен для сертификата, по умолчанию `altdi.ru` |
+| `INCLUDE_WWW` | нет | `true` или `1` — добавить `www` (нужна **A-запись** для `www`) |
+| `APP_PORT` | нет | порт Next за Nginx, по умолчанию `3000` |
 
-На сервере **один раз** при необходимости: каталог под `DEPLOY_PATH` с правами на запись для пользователя деплоя (или используй путь в домашней директории — тогда workflow создаст его сам). **Nginx/Caddy** и TLS на порт приложения (`3000` по умолчанию) настраиваются отдельно на VPS.
+**DNS:** до деплоя **A-запись** домена (и при `INCLUDE_WWW` — для `www`) должна указывать на IP сервера — иначе Certbot не пройдёт проверку.
+
+**Sudo:** пользователь SSH должен уметь выполнять **`sudo` без пароля** для `apt`, `nginx`, `certbot` (часто так на облачных VPS; иначе настройте `/etc/sudoers` под вашего пользователя деплоя).
+
+Если **`CERTBOT_EMAIL` не задан**, шаг Nginx пропускается — приложение доступно по порту PM2 (например `:3000`), HTTPS нужно настроить вручную.
 
 ### Каждый деплой — одна команда
 

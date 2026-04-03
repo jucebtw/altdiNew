@@ -7,8 +7,14 @@
 #   NEXTAUTH_URL — по умолчанию https://altdi.ru
 #   DATABASE_URL — по умолчанию file:./prisma/prod.db
 #   SSH_PORT — по умолчанию 22
+# Nginx + Let's Encrypt (если задан CERTBOT_EMAIL):
+#   CERTBOT_EMAIL — email для соглашения Let's Encrypt (обязателен для шага nginx)
+#   PUBLIC_DOMAIN — по умолчанию altdi.ru
+#   INCLUDE_WWW — true/1 чтобы включить www и сертификат на www (нужна A-запись www)
+#   APP_PORT — порт PM2/Next, по умолчанию 3000
 #
 # Ручной .env на сервере не нужен — workflow записывает его при каждом деплое.
+# Для HTTPS: A-запись домена должна указывать на IP сервера; у пользователя SSH должен быть sudo без пароля (типично для VPS).
 
 name: Deploy
 
@@ -37,6 +43,10 @@ jobs:
           AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
           NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL || 'https://altdi.ru' }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          CERTBOT_EMAIL: ${{ secrets.CERTBOT_EMAIL }}
+          PUBLIC_DOMAIN: ${{ secrets.PUBLIC_DOMAIN || 'altdi.ru' }}
+          INCLUDE_WWW: ${{ secrets.INCLUDE_WWW }}
+          APP_PORT: ${{ secrets.APP_PORT || '3000' }}
         run: |
           set -euo pipefail
           test -n "${SSH_PRIVATE_KEY:-}" || { echo "Missing SSH_PRIVATE_KEY"; exit 1; }
@@ -81,3 +91,11 @@ jobs:
 
           ssh $SSH_OPTS "${SSH_USER}@${SSH_HOST}" \
             "cd $(printf %q "$DEPLOY_PATH") && chmod 600 .env 2>/dev/null || true && chmod +x scripts/deploy-on-server.sh 2>/dev/null || true && ./scripts/deploy-on-server.sh"
+
+          if [ -n "${CERTBOT_EMAIL:-}" ]; then
+            echo "Настройка Nginx и Certbot..."
+            ssh $SSH_OPTS "${SSH_USER}@${SSH_HOST}" \
+              "cd $(printf %q "$DEPLOY_PATH") && chmod +x scripts/setup-nginx-ssl.sh && sudo CERTBOT_EMAIL=$(printf %q "$CERTBOT_EMAIL") PUBLIC_DOMAIN=$(printf %q "$PUBLIC_DOMAIN") INCLUDE_WWW=$(printf %q "${INCLUDE_WWW:-}") APP_PORT=$(printf %q "${APP_PORT:-3000}") bash scripts/setup-nginx-ssl.sh"
+          else
+            echo "CERTBOT_EMAIL не задан — шаг Nginx/Certbot пропущен (добавьте секрет для авто-HTTPS)"
+          fi

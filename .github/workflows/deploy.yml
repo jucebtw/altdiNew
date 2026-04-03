@@ -1,15 +1,14 @@
-# Автодеплой на VPS по push в main (или вручную: Actions → Deploy → Run workflow).
+# Полностью автоматический деплой: push в main → rsync кода + .env из секретов → сборка и PM2 на сервере.
 #
-# Секреты репозитория (Settings → Secrets and variables → Actions):
-#   SSH_HOST       — IP или домен сервера
-#   SSH_USER       — пользователь SSH (например deploy или ubuntu)
-#   SSH_PRIVATE_KEY — полный приватный ключ (BEGIN … END), для deploy-аккаунта
-#   DEPLOY_PATH    — абсолютный путь на сервере, например /var/www/altdi.ru
+# Один раз в GitHub → Settings → Secrets and variables → Actions:
+#   SSH_HOST, SSH_USER, SSH_PRIVATE_KEY, DEPLOY_PATH  — доступ по SSH
+#   AUTH_SECRET — обязательно (например: node -e "console.log(require('crypto').randomBytes(32).toString('base64'))")
 # Опционально:
-#   SSH_PORT       — порт SSH, по умолчанию 22
+#   NEXTAUTH_URL — по умолчанию https://altdi.ru
+#   DATABASE_URL — по умолчанию file:./prisma/prod.db
+#   SSH_PORT — по умолчанию 22
 #
-# Один раз на сервере: в DEPLOY_PATH положить .env
-# (DATABASE_URL, AUTH_SECRET, NEXTAUTH_URL=https://ваш-домен).
+# Ручной .env на сервере не нужен — workflow записывает его при каждом деплое.
 
 name: Deploy
 
@@ -28,19 +27,38 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Rsync and run deploy on server
+      - name: Generate .env and deploy to server
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USER: ${{ secrets.SSH_USER }}
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
           SSH_PORT: ${{ secrets.SSH_PORT }}
+          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+          NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL || 'https://altdi.ru' }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           set -euo pipefail
           test -n "${SSH_PRIVATE_KEY:-}" || { echo "Missing SSH_PRIVATE_KEY"; exit 1; }
           test -n "${SSH_HOST:-}" || { echo "Missing SSH_HOST"; exit 1; }
           test -n "${SSH_USER:-}" || { echo "Missing SSH_USER"; exit 1; }
           test -n "${DEPLOY_PATH:-}" || { echo "Missing DEPLOY_PATH"; exit 1; }
+          test -n "${AUTH_SECRET:-}" || { echo "Missing AUTH_SECRET — add in repo Secrets"; exit 1; }
+
+          python3 << 'PY'
+          import os
+          def esc(s: str) -> str:
+              return s.replace("\\", "\\\\").replace('"', '\\"')
+          auth = os.environ.get("AUTH_SECRET", "").strip()
+          if not auth:
+              raise SystemExit("AUTH_SECRET is empty")
+          db = (os.environ.get("DATABASE_URL") or "").strip() or "file:./prisma/prod.db"
+          url = (os.environ.get("NEXTAUTH_URL") or "").strip() or "https://altdi.ru"
+          with open(".env", "w", encoding="utf-8") as f:
+              f.write(f'DATABASE_URL="{esc(db)}"\n')
+              f.write(f'AUTH_SECRET="{esc(auth)}"\n')
+              f.write(f'NEXTAUTH_URL="{esc(url)}"\n')
+          PY
 
           PORT="${SSH_PORT:-22}"
           mkdir -p ~/.ssh
@@ -50,6 +68,8 @@ jobs:
 
           SSH_OPTS="-i ~/.ssh/deploy_key -p $PORT -o StrictHostKeyChecking=accept-new"
 
+          ssh $SSH_OPTS "${SSH_USER}@${SSH_HOST}" "mkdir -p $(printf %q "$DEPLOY_PATH")"
+
           rsync -avz --delete \
             -e "ssh $SSH_OPTS" \
             --exclude node_modules \
@@ -57,9 +77,7 @@ jobs:
             --exclude .git \
             --exclude prisma/*.db \
             --exclude prisma/*.db-journal \
-            --exclude .env \
-            --exclude .env.local \
             ./ "${SSH_USER}@${SSH_HOST}:${DEPLOY_PATH}/"
 
           ssh $SSH_OPTS "${SSH_USER}@${SSH_HOST}" \
-            "cd $(printf %q "$DEPLOY_PATH") && chmod +x scripts/deploy-on-server.sh 2>/dev/null || true && ./scripts/deploy-on-server.sh"
+            "cd $(printf %q "$DEPLOY_PATH") && chmod 600 .env 2>/dev/null || true && chmod +x scripts/deploy-on-server.sh 2>/dev/null || true && ./scripts/deploy-on-server.sh"

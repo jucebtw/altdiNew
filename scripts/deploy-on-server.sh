@@ -5,6 +5,11 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$ROOT"
 
+test -f "$ROOT/.env" || {
+  echo "Нет файла .env в $ROOT (при деплое через GitHub Actions он создаётся в CI)"
+  exit 1
+}
+
 # shellcheck source=ensure-toolchain.sh
 # Node.js + pm2 в $HOME/.local/share/altdi-ru (без apt для самого Node)
 source "$SCRIPT_DIR/ensure-toolchain.sh"

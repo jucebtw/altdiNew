@@ -67,31 +67,38 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 - `prisma/schema.prisma` — схема БД
 - `prisma/seed.ts` — демо-данные
 
-## Деплой (VPS + GitHub Actions)
+## Деплой (полностью автоматически, VPS + GitHub Actions)
 
-Репозиторий на GitHub, ветка `main`: при push запускается [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) — `rsync` на сервер и [`scripts/deploy-on-server.sh`](scripts/deploy-on-server.sh) (сборка, `prisma db push`, перезапуск PM2).
+При **push в `main`** [workflow](.github/workflows/deploy.yml) сам:
 
-### Первый раз (один раз настроить)
+1. Собирает **`.env` на сервере** из секретов GitHub (ручной `.env` на VPS не нужен).
+2. Создаёт каталог **`DEPLOY_PATH`**, если его ещё нет (нужны права на запись у SSH-пользователя — удобно, например, `DEPLOY_PATH=/home/deploy/altdi.ru`).
+3. Делает **rsync** кода, затем на сервере: toolchain **Node + pm2**, `prisma`, сборка, **PM2**.
 
-1. На **VPS** создай каталог под сайт (например `/var/www/altdi.ru`) и положи туда **`.env`** (скопируй с `.env.example`, выставь `NEXTAUTH_URL=https://altdi.ru`, `AUTH_SECRET`, `DATABASE_URL` для SQLite).
-2. В **GitHub** → репозиторий → **Settings** → **Secrets and variables** → **Actions** добавь секреты: `SSH_HOST`, `SSH_USER`, `SSH_PRIVATE_KEY`, `DEPLOY_PATH` (тот же путь, что на сервере). При нестандартном SSH — `SSH_PORT`.
-3. Убедись, что у пользователя деплоя есть **SSH-доступ** к серверу по ключу из секрета.
+### Один раз: секреты в GitHub
 
-### Деплой «в одну строку»
+**Settings** → **Secrets and variables** → **Actions**:
 
-После настройки каждый выкат — это **push в `main`** (локально из корня репозитория):
+| Секрет | Обязательно | Описание |
+|--------|-------------|----------|
+| `SSH_HOST` | да | IP или домен VPS |
+| `SSH_USER` | да | пользователь SSH |
+| `SSH_PRIVATE_KEY` | да | приватный ключ целиком (`BEGIN … END`) |
+| `DEPLOY_PATH` | да | абсолютный путь к каталогу приложения на сервере |
+| `AUTH_SECRET` | да | секрет сессий (например `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`) |
+| `NEXTAUTH_URL` | нет | по умолчанию `https://altdi.ru` |
+| `DATABASE_URL` | нет | по умолчанию `file:./prisma/prod.db` (SQLite на сервере) |
+| `SSH_PORT` | нет | по умолчанию `22` |
+
+На сервере **один раз** при необходимости: каталог под `DEPLOY_PATH` с правами на запись для пользователя деплоя (или используй путь в домашней директории — тогда workflow создаст его сам). **Nginx/Caddy** и TLS на порт приложения (`3000` по умолчанию) настраиваются отдельно на VPS.
+
+### Каждый деплой — одна команда
 
 ```bash
 git push origin main
 ```
 
-Workflow сам зальёт код на сервер и выполнит сборку. Ручной деплой на сервере: из каталога проекта `./scripts/deploy-on-server.sh` (если файлы уже на месте).
-
-**Секреты** (справочно): `SSH_HOST`, `SSH_USER`, `SSH_PRIVATE_KEY`, `DEPLOY_PATH` (например `/var/www/altdi.ru`). Опционально `SSH_PORT`.
-
-**Сервер (Ubuntu 24.04):** скрипт [`scripts/ensure-toolchain.sh`](scripts/ensure-toolchain.sh) ставит **Node.js** и **pm2** в `~/.local/share/altdi-ru`. Если нет `curl`/`wget`, при **безпарольном sudo** подтянется `curl` через `apt`.
-
-Перед приложением — reverse proxy (Nginx/Caddy) на порт процесса (по умолчанию `3000`, см. `ecosystem.config.cjs`). Версию Node для bootstrap можно задать переменной `NODE_VERSION` перед деплоем.
+Скрипт [`scripts/ensure-toolchain.sh`](scripts/ensure-toolchain.sh) ставит **Node.js** и **pm2** в `~/.local/share/altdi-ru`. Переменная **`NODE_VERSION`** на сервере переопределяет версию Node при деплое. Ручной запуск на сервере (если код уже лежит в `DEPLOY_PATH`): `./scripts/deploy-on-server.sh`.
 
 ## Безопасность
 

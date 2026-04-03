@@ -71,13 +71,27 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 
 Репозиторий на GitHub, ветка `main`: при push запускается [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) — `rsync` на сервер и [`scripts/deploy-on-server.sh`](scripts/deploy-on-server.sh) (сборка, `prisma db push`, перезапуск PM2).
 
-**Секреты** (Settings → Secrets and variables → Actions): `SSH_HOST`, `SSH_USER`, `SSH_PRIVATE_KEY`, `DEPLOY_PATH` (например `/var/www/altdi.ru`). Опционально `SSH_PORT`.
+### Первый раз (один раз настроить)
 
-**Сервер (Ubuntu 24.04):** пользователь с SSH и каталог `DEPLOY_PATH`. Скрипт [`scripts/ensure-toolchain.sh`](scripts/ensure-toolchain.sh) ставит **Node.js** и **pm2** в `~/.local/share/altdi-ru`. При отсутствии `curl`/`wget` и при **безпарольном sudo** подтянется `curl` через `apt`.
+1. На **VPS** создай каталог под сайт (например `/var/www/altdi.ru`) и положи туда **`.env`** (скопируй с `.env.example`, выставь `NEXTAUTH_URL=https://altdi.ru`, `AUTH_SECRET`, `DATABASE_URL` для SQLite).
+2. В **GitHub** → репозиторий → **Settings** → **Secrets and variables** → **Actions** добавь секреты: `SSH_HOST`, `SSH_USER`, `SSH_PRIVATE_KEY`, `DEPLOY_PATH` (тот же путь, что на сервере). При нестандартном SSH — `SSH_PORT`.
+3. Убедись, что у пользователя деплоя есть **SSH-доступ** к серверу по ключу из секрета.
 
-В `DEPLOY_PATH` лежит `.env`: `NEXTAUTH_URL=https://altdi.ru`, `AUTH_SECRET`, `DATABASE_URL` (SQLite). Перед приложением — reverse proxy (Nginx/Caddy) на порт процесса (по умолчанию `3000`, см. `ecosystem.config.cjs`).
+### Деплой «в одну строку»
 
-Версию Node для bootstrap можно задать переменной `NODE_VERSION` перед деплоем.
+После настройки каждый выкат — это **push в `main`** (локально из корня репозитория):
+
+```bash
+git push origin main
+```
+
+Workflow сам зальёт код на сервер и выполнит сборку. Ручной деплой на сервере: из каталога проекта `./scripts/deploy-on-server.sh` (если файлы уже на месте).
+
+**Секреты** (справочно): `SSH_HOST`, `SSH_USER`, `SSH_PRIVATE_KEY`, `DEPLOY_PATH` (например `/var/www/altdi.ru`). Опционально `SSH_PORT`.
+
+**Сервер (Ubuntu 24.04):** скрипт [`scripts/ensure-toolchain.sh`](scripts/ensure-toolchain.sh) ставит **Node.js** и **pm2** в `~/.local/share/altdi-ru`. Если нет `curl`/`wget`, при **безпарольном sudo** подтянется `curl` через `apt`.
+
+Перед приложением — reverse proxy (Nginx/Caddy) на порт процесса (по умолчанию `3000`, см. `ecosystem.config.cjs`). Версию Node для bootstrap можно задать переменной `NODE_VERSION` перед деплоем.
 
 ## Безопасность
 

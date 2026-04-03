@@ -4,11 +4,11 @@
 #   SSH_HOST       — IP или домен сервера
 #   SSH_USER       — пользователь SSH (например deploy или ubuntu)
 #   SSH_PRIVATE_KEY — полный приватный ключ (BEGIN … END), для deploy-аккаунта
-#   DEPLOY_PATH    — абсолютный путь на сервере, например /var/www/atelier-local
+#   DEPLOY_PATH    — абсолютный путь на сервере, например /var/www/altdi.ru
 # Опционально:
 #   SSH_PORT       — порт SSH, по умолчанию 22
 #
-# Один раз на сервере: Node 20+, npm, pm2 (`npm i -g pm2`), в DEPLOY_PATH положить .env
+# Один раз на сервере: в DEPLOY_PATH положить .env
 # (DATABASE_URL, AUTH_SECRET, NEXTAUTH_URL=https://ваш-домен).
 
 name: Deploy

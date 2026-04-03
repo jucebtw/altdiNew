@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Подключать через source из deploy-on-server.sh.
-# Ставит Node.js (официальный linux-x64 tarball) и pm2 в ~/.local/share/atelier-marketplace — без root.
+# Ставит Node.js (официальный linux-x64 tarball) и pm2 в ~/.local/share/altdi-ru — без root.
 # Нужны: curl или wget, tar, gzip.
 set -euo pipefail
 
@@ -19,7 +19,7 @@ if [ -r /etc/os-release ] && grep -qi '^ID=ubuntu' /etc/os-release; then
 fi
 
 NODE_VERSION="${NODE_VERSION:-20.18.1}"
-TOOLCHAIN_ROOT="${TOOLCHAIN_ROOT:-$HOME/.local/share/atelier-marketplace}"
+TOOLCHAIN_ROOT="${TOOLCHAIN_ROOT:-$HOME/.local/share/altdi-ru}"
 NODE_NAME="node-v${NODE_VERSION}-linux-x64"
 NODE_DIR="${TOOLCHAIN_ROOT}/${NODE_NAME}"
 NPM_GLOBAL="${TOOLCHAIN_ROOT}/npm-global"

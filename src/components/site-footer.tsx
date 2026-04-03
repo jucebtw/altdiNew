@@ -6,7 +6,7 @@ export function SiteFooter() {
       <div className="mx-auto max-w-6xl px-4 py-12">
         <div className="grid gap-10 md:grid-cols-4">
           <div>
-            <p className="font-serif text-xl font-semibold">Atelier Local</p>
+            <p className="font-serif text-xl font-semibold">altdi.ru</p>
             <p className="mt-2 text-sm text-cream/70">
               Витрина авторского декора от локальных мастерских и дизайнеров.
             </p>
@@ -61,7 +61,7 @@ export function SiteFooter() {
           </div>
         </div>
         <p className="mt-10 border-t border-white/10 pt-6 text-center text-xs text-cream/50">
-          © {new Date().getFullYear()} Atelier Local. Учебный проект.
+          © {new Date().getFullYear()} altdi.ru
         </p>
       </div>
     </footer>

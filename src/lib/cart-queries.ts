@@ -3,7 +3,7 @@ import { randomUUID } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 
-const CART_COOKIE = "atelier_cart_session";
+const CART_COOKIE = "altdi_cart_session";
 
 /**
  * Только чтение: безопасно для Server Components (шапка, страница корзины).

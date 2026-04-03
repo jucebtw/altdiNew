@@ -18,9 +18,9 @@ const sans = Noto_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Atelier Local — декор от локальных мастеров",
+  title: "altdi.ru — декор от локальных мастеров",
   description:
-    "Онлайн-витрина предметов интерьера ручной работы от дизайнеров и творческих мастерских.",
+    "altdi.ru — онлайн-витрина предметов интерьера ручной работы от дизайнеров и творческих мастерских.",
 };
 
 export default function RootLayout({

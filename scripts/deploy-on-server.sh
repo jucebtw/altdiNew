@@ -6,7 +6,7 @@ ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$ROOT"
 
 # shellcheck source=ensure-toolchain.sh
-# Node.js + pm2 в $HOME/.local/share/atelier-marketplace (без apt для самого Node)
+# Node.js + pm2 в $HOME/.local/share/altdi-ru (без apt для самого Node)
 source "$SCRIPT_DIR/ensure-toolchain.sh"
 
 NODE_BIN="$(command -v node)"
@@ -23,7 +23,7 @@ npx prisma generate
 npx prisma db push
 npm run build
 
-if pm2 describe atelier-local >/dev/null 2>&1; then
+if pm2 describe altdi-ru >/dev/null 2>&1; then
   pm2 reload ecosystem.config.cjs --update-env
 else
   pm2 start ecosystem.config.cjs

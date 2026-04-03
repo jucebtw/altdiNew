@@ -10,7 +10,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div className="min-h-screen bg-cream">
       <div className="mx-auto flex max-w-7xl gap-0 md:gap-8 md:px-4 md:py-8">
         <aside className="hidden w-56 shrink-0 flex-col rounded-card border border-black/5 bg-white p-5 shadow-soft md:flex">
-          <p className="font-serif text-lg font-semibold text-charcoal">Atelier Local</p>
+          <p className="font-serif text-lg font-semibold text-charcoal">altdi.ru</p>
           <p className="text-xs text-charcoal/50">Администрирование</p>
           <nav className="mt-6 flex flex-col gap-1">
             {nav.map((item) => (

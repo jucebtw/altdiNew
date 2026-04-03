@@ -20,7 +20,7 @@ export async function SiteHeader() {
     <header className="border-b border-black/5 bg-cream/90 backdrop-blur-md sticky top-0 z-40">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4">
         <Link href="/" className="font-serif text-2xl font-semibold tracking-tight text-charcoal">
-          Atelier Local
+          altdi.ru
         </Link>
         <nav className="hidden md:flex items-center gap-6 text-sm text-charcoal/80">
           {nav.map((item) => (

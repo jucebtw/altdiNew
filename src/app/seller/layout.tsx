@@ -11,7 +11,7 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
       <div className="mx-auto flex max-w-7xl gap-0 px-0 py-0 md:gap-8 md:px-4 md:py-8">
         <aside className="hidden w-64 shrink-0 flex-col rounded-card bg-sidebar-dark p-6 text-cream md:flex">
           <Link href="/" className="font-serif text-xl font-semibold text-cream">
-            Atelier Local
+            altdi.ru
           </Link>
           <p className="mt-1 text-xs text-cream/50">Личный кабинет продавца</p>
           <nav className="mt-8 flex flex-col gap-2">

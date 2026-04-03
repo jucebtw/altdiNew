@@ -19,7 +19,7 @@ function nodeInterpreter() {
 module.exports = {
   apps: [
     {
-      name: "atelier-local",
+      name: "altdi-ru",
       cwd: __dirname,
       interpreter: nodeInterpreter(),
       script: path.join(__dirname, "node_modules/next/dist/bin/next"),

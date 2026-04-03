@@ -36,7 +36,7 @@ async function main() {
 
   const admin = await prisma.user.create({
     data: {
-      email: "admin@atelier.local",
+      email: "admin@altdi.ru",
       name: "Администратор",
       passwordHash,
       role: UserRole.ADMIN,
@@ -45,7 +45,7 @@ async function main() {
 
   const sellerUser = await prisma.user.create({
     data: {
-      email: "maria@atelier.local",
+      email: "maria@altdi.ru",
       name: "Мария Светлова",
       passwordHash,
       role: UserRole.SELLER,
@@ -54,7 +54,7 @@ async function main() {
 
   const buyer = await prisma.user.create({
     data: {
-      email: "buyer@atelier.local",
+      email: "buyer@altdi.ru",
       name: "Екатерина Покупатель",
       passwordHash,
       role: UserRole.BUYER,
@@ -79,7 +79,7 @@ async function main() {
 
   const ogonUser = await prisma.user.create({
     data: {
-      email: "ogon@atelier.local",
+      email: "ogon@altdi.ru",
       name: "Мастерская «Огонь»",
       passwordHash,
       role: UserRole.SELLER,

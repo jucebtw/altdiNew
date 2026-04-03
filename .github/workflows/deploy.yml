@@ -1,0 +1,65 @@
+# Автодеплой на VPS по push в main (или вручную: Actions → Deploy → Run workflow).
+#
+# Секреты репозитория (Settings → Secrets and variables → Actions):
+#   SSH_HOST       — IP или домен сервера
+#   SSH_USER       — пользователь SSH (например deploy или ubuntu)
+#   SSH_PRIVATE_KEY — полный приватный ключ (BEGIN … END), для deploy-аккаунта
+#   DEPLOY_PATH    — абсолютный путь на сервере, например /var/www/atelier-local
+# Опционально:
+#   SSH_PORT       — порт SSH, по умолчанию 22
+#
+# Один раз на сервере: Node 20+, npm, pm2 (`npm i -g pm2`), в DEPLOY_PATH положить .env
+# (DATABASE_URL, AUTH_SECRET, NEXTAUTH_URL=https://ваш-домен).
+
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Rsync and run deploy on server
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          set -euo pipefail
+          test -n "${SSH_PRIVATE_KEY:-}" || { echo "Missing SSH_PRIVATE_KEY"; exit 1; }
+          test -n "${SSH_HOST:-}" || { echo "Missing SSH_HOST"; exit 1; }
+          test -n "${SSH_USER:-}" || { echo "Missing SSH_USER"; exit 1; }
+          test -n "${DEPLOY_PATH:-}" || { echo "Missing DEPLOY_PATH"; exit 1; }
+
+          PORT="${SSH_PORT:-22}"
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "$PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
+
+          SSH_OPTS="-i ~/.ssh/deploy_key -p $PORT -o StrictHostKeyChecking=accept-new"
+
+          rsync -avz --delete \
+            -e "ssh $SSH_OPTS" \
+            --exclude node_modules \
+            --exclude .next \
+            --exclude .git \
+            --exclude prisma/*.db \
+            --exclude prisma/*.db-journal \
+            --exclude .env \
+            --exclude .env.local \
+            ./ "${SSH_USER}@${SSH_HOST}:${DEPLOY_PATH}/"
+
+          ssh $SSH_OPTS "${SSH_USER}@${SSH_HOST}" \
+            "cd $(printf %q "$DEPLOY_PATH") && chmod +x scripts/deploy-on-server.sh 2>/dev/null || true && ./scripts/deploy-on-server.sh"

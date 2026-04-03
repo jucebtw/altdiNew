@@ -21,11 +21,10 @@ fi
 printf '%s\n' "$NODE_BIN" > "$ROOT/.node-bin"
 export TOOLCHAIN_NODE="$NODE_BIN"
 
-export NODE_ENV=production
-
-npm ci
+npm ci --include=dev
 npx prisma generate
 npx prisma db push
+export NODE_ENV=production
 npm run build
 
 if pm2 describe altdi-ru >/dev/null 2>&1; then

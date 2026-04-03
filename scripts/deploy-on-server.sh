@@ -24,6 +24,7 @@ export TOOLCHAIN_NODE="$NODE_BIN"
 npm ci --include=dev
 npx prisma generate
 npx prisma db push
+npx tsx scripts/seed-if-empty.ts
 export NODE_ENV=production
 npm run build
 

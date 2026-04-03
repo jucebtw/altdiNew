@@ -36,6 +36,8 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 
 ## Демо-аккаунты (пароль у всех одинаковый)
 
+На чистой БД после деплоя демо-пользователи создаются автоматически ([`scripts/seed-if-empty.ts`](scripts/seed-if-empty.ts) из [`scripts/deploy-on-server.sh`](scripts/deploy-on-server.sh)). Если вход не работает, на сервере: `npx tsx prisma/seed.ts` (полностью пересоздаёт демо-данные).
+
 | Роль       | Email              | Пароль     |
 |------------|-------------------|------------|
 | Покупатель | `buyer@altdi.ru`  | `Demo123!` |

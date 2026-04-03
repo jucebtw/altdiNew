@@ -17,7 +17,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
       async authorize(credentials) {
         const email = credentials?.email?.toString().trim().toLowerCase();
-        const password = credentials?.password?.toString();
+        const password = credentials?.password?.toString().trimEnd();
         if (!email || !password) return null;
 
         const { prisma } = await import("@/lib/prisma");

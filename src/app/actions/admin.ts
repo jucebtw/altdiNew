@@ -17,6 +17,7 @@ export async function setDesignerStatus(designerId: string, status: DesignerStat
   await requireAdmin();
   await prisma.designerProfile.update({ where: { id: designerId }, data: { status } });
   revalidatePath("/admin/dashboard");
+  revalidatePath("/admin/moderation");
   revalidatePath("/designers");
   return { ok: true };
 }
@@ -25,6 +26,7 @@ export async function setProductStatus(productId: string, status: ProductStatus)
   await requireAdmin();
   await prisma.product.update({ where: { id: productId }, data: { status } });
   revalidatePath("/admin/dashboard");
+  revalidatePath("/admin/moderation");
   revalidatePath("/catalog");
   revalidatePath("/");
   return { ok: true };

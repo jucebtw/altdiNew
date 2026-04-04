@@ -1,12 +1,6 @@
-import Image from "next/image";
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import {
-  approveDesignerForm,
-  publishProductForm,
-  rejectDesignerForm,
-  rejectProductForm,
-  revisionProductForm,
-} from "@/app/actions/admin";
+import { approveDesignerForm, rejectDesignerForm } from "@/app/actions/admin";
 
 export default async function AdminDashboardPage() {
   const now = new Date();
@@ -18,7 +12,7 @@ export default async function AdminDashboardPage() {
     usersCount,
     ordersThisMonth,
     pendingDesigners,
-    pendingProducts,
+    pendingProductsCount,
     recentOrders,
   ] = await Promise.all([
     prisma.order.count(),
@@ -33,12 +27,7 @@ export default async function AdminDashboardPage() {
       take: 5,
       orderBy: { createdAt: "desc" },
     }),
-    prisma.product.findMany({
-      where: { status: "PENDING" },
-      take: 6,
-      orderBy: { createdAt: "desc" },
-      include: { designer: true },
-    }),
+    prisma.product.count({ where: { status: "PENDING" } }),
     prisma.order.findMany({
       orderBy: { createdAt: "desc" },
       take: 6,
@@ -125,51 +114,21 @@ export default async function AdminDashboardPage() {
           </ul>
         </div>
 
-        <div>
-          <h2 className="font-serif text-xl font-semibold text-charcoal">Товары на модерации</h2>
-          <ul className="mt-4 space-y-4">
-            {pendingProducts.length === 0 && (
-              <li className="text-sm text-charcoal/60">Нет товаров на проверке.</li>
-            )}
-            {pendingProducts.map((p) => (
-              <li key={p.id} className="flex gap-3 rounded-lg border border-black/5 bg-white p-3">
-                <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-sand">
-                  <Image src={p.imageUrl} alt={p.title} fill className="object-cover" sizes="64px" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">{p.title}</p>
-                  <p className="text-xs text-charcoal/50">{p.designer.studioName}</p>
-                  <p className="text-xs font-semibold text-terracotta">{p.priceRub.toLocaleString("ru-RU")} ₽</p>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    <form action={publishProductForm}>
-                      <input type="hidden" name="productId" value={p.id} />
-                      <button
-                        type="submit"
-                        className="rounded-pill bg-terracotta px-3 py-1 text-xs font-semibold text-white"
-                      >
-                        Опубликовать
-                      </button>
-                    </form>
-                    <form action={revisionProductForm}>
-                      <input type="hidden" name="productId" value={p.id} />
-                      <button
-                        type="submit"
-                        className="rounded-pill border border-black/15 px-3 py-1 text-xs font-semibold"
-                      >
-                        На доработку
-                      </button>
-                    </form>
-                    <form action={rejectProductForm}>
-                      <input type="hidden" name="productId" value={p.id} />
-                      <button type="submit" className="text-xs text-red-700 underline">
-                        Отклонить
-                      </button>
-                    </form>
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
+        <div className="flex flex-col justify-between rounded-lg border border-black/5 bg-white p-5">
+          <div>
+            <h2 className="font-serif text-xl font-semibold text-charcoal">Модерация товаров</h2>
+            <p className="mt-2 text-sm text-charcoal/60">
+              {pendingProductsCount === 0
+                ? "Нет товаров в очереди на проверку."
+                : `В очереди: ${pendingProductsCount} шт.`}
+            </p>
+          </div>
+          <Link
+            href="/admin/moderation"
+            className="mt-4 inline-flex w-fit rounded-pill bg-terracotta px-4 py-2 text-sm font-semibold text-white hover:bg-terracotta-dark"
+          >
+            Открыть очередь модерации
+          </Link>
         </div>
       </div>
 

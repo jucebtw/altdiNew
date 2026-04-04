@@ -61,14 +61,24 @@ export function NewProductForm({ categories }: { categories: Cat[] }) {
         </div>
       </div>
       <div>
-        <label className="text-sm font-medium">URL изображения</label>
+        <label className="text-sm font-medium">Ссылка на изображение</label>
         <input
           name="imageUrl"
-          required
           type="url"
           placeholder="https://images.unsplash.com/..."
           className="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm"
         />
+        <p className="mt-1 text-xs text-charcoal/50">Можно оставить пустым, если загрузишь файл ниже.</p>
+      </div>
+      <div>
+        <label className="text-sm font-medium">Загрузить фото с устройства</label>
+        <input
+          name="imageFile"
+          type="file"
+          accept="image/png,image/jpeg,image/webp,image/gif"
+          className="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm file:mr-3 file:rounded-pill file:border-0 file:bg-terracotta file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-white"
+        />
+        <p className="mt-1 text-xs text-charcoal/50">Поддерживаются JPG, PNG, WEBP, GIF до 5 МБ.</p>
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div>

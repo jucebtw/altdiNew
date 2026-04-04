@@ -101,16 +101,29 @@ export default async function SellerDashboardPage() {
               </tr>
             </thead>
             <tbody>
-              {designer.products.map((p) => (
+              {designer.products.map((p) => {
+                const canEdit = p.status === "DRAFT" || p.status === "REJECTED";
+                const titleCell = canEdit ? (
+                  <Link
+                    href={`/seller/products/${p.id}/edit`}
+                    className="font-medium text-terracotta hover:underline"
+                  >
+                    {p.title}
+                  </Link>
+                ) : (
+                  <span className="font-medium">{p.title}</span>
+                );
+                return (
                 <tr key={p.id} className="border-b border-black/5">
-                  <td className="py-3 pr-4 font-medium">{p.title}</td>
+                  <td className="py-3 pr-4">{titleCell}</td>
                   <td className="py-3 pr-4">
                     <ProductStatusBadge status={p.status} />
                   </td>
                   <td className="py-3 pr-4">{p.priceRub.toLocaleString("ru-RU")} ₽</td>
                   <td className="py-3 pr-4">{p.stock}</td>
                 </tr>
-              ))}
+              );
+              })}
             </tbody>
           </table>
         </div>

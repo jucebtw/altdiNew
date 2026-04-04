@@ -45,3 +45,10 @@ next-env.d.ts
 
 # server deploy (path to Node from ensure-toolchain)
 .node-bin
+
+# uploaded product images
+public/uploads
+
+# local SSH helpers
+.tmp-sshnet/
+.tmp-sshnet-old/

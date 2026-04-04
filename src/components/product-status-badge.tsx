@@ -1,7 +1,7 @@
 import type { ProductStatus } from "@prisma/client";
 
 const labels: Record<ProductStatus, string> = {
-  DRAFT: "Черновик",
+  DRAFT: "На доработке",
   PENDING: "На модерации",
   PUBLISHED: "Опубликован",
   REJECTED: "Отклонён",

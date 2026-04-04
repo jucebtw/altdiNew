@@ -2,6 +2,7 @@ import Link from "next/link";
 
 const nav = [
   { href: "/admin/dashboard", label: "Панель управления" },
+  { href: "/admin/moderation", label: "Модерация товаров" },
   { href: "/catalog", label: "Витрина" },
 ];
 

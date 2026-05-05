@@ -1,0 +1,120 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Алтай-Витрин — авторский интерьер и локальный дизайн</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/main.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Перейти к контенту</a>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="index.html" aria-label="Алтай-Витрин — на главную">
+        <span class="logo__mark" aria-hidden="true">AB</span>
+        <span class="logo__name">Алтай-Витрин</span>
+      </a>
+      <nav class="nav" data-nav>
+        <a href="catalog.html">Каталог</a>
+        <a href="designers.html">Дизайнеры</a>
+        <a href="collections.html">Коллекции</a>
+        <a href="contacts.html">Контакты</a>
+        <a href="about.html">О нас</a>
+        <a href="login.html" class="btn btn--outline">Войти</a>
+      </nav>
+      <div class="header-tools" aria-label="Панель">
+        <a class="icon-btn" href="catalog.html" aria-label="Поиск" title="Поиск">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        </a>
+        <a class="icon-btn" href="cart.html" aria-label="Корзина" title="Корзина">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        </a>
+      </div>
+      <button type="button" class="nav-toggle" aria-label="Меню" aria-expanded="false" data-nav-toggle></button>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="container hero__grid">
+        <div class="hero__text">
+          <h1 id="hero-title" class="hero__title">Авторский интерьер <span>Локальный дизайн</span></h1>
+          <p class="hero__tagline">«Дизайн&nbsp;без&nbsp;границ:&nbsp;сделано&nbsp;рядом&nbsp;с&nbsp;вами».</p>
+          <div class="hero__actions">
+            <a href="catalog.html" class="btn btn--hero-outline">Смотреть каталог</a>
+            <a href="contacts.html#seller" class="btn btn--hero-solid">Стать продавцом</a>
+          </div>
+        </div>
+        <div class="hero__visual" role="img" aria-label="Минималистичный интерьер: диван и декор">
+          <img src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=900&q=80" width="900" height="679" alt="" loading="eager" decoding="async" />
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--tight" aria-labelledby="cat-title">
+      <h2 id="cat-title" class="visually-hidden">Категории</h2>
+      <div class="container cat-grid" role="list">
+        <a class="cat-card" href="catalog.html#lighting" role="listitem"><h3 class="cat-card__label">Освещение</h3><div class="cat-card__img"><img src="https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=400&q=80" alt="Освещение" width="366" height="219" loading="lazy" /></div></a>
+        <a class="cat-card" href="catalog.html#texture" role="listitem"><h3 class="cat-card__label">Текстура</h3><div class="cat-card__img"><img src="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=400&q=80" alt="Текстура" width="366" height="219" loading="lazy" /></div></a>
+        <a class="cat-card" href="catalog.html#decor" role="listitem"><h3 class="cat-card__label">Декор</h3><div class="cat-card__img"><img src="https://images.unsplash.com/photo-1615876234886-fd9a39fda97f?w=400&q=80" alt="Декор" width="366" height="219" loading="lazy" /></div></a>
+        <a class="cat-card" href="catalog.html#furniture" role="listitem"><h3 class="cat-card__label">Мебель</h3><div class="cat-card__img"><img src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&q=80" alt="Мебель" width="366" height="219" loading="lazy" /></div></a>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="pick-title">
+      <div class="container">
+        <h2 id="pick-title" class="section__heading">Может вам понравиться</h2>
+        <ul class="product-grid" role="list">
+          <li class="product-card"><p class="product-card__studio">Студия «Дом»</p><div class="product-card__image"><img src="https://images.unsplash.com/photo-1612196808210-82824f8f6e12?w=500&q=80" alt="Фигурная ваза" width="366" height="356" loading="lazy" /></div><div class="product-card__body"><h3 class="product-card__name">Левиоса</h3><p class="product-card__type">Фигурная ваза</p><p class="product-card__price">21.000 <span class="ruble">₽</span></p></div></li>
+          <li class="product-card"><p class="product-card__studio">Мастерская «Дизайн»</p><div class="product-card__image"><img src="https://images.unsplash.com/photo-1503602642458-232111445657?w=500&q=80" alt="Стол" width="366" height="356" loading="lazy" /></div><div class="product-card__body"><h3 class="product-card__name">Ван дис</h3><p class="product-card__type">Стол</p><p class="product-card__price">30.000 <span class="ruble">₽</span></p></div></li>
+          <li class="product-card"><p class="product-card__studio">Мастерская «Планту»</p><div class="product-card__image"><img src="https://images.unsplash.com/photo-1579783902614-a3fb3927b6a2?w=500&q=80" alt="Панно" width="366" height="356" loading="lazy" /></div><div class="product-card__body"><h3 class="product-card__name">Тень жизни</h3><p class="product-card__type">Панно</p><p class="product-card__price">21.000 <span class="ruble">₽</span></p></div></li>
+          <li class="product-card"><p class="product-card__studio">Студия «Флоп»</p><div class="product-card__image"><img src="https://images.unsplash.com/photo-1578500494198-246f612d3b2d?w=500&q=80" alt="Фигурная ваза" width="366" height="356" loading="lazy" /></div><div class="product-card__body"><h3 class="product-card__name">Корнет</h3><p class="product-card__type">Фигурная ваза</p><p class="product-card__price">140.000 <span class="ruble">₽</span></p></div></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section section--designers" aria-labelledby="des-title">
+      <div class="container">
+        <div class="section__row">
+          <h2 id="des-title" class="section__heading">Наши дизайнеры</h2>
+          <div class="slider-nav"><button type="button" class="slider-nav__btn" data-slider-prev aria-label="Назад">‹</button><button type="button" class="slider-nav__btn" data-slider-next aria-label="Вперёд">›</button></div>
+        </div>
+        <div class="designer-strip" data-designer-slider tabindex="0">
+          <article class="designer-card"><div class="designer-card__top"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80" alt="Татьяна Лань" class="designer-card__avatar" width="215" height="215" loading="lazy" /></div><div class="designer-card__bottom"><h3 class="designer-card__name">Татьяна Лань</h3><p class="designer-card__role">Дизайнер</p><a href="designer-tatyana.html" class="designer-card__link">Перейти к профилю</a></div></article>
+          <article class="designer-card"><div class="designer-card__top"><img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80" alt="Иван Лыбин" class="designer-card__avatar" width="214" height="215" loading="lazy" /></div><div class="designer-card__bottom"><h3 class="designer-card__name">Иван Лыбин</h3><p class="designer-card__role">Дизайнер</p><a href="designer-ivan.html" class="designer-card__link">Перейти к профилю</a></div></article>
+          <article class="designer-card designer-card--studio"><div class="designer-card__top designer-card__top--logo"><span class="designer-card__logo">Т</span></div><div class="designer-card__bottom"><h3 class="designer-card__name">Студия «Терра»</h3><p class="designer-card__role">Студия керамических изделий</p><a href="designer-terra.html" class="designer-card__link">Перейти к профилю</a></div></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--strip" aria-label="Преимущества">
+      <div class="container features">
+        <div class="feature"><div class="feature__icon" aria-hidden="true"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 3h15v13H1zM16 8h4l3 3v5h-7V8zM4 8v4M8 8v4M4 16h8"/></svg></div><p class="feature__text">Быстрая доставка</p></div>
+        <div class="feature"><div class="feature__icon" aria-hidden="true"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div><p class="feature__text">Безопасная оплата</p></div>
+        <div class="feature"><div class="feature__icon" aria-hidden="true"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L4 6v5c0 5 4 9 8 9s8-4 8-9V6l-8-4z"/></svg></div><p class="feature__text">Уникальность ручной работы</p></div>
+        <div class="feature"><div class="feature__icon" aria-hidden="true"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div><p class="feature__text">Поддержка местных авторов</p></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" id="contacts">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <a class="logo logo--footer" href="index.html"><span class="logo__mark" aria-hidden="true">AB</span></a>
+        <p class="footer__name">АЛТАЙ-ВИТРИН</p>
+        <p class="footer__address">400 University Drive Suite 200<br />Coral Gables, FL 33134 USA</p>
+      </div>
+      <div class="footer-col"><a href="index.html">Главная</a><a href="catalog.html">Каталог</a><a href="designers.html">Дизайнеры</a></div>
+      <div class="footer-col"><a href="collections.html">Коллекции</a><a href="contacts.html">Контакты</a><a href="about.html">О нас</a></div>
+    </div>
+    <div class="container footer-line" role="note"><p class="footer__hint">Корзина и вход сохраняются в браузере. Для отправки заявок на почту добавьте ключ в js/site-config.js.</p></div>
+  </footer>
+
+  <script src="js/site-config.js"></script>
+  <script src="js/main.js" defer></script>
+</body>
+</html>

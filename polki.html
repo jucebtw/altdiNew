@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Алтай-Витрин · Как работают полки</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/main.css" />
+</head>
+<body class="polki-page">
+  <a class="skip-link" href="#main">Перейти к контенту</a>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="index.html" aria-label="Алтай-Витрин — на главную">
+        <span class="logo__mark" aria-hidden="true">AB</span>
+        <span class="logo__name">Алтай-Витрин</span>
+      </a>
+      <nav class="nav" data-nav>
+        <a href="catalog.html">Каталог</a>
+        <a href="polki.html" aria-current="page">Полки</a>
+        <a href="designers.html">Дизайнеры</a>
+        <a href="collections.html">Коллекции</a>
+        <a href="contacts.html">Контакты</a>
+        <a href="about.html">О нас</a>
+        <a href="login.html" class="btn btn--outline nav-auth-btn">Войти</a>
+      </nav>
+      <div class="header-tools" aria-label="Панель">
+        <a class="icon-btn" href="catalog.html" aria-label="Поиск" title="Поиск">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        </a>
+        <a class="icon-btn" href="cart.html" aria-label="Корзина" title="Корзина">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        </a>
+      </div>
+      <button type="button" class="nav-toggle" aria-label="Меню" aria-expanded="false" data-nav-toggle></button>
+    </div>
+  </header>
+
+  <main id="main" class="inner-page">
+    <section class="room-hero">
+      <div class="container room-hero__inner">
+        <p class="room-hero__eyebrow">Офлайн-метафора «Твоя полка»</p>
+        <h1 class="room-hero__title">Как устроены полки на витрине</h1>
+        <p class="room-hero__lead">
+          Дизайнер арендует место в определённой <strong>комнате</strong> (освещение, текстура, декор, мебель). Внутри комнаты действует та же логика, что у офлайн-витрины «Твоя полка»: можно выбрать <strong>ширину полки</strong>, <strong>высоту</strong> (выше — заметнее и дороже, ниже — доступнее) или оба параметра сразу — тогда тариф выше.
+        </p>
+        <div class="room-hero__links">
+          <a href="catalog.html">К комнатам каталога</a>
+          <a href="contacts.html#seller">Подключить студию</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section container">
+      <article class="polki-section" id="buyer">
+        <h2>Покупателю</h2>
+        <p>
+          На карточках товаров мы открыто показываем зону полки и формат размещения. Так понятно, почему одна работа «выше в зале», а другая стоит в нижнем ряду — это не качество вещи, а выбранный продавцом формат видимости.
+        </p>
+      </article>
+
+      <article class="polki-section" id="zones">
+        <h2>Три высоты в каждой комнате</h2>
+        <div class="polki-diagram" aria-hidden="true">
+          <div class="polki-diagram__row"><strong>Верх полки</strong> <span>уровень глаз — максимум внимания</span></div>
+          <div class="polki-diagram__row"><strong>Середина</strong> <span>баланс заметности и цены размещения</span></div>
+          <div class="polki-diagram__row"><strong>Низ полки</strong> <span>входной тариф, как нижние ряды у стеллажа</span></div>
+        </div>
+        <p>Порядок карточек внутри одной зоны может пересчитываться — полки <strong>динамические</strong>: позиция зависит от правил аренды и загрузки витрины.</p>
+      </article>
+
+      <article class="polki-section" id="width">
+        <h2>Ширина полки</h2>
+        <p>Отдельно от высоты можно выбрать, сколько мест занимает карточка в ряду: узкая, стандартная или широкая витринная полка. Комбинация «высокая зона + широкий слот» даёт максимум видимости и стоит дороже, чем каждый параметр по отдельности.</p>
+      </article>
+
+      <article class="polki-section" id="timer">
+        <h2>Срок аренды и напоминания</h2>
+        <p>
+          Размещение оплачивается на срок. За сутки до окончания продавец получает напоминание на email из регистрации. Когда срок истекает, полка скрывается для покупателей; владелец и администраторы по-прежнему видят карточку в кабинете — чтобы продлить размещение.
+        </p>
+        <p style="margin-top:0.75rem;font-size:0.85rem;color:var(--text-muted);">
+          Техническая реализация таймеров, скрытия и писем описана в документе <code>doc/backend-vitrina-shelves.txt</code> для подключения бэкенда.
+        </p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <a class="logo logo--footer" href="index.html"><span class="logo__mark" aria-hidden="true">AB</span></a>
+        <p class="footer__name">АЛТАЙ-ВИТРИН</p>
+        <p class="footer__address">Барнаул, Алтайский край<br />Россия</p>
+      </div>
+      <div class="footer-col"><a href="index.html">Главная</a><a href="catalog.html">Каталог</a><a href="polki.html">Полки</a><a href="designers.html">Дизайнеры</a></div>
+      <div class="footer-col"><a href="collections.html">Коллекции</a><a href="contacts.html">Контакты</a><a href="about.html">О нас</a></div>
+    </div>
+    <div class="container footer-line" role="note">
+      <p class="footer__hint">Корзина и сессия в браузере. Документ для бэкенда полок: <code>doc/backend-vitrina-shelves.txt</code>.</p>
+    </div>
+  </footer>
+  <script src="js/site-config.js"></script>
+  <script src="js/main.js" defer></script>
+</body>
+</html>

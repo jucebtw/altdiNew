@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Алтай-Витрин - Войти</title>
+  <title>Алтай-Витрин · Вход</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -13,17 +13,18 @@
   <a class="skip-link" href="#main">Перейти к контенту</a>
   <header class="site-header">
     <div class="container header-inner">
-      <a class="logo" href="index.html" aria-label="Алтай-Витрин - на главную">
+      <a class="logo" href="index.html" aria-label="Алтай-Витрин — на главную">
         <span class="logo__mark" aria-hidden="true">AB</span>
         <span class="logo__name">Алтай-Витрин</span>
       </a>
       <nav class="nav" data-nav>
         <a href="catalog.html">Каталог</a>
+        <a href="polki.html">Полки</a>
         <a href="designers.html">Дизайнеры</a>
         <a href="collections.html">Коллекции</a>
         <a href="contacts.html">Контакты</a>
         <a href="about.html">О нас</a>
-        <a href="login.html" class="btn btn--outline">Войти</a>
+        <a href="login.html" class="btn btn--outline nav-auth-btn">Войти</a>
       </nav>
       <div class="header-tools" aria-label="Панель">
         <a class="icon-btn" href="catalog.html" aria-label="Поиск" title="Поиск">
@@ -43,6 +44,7 @@
           <p class="auth-kicker">Алтай-Витрин</p>
           <h1 class="auth-title">Вход в кабинет</h1>
           <p class="auth-subtitle">Управляйте каталогом, профилем и коллекциями в том же стиле, что и витрина.</p>
+          <p class="login-admin-hint">Администратору: почты и пароли задаются в <code>js/site-config.js</code> (<code>adminEmails</code>, при необходимости <code>adminPasswords</code>). Учётка <strong>admin@altdi.ru</strong> — пароль из конфига.</p>
 
           <form class="form auth-form auth-form--card" data-form="login">
             <label class="form__row">
@@ -54,6 +56,32 @@
               <input type="password" name="password" placeholder="********" minlength="6" autocomplete="current-password" required />
             </label>
             <button type="submit" class="btn btn--hero-solid auth-submit">Войти</button>
+            <p class="form-message" aria-live="polite"></p>
+          </form>
+
+          <h2 class="subheading" style="margin-top:1.2rem;">Регистрация по коду из VK</h2>
+          <p class="login-admin-hint">Шаг 1: запросите код. Шаг 2: введите код из сообщения ВКонтакте и завершите регистрацию.</p>
+          <form class="form auth-form auth-form--card" data-form="vk-register">
+            <label class="form__row">
+              <span>Имя</span>
+              <input type="text" name="name" placeholder="Ваше имя" minlength="2" required />
+            </label>
+            <label class="form__row">
+              <span>Эл. почта</span>
+              <input type="email" name="email" placeholder="you@example.com" autocomplete="email" required />
+            </label>
+            <label class="form__row">
+              <span>VK ID или ссылка</span>
+              <input type="text" name="vk" placeholder="id123456 или vk.com/username" required />
+            </label>
+            <label class="form__row">
+              <span>Код подтверждения</span>
+              <input type="text" name="code" placeholder="6 цифр" inputmode="numeric" pattern="[0-9]{6}" />
+            </label>
+            <div class="form__row" style="display:flex;gap:.6rem;flex-wrap:wrap;">
+              <button type="submit" class="btn btn--outline" data-action="request-vk-code">Получить код в VK</button>
+              <button type="submit" class="btn btn--hero-solid" data-action="verify-vk-code">Подтвердить и войти</button>
+            </div>
             <p class="form-message" aria-live="polite"></p>
           </form>
         </div>
@@ -69,10 +97,13 @@
       <div class="footer-brand">
         <a class="logo logo--footer" href="index.html"><span class="logo__mark" aria-hidden="true">AB</span></a>
         <p class="footer__name">АЛТАЙ-ВИТРИН</p>
-        <p class="footer__address">400 University Drive Suite 200<br />Coral Gables, FL 33134 USA</p>
+        <p class="footer__address">Барнаул, Алтайский край<br />Россия</p>
       </div>
-      <div class="footer-col"><a href="index.html">Главная</a><a href="catalog.html">Каталог</a><a href="designers.html">Дизайнеры</a></div>
+      <div class="footer-col"><a href="index.html">Главная</a><a href="catalog.html">Каталог</a><a href="polki.html">Полки</a><a href="designers.html">Дизайнеры</a></div>
       <div class="footer-col"><a href="collections.html">Коллекции</a><a href="contacts.html">Контакты</a><a href="about.html">О нас</a></div>
+    </div>
+    <div class="container footer-line" role="note">
+      <p class="footer__hint">Корзина и сессия в браузере. Админ-панель — вход почтой из <code>adminEmails</code> в js/site-config.js. Письма заявок — ключ web3forms.</p>
     </div>
   </footer>
   <script src="js/site-config.js"></script>

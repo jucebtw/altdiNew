@@ -1,7 +1,59 @@
-﻿(function () {
+(function () {
   var CART_KEY = "av-cart-v1";
   var AUTH_KEY = "av-auth";
+  var VK_PENDING_KEY = "av-vk-register-pending-v1";
+  var PRODUCT_PENDING_KEY = "av-products-pending-v1";
+  var PRODUCT_PUBLISHED_KEY = "av-products-published-v1";
   var cfg = typeof window.SITE_CONFIG !== "undefined" ? window.SITE_CONFIG : {};
+
+  function migrateAuth() {
+    try {
+      var raw = sessionStorage.getItem(AUTH_KEY);
+      if (!raw) return;
+      var obj = JSON.parse(raw);
+      if (!obj || !obj.email || obj.role) return;
+      var admins = (cfg.adminEmails || [])
+        .map(function (x) {
+          return String(x || "")
+            .toLowerCase()
+            .trim();
+        })
+        .filter(Boolean);
+      obj.role =
+        admins.indexOf(String(obj.email).toLowerCase()) >= 0 ? "admin" : "user";
+      sessionStorage.setItem(AUTH_KEY, JSON.stringify(obj));
+    } catch (e) {}
+  }
+
+  migrateAuth();
+
+  if (document.body && document.body.classList.contains("page-admin")) {
+    try {
+      var rawGuard = sessionStorage.getItem(AUTH_KEY);
+      var authGuard = rawGuard ? JSON.parse(rawGuard) : null;
+      if (!authGuard || authGuard.role !== "admin") {
+        window.location.replace("login.html");
+        return;
+      }
+    } catch (err) {
+      window.location.replace("login.html");
+      return;
+    }
+  }
+
+  function adminPasswordRequired(emailNorm) {
+    var map = cfg.adminPasswords;
+    if (!map || typeof map !== "object") return null;
+    for (var k in map) {
+      if (
+        Object.prototype.hasOwnProperty.call(map, k) &&
+        String(k).toLowerCase().trim() === emailNorm
+      ) {
+        return map[k];
+      }
+    }
+    return null;
+  }
 
   function slugify(s) {
     return String(s || "")
@@ -38,6 +90,20 @@
     localStorage.setItem(CART_KEY, JSON.stringify(items));
     updateCartBadge();
     document.dispatchEvent(new CustomEvent("av-cart-changed"));
+  }
+
+  function getArrayStore(key) {
+    try {
+      var raw = localStorage.getItem(key);
+      var arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function setArrayStore(key, arr) {
+    localStorage.setItem(key, JSON.stringify(arr));
   }
 
   function cartTotal(items) {
@@ -363,23 +429,146 @@
     }
   }
 
-  function setAuth(email) {
-    sessionStorage.setItem(AUTH_KEY, JSON.stringify({ email: email, t: Date.now() }));
+  function setAuth(email, role) {
+    sessionStorage.setItem(
+      AUTH_KEY,
+      JSON.stringify({
+        email: email,
+        role: role || "user",
+        t: Date.now(),
+      })
+    );
   }
 
   function clearAuth() {
     sessionStorage.removeItem(AUTH_KEY);
   }
 
+  function normalizeVkHandle(raw) {
+    var s = String(raw || "").trim();
+    s = s.replace(/^https?:\/\/(www\.)?vk\.com\//i, "");
+    s = s.replace(/^@/, "");
+    return s;
+  }
+
+  function getVkApiBase() {
+    var direct = String(cfg.vkAuthApiBase || "").trim().replace(/\/+$/, "");
+    if (direct) return direct;
+    return getMediaApiBase();
+  }
+
+  function getMediaApiBase() {
+    return String(cfg.mediaApiBase || "").trim().replace(/\/+$/, "");
+  }
+
+  function mediaApi(pathname) {
+    var base = getMediaApiBase();
+    if (!pathname) return base || "";
+    if (!base) return pathname;
+    return base + pathname;
+  }
+
+  function resolveProductPreview(item) {
+    if (item && item.preview && item.preview.url) return String(item.preview.url);
+    if (item && Array.isArray(item.media) && item.media.length) {
+      var byId = item.media.find(function (m) {
+        return m && m.id === item.previewMediaId;
+      });
+      if (byId && byId.url) return String(byId.url);
+      if (item.media[0] && item.media[0].url) return String(item.media[0].url);
+    }
+    return String((item && item.image) || "");
+  }
+
+  function requestVkCode(payload) {
+    var base = getVkApiBase();
+    if (!base) {
+      var demoCode = String(Math.floor(100000 + Math.random() * 900000));
+      sessionStorage.setItem(
+        VK_PENDING_KEY,
+        JSON.stringify({
+          email: payload.email,
+          name: payload.name,
+          vk: payload.vk,
+          code: demoCode,
+          createdAt: Date.now(),
+        })
+      );
+      return Promise.resolve({ ok: true, demo: true, code: demoCode });
+    }
+    return fetch(base + "/auth/vk/send-code", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    })
+      .then(function (r) {
+        if (!r.ok) throw new Error("send-code failed");
+        return r.json();
+      })
+      .then(function (data) {
+        return { ok: !!(data && data.ok), demo: false };
+      });
+  }
+
+  function verifyVkCode(payload) {
+    var base = getVkApiBase();
+    if (!base) {
+      try {
+        var raw = sessionStorage.getItem(VK_PENDING_KEY);
+        var pending = raw ? JSON.parse(raw) : null;
+        if (
+          pending &&
+          pending.email === payload.email &&
+          pending.vk === payload.vk &&
+          pending.code === payload.code
+        ) {
+          sessionStorage.removeItem(VK_PENDING_KEY);
+          return Promise.resolve({ ok: true, email: payload.email, role: "user", demo: true });
+        }
+      } catch (e) {}
+      return Promise.resolve({ ok: false, demo: true });
+    }
+    return fetch(base + "/auth/vk/verify-code", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    })
+      .then(function (r) {
+        if (!r.ok) throw new Error("verify failed");
+        return r.json();
+      })
+      .then(function (data) {
+        return {
+          ok: !!(data && data.ok),
+          email: (data && data.email) || payload.email,
+          role: (data && data.role) || "user",
+          demo: false,
+        };
+      });
+  }
+
   function updateAuthNav() {
-    var loginLink = document.querySelector('nav a[href="login.html"]');
+    document.querySelectorAll("[data-admin-nav]").forEach(function (el) {
+      el.remove();
+    });
+    var loginLink =
+      document.querySelector("nav .nav-auth-btn") ||
+      document.querySelector('nav a[href="login.html"]');
     if (!loginLink) return;
     var auth = getAuth();
     if (auth && auth.email) {
+      if (auth.role === "admin") {
+        var adm = document.createElement("a");
+        adm.href = "admin.html";
+        adm.className = "btn btn--outline";
+        adm.setAttribute("data-admin-nav", "");
+        adm.textContent = "Админ";
+        loginLink.parentNode.insertBefore(adm, loginLink);
+      }
       loginLink.textContent = "Выйти";
       loginLink.setAttribute("href", "#");
       loginLink.setAttribute("data-auth-logout", "");
-      loginLink.classList.add("nav-logout");
+      loginLink.classList.add("nav-auth-btn", "nav-logout");
     }
   }
 
@@ -394,8 +583,11 @@
   function initCatalogSearch() {
     var input = document.querySelector("[data-catalog-search]");
     if (!input) return;
-    var section = input.closest("section") || document;
-    var cards = section.querySelectorAll(".product-card");
+    var root =
+      input.closest("[data-catalog-root]") ||
+      input.closest("section") ||
+      document.body;
+    var cards = root.querySelectorAll(".product-card");
     input.addEventListener("input", function () {
       var q = input.value.trim().toLowerCase();
       cards.forEach(function (card) {
@@ -403,6 +595,456 @@
         card.hidden = q.length > 0 && blob.indexOf(q) === -1;
       });
     });
+  }
+
+  function initHubSearch() {
+    var input = document.querySelector("[data-hub-search]");
+    if (!input) return;
+    var wrap = input.closest("[data-catalog-root]") || document.body;
+    var cards = wrap.querySelectorAll("[data-hub-cards] .cat-card");
+    if (!cards.length) return;
+    input.addEventListener("input", function () {
+      var q = input.value.trim().toLowerCase();
+      cards.forEach(function (card) {
+        var blob = card.textContent.toLowerCase();
+        var hide = q.length > 0 && blob.indexOf(q) === -1;
+        card.hidden = hide;
+        card.style.display = hide ? "none" : "";
+      });
+    });
+  }
+
+  function initShelfShuffle() {
+    document.querySelectorAll("[data-shelf-shuffle] .shelf-zone__grid").forEach(function (ul) {
+      var items = Array.from(ul.children);
+      items.sort(function () {
+        return Math.random() - 0.5;
+      });
+      items.forEach(function (li) {
+        ul.appendChild(li);
+      });
+    });
+  }
+
+  function getRoomCategoryByPath() {
+    var p = String(window.location.pathname || "").toLowerCase();
+    if (p.indexOf("room-lighting") >= 0) return "light";
+    if (p.indexOf("room-texture") >= 0) return "texture";
+    if (p.indexOf("room-decor") >= 0) return "decor";
+    if (p.indexOf("room-furniture") >= 0) return "furniture";
+    return "";
+  }
+
+  function categoryToRoomSlug(cat) {
+    if (cat === "light") return "lighting";
+    if (cat === "furniture") return "furniture";
+    if (cat === "texture") return "texture";
+    return "decor";
+  }
+
+  function renderDynamicRoomProducts() {
+    if (!document.body || !document.body.classList.contains("page-room")) return;
+    var cat = getRoomCategoryByPath();
+    if (!cat) return;
+    var zones = Array.from(document.querySelectorAll(".shelf-zone__grid"));
+    if (!zones.length) return;
+    document.querySelectorAll("[data-dynamic-product]").forEach(function (el) {
+      el.remove();
+    });
+    var tierMap = {
+      "tier-top": "Верх полки",
+      "tier-mid": "Середина",
+      "tier-low": "Низ полки",
+    };
+    var widthMap = {
+      "width-wide": "Широкая полка",
+      "width-standard": "Стандарт",
+      "width-narrow": "Узкая полка",
+    };
+    var fallbackTier = ["tier-top", "tier-mid", "tier-low"];
+    var fallbackWidth = ["width-wide", "width-standard", "width-narrow"];
+
+    function paint(items) {
+      items.forEach(function (p, i) {
+        var tier = p.tier || fallbackTier[i % fallbackTier.length];
+        var width = p.width || fallbackWidth[i % fallbackWidth.length];
+        var zoneIdx = tier === "tier-top" ? 0 : tier === "tier-mid" ? 1 : 2;
+        var zone = zones[zoneIdx] || zones[i % zones.length];
+        var li = document.createElement("li");
+        li.setAttribute("data-dynamic-product", "1");
+        li.innerHTML =
+          '<article class="product-card">' +
+          '<div class="product-card__badges">' +
+          '<span class="shelf-badge shelf-badge--' +
+          tier +
+          '">' +
+          (tierMap[tier] || "Середина") +
+          "</span>" +
+          '<span class="shelf-badge shelf-badge--' +
+          width +
+          '">' +
+          (widthMap[width] || "Стандарт") +
+          "</span>" +
+          "</div>" +
+          '<p class="product-card__studio">' +
+          escapeHtml(p.designer || "Автор") +
+          "</p>" +
+          '<div class="product-card__image"><img src="' +
+          escapeHtml(resolveProductPreview(p)) +
+          '" alt="' +
+          escapeHtml((p.name || "") + " — " + (p.type || "")) +
+          '" width="600" height="600" loading="lazy" /></div>' +
+          '<div class="product-card__body"><h3 class="product-card__name">' +
+          escapeHtml(p.name || "Товар") +
+          '</h3><p class="product-card__type">' +
+          escapeHtml(p.type || "") +
+          '</p><p class="product-card__price">' +
+          formatRub(Number(p.price) || 0) +
+          "</p></div></article>";
+        zone.appendChild(li);
+      });
+    }
+
+    var localItems = getArrayStore(PRODUCT_PUBLISHED_KEY).filter(function (p) {
+      return p && p.category === cat;
+    });
+    paint(localItems);
+
+    var roomSlug = categoryToRoomSlug(cat);
+    fetch(mediaApi("/api/rooms/" + roomSlug))
+      .then(function (res) {
+        if (!res.ok) throw new Error("rooms api failed");
+        return res.json();
+      })
+      .then(function (data) {
+        var serverItems = data && Array.isArray(data.items) ? data.items : [];
+        if (!serverItems.length) return;
+        document.querySelectorAll("[data-dynamic-product]").forEach(function (el) {
+          el.remove();
+        });
+        paint(serverItems);
+      })
+      .catch(function () {
+        /* fallback на localStorage уже отрисован выше */
+      });
+  }
+
+  function renderDynamicProfileProducts() {
+    var grid = document.querySelector(".profile-grid");
+    var title = document.querySelector(".profile-title");
+    if (!grid || !title) return;
+    function normalizeDesignerName(s) {
+      return String(s || "")
+        .toLowerCase()
+        .replace(/[«»"']/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+    var designer = normalizeDesignerName(title.textContent || "");
+    document.querySelectorAll("[data-dynamic-profile]").forEach(function (el) {
+      el.remove();
+    });
+    getArrayStore(PRODUCT_PUBLISHED_KEY)
+      .filter(function (p) {
+        return p && normalizeDesignerName(p.designer || "") === designer;
+      })
+      .forEach(function (p) {
+        var article = document.createElement("article");
+        article.className = "profile-product";
+        article.setAttribute("data-dynamic-profile", "1");
+        article.setAttribute("data-cat", p.category || "decor");
+        article.setAttribute("data-mat", p.material || "ceramic");
+        article.innerHTML =
+          '<img src="' +
+          escapeHtml(resolveProductPreview(p)) +
+          '" alt="' +
+          escapeHtml(p.name || "Товар") +
+          '" /><div class="profile-product__body"><h3 class="profile-product__name">' +
+          escapeHtml(p.name || "Товар") +
+          '</h3><p class="profile-product__meta">' +
+          escapeHtml(p.type || "") +
+          '</p><p class="profile-product__price">' +
+          formatRub(Number(p.price) || 0) +
+          "</p></div>";
+        grid.appendChild(article);
+      });
+    document.dispatchEvent(new CustomEvent("av-products-changed"));
+  }
+
+  function initAdminProductModeration() {
+    var form = document.querySelector("[data-product-form]");
+    var list = document.querySelector("[data-mod-list]");
+    var queueCount = document.querySelector("[data-queue-count]");
+    var empty = document.querySelector("[data-mod-empty]");
+    var tpl = document.querySelector("#mod-card-template");
+    if (!form || !list || !queueCount || !empty || !tpl) return;
+    var msg = form.querySelector("[data-product-form-msg]");
+    var mediaInput = form.querySelector('input[name="mediaFiles"]');
+    var previewSelect = form.querySelector("[data-preview-index]");
+
+    function fillPreviewChoices() {
+      if (!mediaInput || !previewSelect) return;
+      var files = Array.from(mediaInput.files || []);
+      previewSelect.innerHTML = "";
+      if (!files.length) {
+        previewSelect.innerHTML = '<option value="">Сначала выберите файлы</option>';
+        return;
+      }
+      files.forEach(function (file, idx) {
+        var op = document.createElement("option");
+        op.value = String(idx);
+        op.textContent = (idx === 0 ? "Превью: " : "") + file.name;
+        previewSelect.appendChild(op);
+      });
+      previewSelect.value = "0";
+    }
+
+    function parseLeaseDeleteAfter(leaseEndsAtIso) {
+      var leaseMs = Date.parse(leaseEndsAtIso || "");
+      if (!isFinite(leaseMs)) return { leaseEndsAt: "", deleteAfter: "" };
+      var deleteAfterMs = leaseMs + 24 * 60 * 60 * 1000;
+      return {
+        leaseEndsAt: new Date(leaseMs).toISOString(),
+        deleteAfter: new Date(deleteAfterMs).toISOString(),
+      };
+    }
+
+    function uploadMediaFiles(itemId, category, ownerType, files, previewIndex, leaseEndsAtIso) {
+      var fd = new FormData();
+      fd.append("productId", itemId);
+      fd.append("category", category);
+      fd.append("ownerType", ownerType);
+      fd.append("previewIndex", String(previewIndex));
+      fd.append("leaseEndsAt", leaseEndsAtIso);
+      Array.from(files || []).forEach(function (file) {
+        fd.append("mediaFiles", file);
+      });
+      return fetch(mediaApi("/api/media/upload"), {
+        method: "POST",
+        body: fd,
+      }).then(function (res) {
+        if (!res.ok) throw new Error("upload failed");
+        return res.json();
+      });
+    }
+
+    function updateQueueMeta(n) {
+      queueCount.textContent = String(n);
+      empty.hidden = n !== 0;
+    }
+
+    function removeFromQueue(id) {
+      var next = getArrayStore(PRODUCT_PENDING_KEY).filter(function (x) {
+        return x.id !== id;
+      });
+      setArrayStore(PRODUCT_PENDING_KEY, next);
+      return next;
+    }
+
+    function publishItem(item) {
+      var auth = getAuth();
+      var sellerEmail = auth && auth.email ? String(auth.email).trim().toLowerCase() : "";
+      var payload = {
+        productId: item.id,
+        roomSlug: categoryToRoomSlug(item.category || "decor"),
+        tier: item.tier || "tier-mid",
+        widthTier: item.width || "width-standard",
+        leaseEndsAt: item.leaseEndsAt || "",
+        ownerUserId: sellerEmail,
+        product: {
+          id: item.id,
+          name: item.name,
+          type: item.type,
+          designer: item.designer,
+          category: item.category,
+          material: item.material,
+          price: Number(item.price || 0),
+          media: Array.isArray(item.media) ? item.media : [],
+          previewMediaId: item.previewMediaId || "",
+          preview: item.preview || null,
+          image: item.image || "",
+        },
+      };
+      var syncPromise = fetch(mediaApi("/api/seller/listings"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }).catch(function () {
+        /* fallback below */
+      });
+      var out = getArrayStore(PRODUCT_PUBLISHED_KEY);
+      out.push(item);
+      setArrayStore(PRODUCT_PUBLISHED_KEY, out);
+      document.dispatchEvent(new CustomEvent("av-products-changed"));
+      return syncPromise;
+    }
+
+    function renderQueue() {
+      var queue = getArrayStore(PRODUCT_PENDING_KEY);
+      list.innerHTML = "";
+      updateQueueMeta(queue.length);
+      queue.forEach(function (item) {
+        var node = tpl.content.firstElementChild.cloneNode(true);
+        node.setAttribute("data-item-id", item.id);
+        var img = node.querySelector("img");
+        var nm = node.querySelector(".admin-mod-card__name");
+        var st = node.querySelector(".admin-mod-card__studio");
+        var pr = node.querySelector(".admin-mod-card__price");
+        if (img) {
+          img.src = resolveProductPreview(item);
+          img.alt = item.name || "Товар на модерации";
+        }
+        if (nm) nm.textContent = item.name || "Без названия";
+        if (st)
+          st.textContent =
+            (item.designer || "Автор") +
+            " · " +
+            (item.type || "") +
+            " · " +
+            (item.category || "") +
+            (item.leaseEndsAt ? " · аренда до " + new Date(item.leaseEndsAt).toLocaleString("ru-RU") : "");
+        if (pr) pr.innerHTML = formatRub(Number(item.price) || 0).replace(" ₽", '&nbsp;<span class="ruble">₽</span>');
+        list.appendChild(node);
+      });
+    }
+
+    if (mediaInput) {
+      mediaInput.addEventListener("change", fillPreviewChoices);
+    }
+    fillPreviewChoices();
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+      var fd = new FormData(form);
+      var itemId = "prd-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7);
+      var files = fd.getAll("mediaFiles").filter(function (f) {
+        return f && typeof f === "object" && f.size > 0;
+      });
+      var previewIndex = Number(fd.get("previewIndex") || 0);
+      if (!files.length) {
+        if (msg) {
+          msg.classList.remove("is-success");
+          msg.classList.add("is-error");
+          msg.textContent = "Добавьте хотя бы один файл медиа.";
+        }
+        return;
+      }
+      if (!(previewIndex >= 0 && previewIndex < files.length)) {
+        if (msg) {
+          msg.classList.remove("is-success");
+          msg.classList.add("is-error");
+          msg.textContent = "Выберите корректный файл превью.";
+        }
+        return;
+      }
+      var leaseRaw = String(fd.get("leaseEndsAt") || "").trim();
+      var lease = parseLeaseDeleteAfter(leaseRaw);
+      if (!lease.leaseEndsAt) {
+        if (msg) {
+          msg.classList.remove("is-success");
+          msg.classList.add("is-error");
+          msg.textContent = "Укажите корректный срок аренды.";
+        }
+        return;
+      }
+      if (msg) {
+        msg.classList.remove("is-success", "is-error");
+        msg.textContent = "Загружаем медиа на сервер...";
+      }
+      var submitBtn = form.querySelector('button[type="submit"]');
+      if (submitBtn) submitBtn.disabled = true;
+
+      uploadMediaFiles(
+        itemId,
+        String(fd.get("category") || "").trim(),
+        String(fd.get("ownerType") || "designers").trim(),
+        files,
+        previewIndex,
+        lease.leaseEndsAt
+      )
+        .then(function (uploadResult) {
+          var uploadedMedia = Array.isArray(uploadResult.media) ? uploadResult.media : [];
+          if (!uploadedMedia.length) throw new Error("empty media");
+          var preview = uploadedMedia.find(function (m) {
+            return m && m.id === uploadResult.previewMediaId;
+          }) || uploadedMedia[0];
+          var item = {
+            id: itemId,
+            name: String(fd.get("name") || "").trim(),
+            type: String(fd.get("type") || "").trim(),
+            designer: String(fd.get("designer") || "").trim(),
+            ownerType: String(fd.get("ownerType") || "designers").trim(),
+            category: String(fd.get("category") || "").trim(),
+            material: String(fd.get("material") || "").trim(),
+            tier: String(fd.get("tier") || "").trim(),
+            width: String(fd.get("width") || "").trim(),
+            media: uploadedMedia,
+            previewMediaId: preview && preview.id ? preview.id : "",
+            preview: preview || null,
+            image: preview && preview.url ? preview.url : "",
+            price: Number(fd.get("price") || 0),
+            leaseEndsAt: lease.leaseEndsAt,
+            deleteAfter: lease.deleteAfter,
+            createdAt: Date.now(),
+          };
+          var queue = getArrayStore(PRODUCT_PENDING_KEY);
+          queue.unshift(item);
+          setArrayStore(PRODUCT_PENDING_KEY, queue);
+          form.reset();
+          fillPreviewChoices();
+          if (msg) {
+            msg.classList.remove("is-error");
+            msg.classList.add("is-success");
+            msg.textContent = "Товар добавлен в очередь модерации.";
+          }
+          renderQueue();
+        })
+        .catch(function () {
+          if (msg) {
+            msg.classList.remove("is-success");
+            msg.classList.add("is-error");
+            msg.textContent =
+              "Не удалось загрузить медиа. Проверьте backend media API и ограничения формата/размера.";
+          }
+        })
+        .finally(function () {
+          if (submitBtn) submitBtn.disabled = false;
+        });
+    });
+
+    list.addEventListener("click", function (event) {
+      var card = event.target.closest("[data-item-id]");
+      if (!card) return;
+      var id = card.getAttribute("data-item-id");
+      if (!id) return;
+      var queue = getArrayStore(PRODUCT_PENDING_KEY);
+      var item = queue.find(function (x) {
+        return x.id === id;
+      });
+      if (!item) return;
+      if (event.target.closest("[data-mod-publish]")) {
+        var btn = event.target.closest("[data-mod-publish]");
+        if (btn) btn.disabled = true;
+        publishItem(item)
+          .finally(function () {
+            if (btn) btn.disabled = false;
+          });
+        removeFromQueue(id);
+      } else if (event.target.closest("[data-mod-revision]")) {
+        removeFromQueue(id);
+      } else if (event.target.closest("[data-mod-reject]")) {
+        removeFromQueue(id);
+      } else {
+        return;
+      }
+      renderQueue();
+    });
+
+    renderQueue();
   }
 
   function submitWeb3Seller(brand, email, message, msgEl, btn) {
@@ -488,7 +1130,6 @@
   /* ——— Designer profile filters ——— */
   var profileLayout = document.querySelector(".profile-layout");
   if (profileLayout) {
-    var cards = Array.from(profileLayout.querySelectorAll(".profile-product"));
     var groups = Array.from(profileLayout.querySelectorAll("[data-filter-group]"));
     var state = {};
 
@@ -507,6 +1148,7 @@
     });
 
     function applyFilters() {
+      var cards = Array.from(profileLayout.querySelectorAll(".profile-product"));
       cards.forEach(function (card) {
         var cat = (card.getAttribute("data-cat") || "")
           .toLowerCase()
@@ -521,6 +1163,8 @@
         card.style.display = catPass && matPass ? "" : "none";
       });
     }
+
+    document.addEventListener("av-products-changed", applyFilters);
   }
 
   /* ——— Forms ——— */
@@ -544,18 +1188,46 @@
 
       if (kind === "login") {
         var emailInput = form.querySelector('input[name="email"], input[type="email"]');
-        var email = emailInput ? emailInput.value.trim() : "";
-        setAuth(email);
+        var pwInput = form.querySelector('input[name="password"]');
+        var emailRaw = emailInput ? emailInput.value.trim() : "";
+        var emailNorm = emailRaw.toLowerCase();
+        var admins = (cfg.adminEmails || [])
+          .map(function (x) {
+            return String(x || "")
+              .toLowerCase()
+              .trim();
+          })
+          .filter(Boolean);
+        var role = "user";
+        if (admins.indexOf(emailNorm) >= 0) {
+          var needPw = adminPasswordRequired(emailNorm);
+          if (needPw !== null) {
+            var pwVal = pwInput ? pwInput.value : "";
+            if (pwVal !== needPw) {
+              if (msg) {
+                msg.classList.remove("is-success");
+                msg.classList.add("is-error");
+                msg.textContent = "Неверный пароль для этой учётной записи.";
+              }
+              return;
+            }
+          }
+          role = "admin";
+        }
+        setAuth(emailRaw, role);
         if (msg) {
           msg.classList.remove("is-error");
           msg.classList.add("is-success");
-          msg.textContent = "Вход выполнен. Переходим в каталог…";
+          msg.textContent =
+            role === "admin"
+              ? "Вход как администратор. Открываем панель…"
+              : "Вход выполнен. Переходим в каталог…";
         }
         form.querySelectorAll("input, textarea").forEach(function (el) {
           if (el.type !== "email") el.value = "";
         });
         setTimeout(function () {
-          window.location.href = "catalog.html";
+          window.location.href = role === "admin" ? "admin.html" : "catalog.html";
         }, 600);
         return;
       }
@@ -577,6 +1249,96 @@
         });
         return;
       }
+
+      if (kind === "vk-register") {
+        var action = (event.submitter && event.submitter.getAttribute("data-action")) || "";
+        var nameInput = form.querySelector('input[name="name"]');
+        var emailInput2 = form.querySelector('input[name="email"]');
+        var vkInput = form.querySelector('input[name="vk"]');
+        var codeInput = form.querySelector('input[name="code"]');
+        var regPayload = {
+          name: nameInput ? nameInput.value.trim() : "",
+          email: emailInput2 ? emailInput2.value.trim() : "",
+          vk: normalizeVkHandle(vkInput ? vkInput.value : ""),
+          code: codeInput ? String(codeInput.value || "").trim() : "",
+          origin: window.location.origin,
+        };
+
+        if (!regPayload.name || !regPayload.email || !regPayload.vk) {
+          if (msg) {
+            msg.classList.remove("is-success");
+            msg.classList.add("is-error");
+            msg.textContent = "Заполните имя, email и VK ID.";
+          }
+          return;
+        }
+
+        if (submitBtn) submitBtn.disabled = true;
+        if (msg) {
+          msg.classList.remove("is-error", "is-success");
+          msg.textContent =
+            action === "request-vk-code" ? "Отправляем код в VK..." : "Проверяем код...";
+        }
+
+        if (action === "request-vk-code") {
+          requestVkCode(regPayload)
+            .then(function (res) {
+              if (msg) {
+                msg.classList.remove("is-error");
+                msg.classList.add("is-success");
+                msg.textContent = res.demo
+                  ? "Демо-режим: код " + res.code + ". В проде укажите vkAuthApiBase, код придет в VK."
+                  : "Код отправлен в ВКонтакте. Введите его и нажмите «Подтвердить и войти».";
+              }
+            })
+            .catch(function () {
+              if (msg) {
+                msg.classList.remove("is-success");
+                msg.classList.add("is-error");
+                msg.textContent = "Не удалось отправить код. Проверьте vkAuthApiBase/API.";
+              }
+            })
+            .finally(function () {
+              if (submitBtn) submitBtn.disabled = false;
+            });
+          return;
+        }
+
+        if (!/^\d{6}$/.test(regPayload.code)) {
+          if (msg) {
+            msg.classList.remove("is-success");
+            msg.classList.add("is-error");
+            msg.textContent = "Введите 6-значный код подтверждения.";
+          }
+          if (submitBtn) submitBtn.disabled = false;
+          return;
+        }
+
+        verifyVkCode(regPayload)
+          .then(function (res) {
+            if (!res.ok) throw new Error("bad code");
+            setAuth(res.email, res.role || "user");
+            if (msg) {
+              msg.classList.remove("is-error");
+              msg.classList.add("is-success");
+              msg.textContent = "Регистрация подтверждена. Переходим в каталог…";
+            }
+            setTimeout(function () {
+              window.location.href = "catalog.html";
+            }, 650);
+          })
+          .catch(function () {
+            if (msg) {
+              msg.classList.remove("is-success");
+              msg.classList.add("is-error");
+              msg.textContent = "Неверный код или ошибка проверки.";
+            }
+          })
+          .finally(function () {
+            if (submitBtn) submitBtn.disabled = false;
+          });
+        return;
+      }
     });
   });
 
@@ -585,7 +1347,11 @@
     img.addEventListener("error", function () {
       if (img.dataset.fallbackApplied) return;
       img.dataset.fallbackApplied = "1";
-      img.src = "https://images.unsplash.com/photo-1484101403633-562f891dc89a?w=800&q=80";
+      img.src =
+        "data:image/svg+xml;utf8," +
+        encodeURIComponent(
+          '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800"><rect width="100%" height="100%" fill="#ece8e2"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#7f7565" font-family="Arial" font-size="28">Нет изображения</text></svg>'
+        );
     });
   });
 
@@ -593,7 +1359,12 @@
   ensureCartBadge();
   updateCartBadge();
   updateAuthNav();
+  initAdminProductModeration();
+  renderDynamicRoomProducts();
+  renderDynamicProfileProducts();
   initAddToCart();
   renderCartPage();
   initCatalogSearch();
+  initHubSearch();
+  initShelfShuffle();
 })();

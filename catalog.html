@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Алтай-Витрин - Каталог</title>
+  <title>Алтай-Витрин · Каталог — комнаты</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -13,17 +13,18 @@
   <a class="skip-link" href="#main">Перейти к контенту</a>
   <header class="site-header">
     <div class="container header-inner">
-      <a class="logo" href="index.html" aria-label="Алтай-Витрин - на главную">
+      <a class="logo" href="index.html" aria-label="Алтай-Витрин — на главную">
         <span class="logo__mark" aria-hidden="true">AB</span>
         <span class="logo__name">Алтай-Витрин</span>
       </a>
       <nav class="nav" data-nav>
-        <a href="catalog.html">Каталог</a>
+        <a href="catalog.html" aria-current="page">Каталог</a>
+        <a href="polki.html">Полки</a>
         <a href="designers.html">Дизайнеры</a>
         <a href="collections.html">Коллекции</a>
         <a href="contacts.html">Контакты</a>
         <a href="about.html">О нас</a>
-        <a href="login.html" class="btn btn--outline">Войти</a>
+        <a href="login.html" class="btn btn--outline nav-auth-btn">Войти</a>
       </nav>
       <div class="header-tools" aria-label="Панель">
         <a class="icon-btn" href="catalog.html" aria-label="Поиск" title="Поиск">
@@ -37,40 +38,39 @@
     </div>
   </header>
   <main id="main" class="inner-page">
-    <section class="section container">
-      <h1 class="section__heading">Каталог</h1>
-      <p class="page-lead">Все группы товаров в едином премиальном стиле.</p>
+    <section class="section container" data-catalog-root>
+      <h1 class="section__heading">Каталог — комнаты витрины</h1>
+      <p class="catalog-hub-lead">
+        Вместо одной общей ленты каталог разбит на <strong>комнаты</strong> по типу товаров (как отделы в шоуруме). В каждой комнате действуют полки <strong>верх · середина · низ</strong> и выбор <strong>ширины</strong> карточки — по аналогии с офлайн-концепцией «Твоя полка»: чем выше и шире место, тем заметнее размещение.
+      </p>
+
+      <div class="catalog-hub-strip">
+        <p>Почему у карточек разные бейджи и откуда берётся порядок на полке — честно рассказываем покупателям.</p>
+        <a class="btn btn--outline" href="polki.html">Как работают полки</a>
+      </div>
+
       <label class="catalog-search">
-        <span class="visually-hidden">Поиск по каталогу</span>
-        <input type="search" data-catalog-search placeholder="Поиск по названию, типу, студии…" autocomplete="off" />
+        <span class="visually-hidden">Быстрый переход по комнатам</span>
+        <input type="search" data-hub-search placeholder="Найти комнату по названию…" autocomplete="off" />
       </label>
-      <h2 class="subheading" id="lighting">Освещение</h2>
-      <div class="product-grid">
-        <article class="product-card"><p class="product-card__studio">Студия «Север»</p><div class="product-card__image"><img src="https://images.unsplash.com/photo-1517999144091-3d9dca6d1e43?w=600&q=80" alt="Подвесной светильник Луна"></div><div class="product-card__body"><h3 class="product-card__name">Луна</h3><p class="product-card__type">подвесной светильник</p><p class="product-card__price">18.500 ₽</p></div></article>
-        <article class="product-card"><p class="product-card__studio">Мастерская «Точка Света»</p><div class="product-card__image"><img src="https://images.unsplash.com/photo-1543198126-a8ad8e47fb22?w=600&q=80" alt="Настольная лампа Берген"></div><div class="product-card__body"><h3 class="product-card__name">Берген</h3><p class="product-card__type">настольная лампа</p><p class="product-card__price">12.900 ₽</p></div></article>
-        <article class="product-card"><p class="product-card__studio">Студия «Форма»</p><div class="product-card__image"><img src="https://images.unsplash.com/photo-1524484485831-a92ffc0de03f?w=600&q=80" alt="Бра Рельеф"></div><div class="product-card__body"><h3 class="product-card__name">Рельеф</h3><p class="product-card__type">бра керамическое</p><p class="product-card__price">15.200 ₽</p></div></article>
-        <article class="product-card"><p class="product-card__studio">Дизайнер Ольга</p><div class="product-card__image"><img src="https://images.unsplash.com/photo-1481277542470-605612bd2d61?w=600&q=80" alt="Торшер Вечер"></div><div class="product-card__body"><h3 class="product-card__name">Вечер</h3><p class="product-card__type">торшер</p><p class="product-card__price">24.000 ₽</p></div></article>
-      </div>
-      <h2 class="subheading" id="texture">Текстура</h2>
-      <div class="product-grid">
-        <article class="product-card"><p class="product-card__studio">Студия «Терра»</p><div class="product-card__image"><img src="https://images.unsplash.com/photo-1616627456575-53e0d6c8f70a?w=600&q=80" alt="Панно Слой"></div><div class="product-card__body"><h3 class="product-card__name">Слой</h3><p class="product-card__type">текстурное панно</p><p class="product-card__price">21.000 ₽</p></div></article>
-        <article class="product-card"><p class="product-card__studio">Мастерская «Нить»</p><div class="product-card__image"><img src="https://images.unsplash.com/photo-1616486029423-aaa4789e8c9a?w=600&q=80" alt="Ковер Рассвет"></div><div class="product-card__body"><h3 class="product-card__name">Рассвет</h3><p class="product-card__type">шерстяной ковер</p><p class="product-card__price">15.000 ₽</p></div></article>
-        <article class="product-card"><p class="product-card__studio">Студия «Фактура»</p><div class="product-card__image"><img src="https://images.unsplash.com/photo-1616047006789-b7af61ef9b9f?w=600&q=80" alt="Подушки Клин"></div><div class="product-card__body"><h3 class="product-card__name">Клин</h3><p class="product-card__type">декоративный текстиль</p><p class="product-card__price">9.400 ₽</p></div></article>
-        <article class="product-card"><p class="product-card__studio">Дизайнер Ирина</p><div class="product-card__image"><img src="https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600&q=80" alt="Плед Уют"></div><div class="product-card__body"><h3 class="product-card__name">Уют</h3><p class="product-card__type">плед из мериноса</p><p class="product-card__price">11.300 ₽</p></div></article>
-      </div>
-      <h2 class="subheading" id="decor">Декор</h2>
-      <div class="product-grid">
-        <article class="product-card"><p class="product-card__studio">Студия «Дом»</p><div class="product-card__image"><img src="https://images.unsplash.com/photo-1612196808210-82824f8f6e12?w=600&q=80" alt="Ваза Левиоса"></div><div class="product-card__body"><h3 class="product-card__name">Левиоса</h3><p class="product-card__type">фигурная ваза</p><p class="product-card__price">21.000 ₽</p></div></article>
-        <article class="product-card"><p class="product-card__studio">Мастерская «Планту»</p><div class="product-card__image"><img src="https://images.unsplash.com/photo-1579783902614-a3fb3927b6a2?w=600&q=80" alt="Панно Тень жизни"></div><div class="product-card__body"><h3 class="product-card__name">Тень жизни</h3><p class="product-card__type">панно</p><p class="product-card__price">21.000 ₽</p></div></article>
-        <article class="product-card"><p class="product-card__studio">Студия «Флоп»</p><div class="product-card__image"><img src="https://images.unsplash.com/photo-1578500494198-246f612d3b2d?w=600&q=80" alt="Комод Корнет"></div><div class="product-card__body"><h3 class="product-card__name">Корнет</h3><p class="product-card__type">декоративный комод</p><p class="product-card__price">140.000 ₽</p></div></article>
-        <article class="product-card"><p class="product-card__studio">Дизайнер Мария</p><div class="product-card__image"><img src="https://images.unsplash.com/photo-1615529328331-f8917597711f?w=600&q=80" alt="Часы Волны"></div><div class="product-card__body"><h3 class="product-card__name">Волны</h3><p class="product-card__type">керамические часы</p><p class="product-card__price">57.000 ₽</p></div></article>
-      </div>
-      <h2 class="subheading" id="furniture">Мебель</h2>
-      <div class="product-grid">
-        <article class="product-card"><p class="product-card__studio">Мастерская «Дизайн»</p><div class="product-card__image"><img src="https://images.unsplash.com/photo-1503602642458-232111445657?w=600&q=80" alt="Стол Ван дис"></div><div class="product-card__body"><h3 class="product-card__name">Ван дис</h3><p class="product-card__type">обеденный стол</p><p class="product-card__price">30.000 ₽</p></div></article>
-        <article class="product-card"><p class="product-card__studio">Студия «НОН»</p><div class="product-card__image"><img src="https://images.unsplash.com/photo-1533090481720-856c6e1a5b0d?w=600&q=80" alt="Стол Кингл"></div><div class="product-card__body"><h3 class="product-card__name">Кингл</h3><p class="product-card__type">журнальный стол</p><p class="product-card__price">220.000 ₽</p></div></article>
-        <article class="product-card"><p class="product-card__studio">Студия «Дом»</p><div class="product-card__image"><img src="https://images.unsplash.com/photo-1506439773649-6e0eb8cfb237?w=600&q=80" alt="Витрина Кьют"></div><div class="product-card__body"><h3 class="product-card__name">Кьют</h3><p class="product-card__type">низкая витрина</p><p class="product-card__price">21.000 ₽</p></div></article>
-        <article class="product-card"><p class="product-card__studio">Студия «Север»</p><div class="product-card__image"><img src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=80" alt="Диван Норд"></div><div class="product-card__body"><h3 class="product-card__name">Норд</h3><p class="product-card__type">модульный диван</p><p class="product-card__price">96.000 ₽</p></div></article>
+
+      <div class="cat-grid" role="list" data-hub-cards>
+        <a class="cat-card" href="room-lighting.html" role="listitem">
+          <h2 class="cat-card__label">Освещение</h2>
+          <div class="cat-card__img"><img src="https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=400&q=80" alt="" width="366" height="219" loading="lazy" /></div>
+        </a>
+        <a class="cat-card" href="room-texture.html" role="listitem">
+          <h2 class="cat-card__label">Текстура</h2>
+          <div class="cat-card__img"><img src="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=400&q=80" alt="" width="366" height="219" loading="lazy" /></div>
+        </a>
+        <a class="cat-card" href="room-decor.html" role="listitem">
+          <h2 class="cat-card__label">Декор</h2>
+          <div class="cat-card__img"><img src="https://images.unsplash.com/photo-1615876234886-fd9a39fda97f?w=400&q=80" alt="" width="366" height="219" loading="lazy" /></div>
+        </a>
+        <a class="cat-card" href="room-furniture.html" role="listitem">
+          <h2 class="cat-card__label">Мебель</h2>
+          <div class="cat-card__img"><img src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&q=80" alt="" width="366" height="219" loading="lazy" /></div>
+        </a>
       </div>
     </section>
   </main>
@@ -79,10 +79,13 @@
       <div class="footer-brand">
         <a class="logo logo--footer" href="index.html"><span class="logo__mark" aria-hidden="true">AB</span></a>
         <p class="footer__name">АЛТАЙ-ВИТРИН</p>
-        <p class="footer__address">400 University Drive Suite 200<br />Coral Gables, FL 33134 USA</p>
+        <p class="footer__address">Барнаул, Алтайский край<br />Россия</p>
       </div>
-      <div class="footer-col"><a href="index.html">Главная</a><a href="catalog.html">Каталог</a><a href="designers.html">Дизайнеры</a></div>
+      <div class="footer-col"><a href="index.html">Главная</a><a href="catalog.html">Каталог</a><a href="polki.html">Полки</a><a href="designers.html">Дизайнеры</a></div>
       <div class="footer-col"><a href="collections.html">Коллекции</a><a href="contacts.html">Контакты</a><a href="about.html">О нас</a></div>
+    </div>
+    <div class="container footer-line" role="note">
+      <p class="footer__hint">Товары живут в комнатах с полками. Спецификация API и таймеров — в <code>doc/backend-vitrina-shelves.txt</code>.</p>
     </div>
   </footer>
   <script src="js/site-config.js"></script>

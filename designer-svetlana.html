@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Алтай-Витрин · Светлана Речникова</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/main.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Перейти к контенту</a>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="index.html" aria-label="Алтай-Витрин — на главную">
+        <span class="logo__mark" aria-hidden="true">AB</span>
+        <span class="logo__name">Алтай-Витрин</span>
+      </a>
+      <nav class="nav" data-nav>
+        <a href="catalog.html">Каталог</a>
+        <a href="polki.html">Полки</a>
+        <a href="designers.html">Дизайнеры</a>
+        <a href="collections.html">Коллекции</a>
+        <a href="contacts.html">Контакты</a>
+        <a href="about.html">О нас</a>
+        <a href="login.html" class="btn btn--outline nav-auth-btn">Войти</a>
+      </nav>
+      <div class="header-tools" aria-label="Панель">
+        <a class="icon-btn" href="catalog.html" aria-label="Поиск" title="Поиск">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        </a>
+        <a class="icon-btn" href="cart.html" aria-label="Корзина" title="Корзина">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        </a>
+      </div>
+      <button type="button" class="nav-toggle" aria-label="Меню" aria-expanded="false" data-nav-toggle></button>
+    </div>
+  </header>
+  <main id="main" class="inner-page">
+    <section class="section container profile-shell">
+      <div class="profile-top">
+        <img class="profile-avatar" src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&q=80" alt="Светлана Речникова" />
+        <div>
+          <h1 class="profile-title">Светлана Речникова</h1>
+          <p class="profile-meta">Дерево и текстиль в мебели. Столярка, обивка и авторские стулья — тёплые фактуры и посадка, с которой не хочется расставаться.</p>
+          <div class="profile-actions">
+            <a class="btn btn--hero-outline" href="catalog.html">Смотреть товары</a>
+            <a class="btn btn--hero-outline" href="contacts.html">Связаться</a>
+          </div>
+        </div>
+        <div class="profile-stats">
+          <div class="profile-stat"><strong>533</strong><span>подписчиков</span></div>
+          <div class="profile-stat"><strong>4.9</strong><span>рейтинг</span></div>
+          <div class="profile-stat"><strong>102</strong><span>отзывов</span></div>
+        </div>
+      </div>
+
+      <div class="profile-tabs">
+        <a class="profile-tab is-active" href="designer-svetlana.html">Профиль</a>
+        <a class="profile-tab" href="designer-svetlana.html#products">Товары</a>
+        <a class="profile-tab" href="designer-svetlana.html#materials">Материалы</a>
+        <a class="profile-tab" href="designer-svetlana.html#reviews">Отзывы</a>
+      </div>
+
+      <div class="profile-layout" id="products">
+        <aside class="profile-sidebar">
+          <h3 class="profile-filter-title">Категории</h3>
+          <div class="profile-filter" data-filter-group="cat">
+            <button type="button" data-filter="all" class="is-active">Все</button>
+            <button type="button" data-filter="light">Освещение</button>
+            <button type="button" data-filter="texture">Текстура</button>
+            <button type="button" data-filter="decor">Декор</button>
+            <button type="button" data-filter="furniture">Мебель</button>
+          </div>
+          <h3 class="profile-filter-title" id="materials">Материалы</h3>
+          <div class="profile-filter" data-filter-group="mat">
+            <button type="button" data-filter="all" class="is-active">Все</button>
+            <button type="button" data-filter="ceramic">Керамика</button>
+            <button type="button" data-filter="wood">Дерево</button>
+            <button type="button" data-filter="metal">Металл</button>
+            <button type="button" data-filter="textile">Текстиль</button>
+          </div>
+        </aside>
+
+        <div class="profile-grid">
+          <article class="profile-product" data-cat="light" data-mat="metal"><img src="https://images.unsplash.com/photo-1513504638946-d4a17adf9d3b?w=500&q=80" alt="Лёд" /><div class="profile-product__body"><h3 class="profile-product__name">Лёд</h3><p class="profile-product__meta">подвес стекло</p><p class="profile-product__price">19.500 ₽</p></div></article>
+          <article class="profile-product" data-cat="light" data-mat="metal"><img src="https://images.unsplash.com/photo-1615529328331-f8917597711f?w=500&q=80" alt="Пузырь" /><div class="profile-product__body"><h3 class="profile-product__name">Пузырь</h3><p class="profile-product__meta">настольная стекло</p><p class="profile-product__price">15.300 ₽</p></div></article>
+          <article class="profile-product" data-cat="light" data-mat="metal"><img src="https://images.unsplash.com/photo-1612196808210-82824f8f6e12?w=500&q=80" alt="Иней" /><div class="profile-product__body"><h3 class="profile-product__name">Иней</h3><p class="profile-product__meta">бра матовое</p><p class="profile-product__price">17.100 ₽</p></div></article>
+          <article class="profile-product" data-cat="light" data-mat="metal"><img src="https://images.unsplash.com/photo-1513504638946-d4a17adf9d3b?w=500&q=80" alt="Отлив" /><div class="profile-product__body"><h3 class="profile-product__name">Отлив</h3><p class="profile-product__meta">торшер стекло</p><p class="profile-product__price">27.800 ₽</p></div></article>
+          <article class="profile-product" data-cat="light" data-mat="metal"><img src="https://images.unsplash.com/photo-1513504638946-d4a17adf9d3b?w=500&q=80" alt="Капля" /><div class="profile-product__body"><h3 class="profile-product__name">Капля</h3><p class="profile-product__meta">спот прозрачный</p><p class="profile-product__price">12.200 ₽</p></div></article>
+          <article class="profile-product" data-cat="light" data-mat="metal"><img src="https://images.unsplash.com/photo-1558618666-fbd2c810ba3b?w=500&q=80" alt="Рифракция" /><div class="profile-product__body"><h3 class="profile-product__name">Рифракция</h3><p class="profile-product__meta">подвес грань</p><p class="profile-product__price">22.600 ₽</p></div></article>
+          <article class="profile-product" data-cat="texture" data-mat="textile"><img src="https://images.unsplash.com/photo-1616627456575-53e0d6c8f70a?w=500&q=80" alt="Стекло-бархат" /><div class="profile-product__body"><h3 class="profile-product__name">Стекло-бархат</h3><p class="profile-product__meta">панно смешанное</p><p class="profile-product__price">24.700 ₽</p></div></article>
+          <article class="profile-product" data-cat="texture" data-mat="textile"><img src="https://images.unsplash.com/photo-1616486029423-aaa4789e8c9a?w=500&q=80" alt="Пузырь II" /><div class="profile-product__body"><h3 class="profile-product__name">Пузырь II</h3><p class="profile-product__meta">ковёр шёлк</p><p class="profile-product__price">26.100 ₽</p></div></article>
+          <article class="profile-product" data-cat="texture" data-mat="textile"><img src="https://images.unsplash.com/photo-1616047006789-b7af61ef9b9f?w=500&q=80" alt="Иней II" /><div class="profile-product__body"><h3 class="profile-product__name">Иней II</h3><p class="profile-product__meta">подушки перо</p><p class="profile-product__price">10.100 ₽</p></div></article>
+          <article class="profile-product" data-cat="texture" data-mat="textile"><img src="https://images.unsplash.com/photo-1582719508461-905c673771fd?w=500&q=80" alt="Отлив II" /><div class="profile-product__body"><h3 class="profile-product__name">Отлив II</h3><p class="profile-product__meta">плед кашемир</p><p class="profile-product__price">28.400 ₽</p></div></article>
+          <article class="profile-product" data-cat="texture" data-mat="textile"><img src="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=500&q=80" alt="Капля II" /><div class="profile-product__body"><h3 class="profile-product__name">Капля II</h3><p class="profile-product__meta">штора вуаль</p><p class="profile-product__price">9.900 ₽</p></div></article>
+          <article class="profile-product" data-cat="texture" data-mat="textile"><img src="https://images.unsplash.com/photo-1615876234886-fd9a39fda97f?w=500&q=80" alt="Рифракция II" /><div class="profile-product__body"><h3 class="profile-product__name">Рифракция II</h3><p class="profile-product__meta">покрывало стёг</p><p class="profile-product__price">12.300 ₽</p></div></article>
+          <article class="profile-product" data-cat="decor" data-mat="ceramic"><img src="https://images.unsplash.com/photo-1524484485831-a92ffc0de03f?w=500&q=80" alt="Лёд II" /><div class="profile-product__body"><h3 class="profile-product__name">Лёд II</h3><p class="profile-product__meta">ваза стекло</p><p class="profile-product__price">19.800 ₽</p></div></article>
+          <article class="profile-product" data-cat="decor" data-mat="ceramic"><img src="https://images.unsplash.com/photo-1615529328331-f8917597711f?w=500&q=80" alt="Пузырь III" /><div class="profile-product__body"><h3 class="profile-product__name">Пузырь III</h3><p class="profile-product__meta">подсвечник стекло</p><p class="profile-product__price">6.900 ₽</p></div></article>
+          <article class="profile-product" data-cat="decor" data-mat="ceramic"><img src="https://images.unsplash.com/photo-1618220179428-2277b1e3e1c4?w=500&q=80" alt="Иней III" /><div class="profile-product__body"><h3 class="profile-product__name">Иней III</h3><p class="profile-product__meta">зеркало витраж</p><p class="profile-product__price">38.500 ₽</p></div></article>
+          <article class="profile-product" data-cat="decor" data-mat="ceramic"><img src="https://images.unsplash.com/photo-1543198126-a8ad8e47fb22?w=500&q=80" alt="Отлив III" /><div class="profile-product__body"><h3 class="profile-product__name">Отлив III</h3><p class="profile-product__meta">панно стекло</p><p class="profile-product__price">25.900 ₽</p></div></article>
+          <article class="profile-product" data-cat="decor" data-mat="ceramic"><img src="https://images.unsplash.com/photo-1576020799627-aeac74d58064?w=500&q=80" alt="Капля III" /><div class="profile-product__body"><h3 class="profile-product__name">Капля III</h3><p class="profile-product__meta">ваза дутое</p><p class="profile-product__price">17.400 ₽</p></div></article>
+          <article class="profile-product" data-cat="decor" data-mat="ceramic"><img src="https://images.unsplash.com/photo-1524484485831-a92ffc0de03f?w=500&q=80" alt="Рифракция III" /><div class="profile-product__body"><h3 class="profile-product__name">Рифракция III</h3><p class="profile-product__meta">короб стекло</p><p class="profile-product__price">12.800 ₽</p></div></article>
+          <article class="profile-product" data-cat="furniture" data-mat="wood"><img src="https://images.unsplash.com/photo-1524484485831-a92ffc0de03f?w=500&q=80" alt="Лёд III" /><div class="profile-product__body"><h3 class="profile-product__name">Лёд III</h3><p class="profile-product__meta">стол стекло</p><p class="profile-product__price">81.700 ₽</p></div></article>
+          <article class="profile-product" data-cat="furniture" data-mat="wood"><img src="https://images.unsplash.com/photo-1543198126-a8ad8e47fb22?w=500&q=80" alt="Пузырь IV" /><div class="profile-product__body"><h3 class="profile-product__name">Пузырь IV</h3><p class="profile-product__meta">тумба стекло</p><p class="profile-product__price">55.600 ₽</p></div></article>
+          <article class="profile-product" data-cat="furniture" data-mat="wood"><img src="https://images.unsplash.com/photo-1506439773649-6e0eb8cfb237?w=500&q=80" alt="Иней IV" /><div class="profile-product__body"><h3 class="profile-product__name">Иней IV</h3><p class="profile-product__meta">полка стекло</p><p class="profile-product__price">24.900 ₽</p></div></article>
+          <article class="profile-product" data-cat="furniture" data-mat="wood"><img src="https://images.unsplash.com/photo-1503602642458-232111445657?w=500&q=80" alt="Отлив IV" /><div class="profile-product__body"><h3 class="profile-product__name">Отлив IV</h3><p class="profile-product__meta">журнальный стекло</p><p class="profile-product__price">49.300 ₽</p></div></article>
+          <article class="profile-product" data-cat="furniture" data-mat="wood"><img src="https://images.unsplash.com/photo-1618220179428-2277b1e3e1c4?w=500&q=80" alt="Капля IV" /><div class="profile-product__body"><h3 class="profile-product__name">Капля IV</h3><p class="profile-product__meta">консоль стекло</p><p class="profile-product__price">61.100 ₽</p></div></article>
+          <article class="profile-product" data-cat="furniture" data-mat="wood"><img src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500&q=80" alt="Рифракция IV" /><div class="profile-product__body"><h3 class="profile-product__name">Рифракция IV</h3><p class="profile-product__meta">стул прозрачный 2 шт</p><p class="profile-product__price">28.400 ₽</p></div></article>
+        </div>
+      </div>
+
+      <div id="reviews" class="profile-tabs" style="margin-top:1rem;">
+        <a class="profile-tab" href="contacts.html">Оставить отзыв</a>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <a class="logo logo--footer" href="index.html"><span class="logo__mark" aria-hidden="true">AB</span></a>
+        <p class="footer__name">АЛТАЙ-ВИТРИН</p>
+        <p class="footer__address">Барнаул, Алтайский край<br />Россия</p>
+      </div>
+      <div class="footer-col"><a href="index.html">Главная</a><a href="catalog.html">Каталог</a><a href="polki.html">Полки</a><a href="designers.html">Дизайнеры</a></div>
+      <div class="footer-col"><a href="collections.html">Коллекции</a><a href="contacts.html">Контакты</a><a href="about.html">О нас</a></div>
+    </div>
+    <div class="container footer-line" role="note">
+      <p class="footer__hint">Корзина и сессия в браузере. Админ-панель — вход почтой из <code>adminEmails</code> в js/site-config.js. Письма заявок — ключ web3forms.</p>
+    </div>
+  </footer>
+  <script src="js/site-config.js"></script>
+  <script src="js/main.js" defer></script>
+</body>
+</html>

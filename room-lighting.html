@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Алтай-Витрин · Комната освещения</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/main.css" />
+</head>
+<body class="page-room">
+  <a class="skip-link" href="#main">Перейти к контенту</a>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="index.html" aria-label="Алтай-Витрин — на главную">
+        <span class="logo__mark" aria-hidden="true">AB</span>
+        <span class="logo__name">Алтай-Витрин</span>
+      </a>
+      <nav class="nav" data-nav>
+        <a href="catalog.html">Каталог</a>
+        <a href="polki.html">Полки</a>
+        <a href="designers.html">Дизайнеры</a>
+        <a href="collections.html">Коллекции</a>
+        <a href="contacts.html">Контакты</a>
+        <a href="about.html">О нас</a>
+        <a href="login.html" class="btn btn--outline nav-auth-btn">Войти</a>
+      </nav>
+      <div class="header-tools" aria-label="Панель">
+        <a class="icon-btn" href="catalog.html" aria-label="Поиск" title="Поиск">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        </a>
+        <a class="icon-btn" href="cart.html" aria-label="Корзина" title="Корзина">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        </a>
+      </div>
+      <button type="button" class="nav-toggle" aria-label="Меню" aria-expanded="false" data-nav-toggle></button>
+    </div>
+  </header>
+
+  <main id="main" class="inner-page">
+    <section class="room-hero">
+      <div class="container room-hero__inner">
+        <p class="room-hero__eyebrow">Комната витрины</p>
+        <h1 class="room-hero__title">Освещение</h1>
+        <p class="room-hero__lead">
+          Светильники, лампы и торшеры размещаются на полках по высоте и ширине слота. Ниже — три зоны одной комнаты; порядок в зоне может меняться (динамические полки).
+        </p>
+        <div class="room-hero__links">
+          <a href="polki.html">Как работают полки</a>
+          <a href="catalog.html">Все комнаты</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section container" data-catalog-root data-shelf-shuffle>
+      <label class="catalog-search">
+        <span class="visually-hidden">Поиск в этой комнате</span>
+        <input type="search" data-catalog-search placeholder="Поиск по названию, типу, студии…" autocomplete="off" />
+      </label>
+
+      <div class="shelf-zone shelf-zone--top" id="zone-top">
+        <header class="shelf-zone__head">
+          <h2 class="shelf-zone__title">Верх полки</h2>
+          <p class="shelf-zone__subtitle">Уровень глаз — максимальная заметность в комнате освещения.</p>
+        </header>
+        <p class="shelf-zone__note">Порядок карточек в зоне на демо-витрине обновляется при загрузке страницы — имитация динамической аренды.</p>
+        <ul class="product-grid shelf-zone__grid">
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-top">Верх полки</span>
+                <span class="shelf-badge shelf-badge--width-wide">Широкая полка</span>
+              </div>
+              <p class="product-card__studio">Татьяна Лань</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1513504638946-d4a17adf9d3b?w=600&q=80" alt="Россыпь — подвесной светильник" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Россыпь</h3>
+                <p class="product-card__type">подвесной светильник</p>
+                <p class="product-card__price">19.400 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-top">Верх полки</span>
+                <span class="shelf-badge shelf-badge--width-standard">Стандарт</span>
+              </div>
+              <p class="product-card__studio">Татьяна Лань</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1615529328331-f8917597711f?w=600&q=80" alt="Туман — настольная лампа" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Туман</h3>
+                <p class="product-card__type">настольная лампа</p>
+                <p class="product-card__price">14.200 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-top">Верх полки</span>
+                <span class="shelf-badge shelf-badge--width-wide">Широкая полка</span>
+              </div>
+              <p class="product-card__studio">Иван Лыбин</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1494432633956-82861f3ceb1a?w=600&q=80" alt="Кедр — торшер дерево" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Кедр</h3>
+                <p class="product-card__type">торшер дерево</p>
+                <p class="product-card__price">23.100 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-top">Верх полки</span>
+                <span class="shelf-badge shelf-badge--width-standard">Стандарт</span>
+              </div>
+              <p class="product-card__studio">Иван Лыбин</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=600&q=80" alt="Брус — настольная лампа" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Брус</h3>
+                <p class="product-card__type">настольная лампа</p>
+                <p class="product-card__price">13.600 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-top">Верх полки</span>
+                <span class="shelf-badge shelf-badge--width-wide">Широкая полка</span>
+              </div>
+              <p class="product-card__studio">Студия «Терра»</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1576020799627-aeac74d58064?w=600&q=80" alt="Глина свет — керамический подвес" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Глина свет</h3>
+                <p class="product-card__type">керамический подвес</p>
+                <p class="product-card__price">18.600 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-top">Верх полки</span>
+                <span class="shelf-badge shelf-badge--width-standard">Стандарт</span>
+              </div>
+              <p class="product-card__studio">Студия «Терра»</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=600&q=80" alt="Обжиг — настольная керамика" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Обжиг</h3>
+                <p class="product-card__type">настольная керамика</p>
+                <p class="product-card__price">14.900 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-top">Верх полки</span>
+                <span class="shelf-badge shelf-badge--width-wide">Широкая полка</span>
+              </div>
+              <p class="product-card__studio">Марина Кожевникова</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600&q=80" alt="Лён свет — абажур подвес" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Лён свет</h3>
+                <p class="product-card__type">абажур подвес</p>
+                <p class="product-card__price">17.200 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-top">Верх полки</span>
+                <span class="shelf-badge shelf-badge--width-standard">Стандарт</span>
+              </div>
+              <p class="product-card__studio">Марина Кожевникова</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600&q=80" alt="Скатерть — торшер текстиль" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Скатерть</h3>
+                <p class="product-card__type">торшер текстиль</p>
+                <p class="product-card__price">20.400 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-top">Верх полки</span>
+                <span class="shelf-badge shelf-badge--width-wide">Широкая полка</span>
+              </div>
+              <p class="product-card__studio">Дмитрий Каркасов</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1494432633956-82861f3ceb1a?w=600&q=80" alt="Стружка — подвес дерево" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Стружка</h3>
+                <p class="product-card__type">подвес дерево</p>
+                <p class="product-card__price">16.500 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-top">Верх полки</span>
+                <span class="shelf-badge shelf-badge--width-standard">Стандарт</span>
+              </div>
+              <p class="product-card__studio">Дмитрий Каркасов</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=600&q=80" alt="Шпон — настольная лампа" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Шпон</h3>
+                <p class="product-card__type">настольная лампа</p>
+                <p class="product-card__price">14.300 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-top">Верх полки</span>
+                <span class="shelf-badge shelf-badge--width-wide">Широкая полка</span>
+              </div>
+              <p class="product-card__studio">Алёна Мирная</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=600&q=80" alt="Глазурь — лампа керамика" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Глазурь</h3>
+                <p class="product-card__type">лампа керамика</p>
+                <p class="product-card__price">17.700 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-top">Верх полки</span>
+                <span class="shelf-badge shelf-badge--width-standard">Стандарт</span>
+              </div>
+              <p class="product-card__studio">Алёна Мирная</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1576020799627-aeac74d58064?w=600&q=80" alt="Мирная ночь — ночник керамика" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Мирная ночь</h3>
+                <p class="product-card__type">ночник керамика</p>
+                <p class="product-card__price">9.800 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-top">Верх полки</span>
+                <span class="shelf-badge shelf-badge--width-wide">Широкая полка</span>
+              </div>
+              <p class="product-card__studio">Мастерская «Полдень»</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1558618666-fbd2c810ba3b?w=600&q=80" alt="Зенит — подвес латунь" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Зенит</h3>
+                <p class="product-card__type">подвес латунь</p>
+                <p class="product-card__price">28.400 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-top">Верх полки</span>
+                <span class="shelf-badge shelf-badge--width-standard">Стандарт</span>
+              </div>
+              <p class="product-card__studio">Мастерская «Полдень»</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1558618666-fbd2c810ba3b?w=600&q=80" alt="Полдень мини — настольная латунь" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Полдень мини</h3>
+                <p class="product-card__type">настольная латунь</p>
+                <p class="product-card__price">16.900 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-top">Верх полки</span>
+                <span class="shelf-badge shelf-badge--width-wide">Широкая полка</span>
+              </div>
+              <p class="product-card__studio">Светлана Речникова</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1513504638946-d4a17adf9d3b?w=600&q=80" alt="Лёд — подвес стекло" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Лёд</h3>
+                <p class="product-card__type">подвес стекло</p>
+                <p class="product-card__price">19.500 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-top">Верх полки</span>
+                <span class="shelf-badge shelf-badge--width-standard">Стандарт</span>
+              </div>
+              <p class="product-card__studio">Светлана Речникова</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1615529328331-f8917597711f?w=600&q=80" alt="Пузырь — настольная стекло" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Пузырь</h3>
+                <p class="product-card__type">настольная стекло</p>
+                <p class="product-card__price">15.300 ₽</p>
+              </div>
+            </article>
+          </li>
+        </ul>
+      </div>
+
+      <div class="shelf-zone" id="zone-mid">
+        <header class="shelf-zone__head">
+          <h2 class="shelf-zone__title">Середина полки</h2>
+          <p class="shelf-zone__subtitle">Сбалансированная видимость и стоимость размещения.</p>
+        </header>
+        <p class="shelf-zone__note">Динамический порядок внутри зоны.</p>
+        <ul class="product-grid shelf-zone__grid">
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-mid">Середина</span>
+                <span class="shelf-badge shelf-badge--width-standard">Стандарт</span>
+              </div>
+              <p class="product-card__studio">Татьяна Лань</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1576020799627-aeac74d58064?w=600&q=80" alt="Кромка — бра керамическое" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Кромка</h3>
+                <p class="product-card__type">бра керамическое</p>
+                <p class="product-card__price">16.800 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-mid">Середина</span>
+                <span class="shelf-badge shelf-badge--width-narrow">Узкая полка</span>
+              </div>
+              <p class="product-card__studio">Татьяна Лань</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1558618666-fbd2c810ba3b?w=600&q=80" alt="Слой света — торшер латунь" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Слой света</h3>
+                <p class="product-card__type">торшер латунь</p>
+                <p class="product-card__price">26.500 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-mid">Середина</span>
+                <span class="shelf-badge shelf-badge--width-standard">Стандарт</span>
+              </div>
+              <p class="product-card__studio">Иван Лыбин</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1579783902614-a3fb3927b6a2?w=600&q=80" alt="Сучок — бра настенное" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Сучок</h3>
+                <p class="product-card__type">бра настенное</p>
+                <p class="product-card__price">15.400 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-mid">Середина</span>
+                <span class="shelf-badge shelf-badge--width-narrow">Узкая полка</span>
+              </div>
+              <p class="product-card__studio">Иван Лыбин</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1513504638946-d4a17adf9d3b?w=600&q=80" alt="Спил — подвес rattan" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Спил</h3>
+                <p class="product-card__type">подвес rattan</p>
+                <p class="product-card__price">17.900 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-mid">Середина</span>
+                <span class="shelf-badge shelf-badge--width-standard">Стандарт</span>
+              </div>
+              <p class="product-card__studio">Студия «Терра»</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1579783902614-a3fb3927b6a2?w=600&q=80" alt="Печь — бра парное" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Печь</h3>
+                <p class="product-card__type">бра парное</p>
+                <p class="product-card__price">16.200 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-mid">Середина</span>
+                <span class="shelf-badge shelf-badge--width-narrow">Узкая полка</span>
+              </div>
+              <p class="product-card__studio">Студия «Терра»</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1612196808210-82824f8f6e12?w=600&q=80" alt="Шамот — торшер керамика" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Шамот</h3>
+                <p class="product-card__type">торшер керамика</p>
+                <p class="product-card__price">24.800 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-mid">Середина</span>
+                <span class="shelf-badge shelf-badge--width-standard">Стандарт</span>
+              </div>
+              <p class="product-card__studio">Марина Кожевникова</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600&q=80" alt="Край — настольная ткань" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Край</h3>
+                <p class="product-card__type">настольная ткань</p>
+                <p class="product-card__price">13.100 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-mid">Середина</span>
+                <span class="shelf-badge shelf-badge--width-narrow">Узкая полка</span>
+              </div>
+              <p class="product-card__studio">Марина Кожевникова</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=600&q=80" alt="Петля — бра мягкий абажур" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Петля</h3>
+                <p class="product-card__type">бра мягкий абажур</p>
+                <p class="product-card__price">15.700 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-mid">Середина</span>
+                <span class="shelf-badge shelf-badge--width-standard">Стандарт</span>
+              </div>
+              <p class="product-card__studio">Дмитрий Каркасов</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1579783902614-a3fb3927b6a2?w=600&q=80" alt="Шкант — бра угловое" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Шкант</h3>
+                <p class="product-card__type">бра угловое</p>
+                <p class="product-card__price">12.900 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-mid">Середина</span>
+                <span class="shelf-badge shelf-badge--width-narrow">Узкая полка</span>
+              </div>
+              <p class="product-card__studio">Дмитрий Каркасов</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1494432633956-82861f3ceb1a?w=600&q=80" alt="Фаска — торшер дуб" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Фаска</h3>
+                <p class="product-card__type">торшер дуб</p>
+                <p class="product-card__price">25.600 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-mid">Середина</span>
+                <span class="shelf-badge shelf-badge--width-standard">Стандарт</span>
+              </div>
+              <p class="product-card__studio">Алёна Мирная</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1513504638946-d4a17adf9d3b?w=600&q=80" alt="Окат — подвес двойной" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Окат</h3>
+                <p class="product-card__type">подвес двойной</p>
+                <p class="product-card__price">21.400 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-mid">Середина</span>
+                <span class="shelf-badge shelf-badge--width-narrow">Узкая полка</span>
+              </div>
+              <p class="product-card__studio">Алёна Мирная</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1615529328331-f8917597711f?w=600&q=80" alt="Бисквит — бра фаянс" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Бисквит</h3>
+                <p class="product-card__type">бра фаянс</p>
+                <p class="product-card__price">15.100 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-mid">Середина</span>
+                <span class="shelf-badge shelf-badge--width-standard">Стандарт</span>
+              </div>
+              <p class="product-card__studio">Мастерская «Полдень»</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1579783902614-a3fb3927b6a2?w=600&q=80" alt="Меридиан — бра поворотное" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Меридиан</h3>
+                <p class="product-card__type">бра поворотное</p>
+                <p class="product-card__price">14.600 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-mid">Середина</span>
+                <span class="shelf-badge shelf-badge--width-narrow">Узкая полка</span>
+              </div>
+              <p class="product-card__studio">Мастерская «Полдень»</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1558618666-fbd2c810ba3b?w=600&q=80" alt="Солнцестояние — торшер латунь" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Солнцестояние</h3>
+                <p class="product-card__type">торшер латунь</p>
+                <p class="product-card__price">31.200 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-mid">Середина</span>
+                <span class="shelf-badge shelf-badge--width-standard">Стандарт</span>
+              </div>
+              <p class="product-card__studio">Светлана Речникова</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1612196808210-82824f8f6e12?w=600&q=80" alt="Иней — бра матовое" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Иней</h3>
+                <p class="product-card__type">бра матовое</p>
+                <p class="product-card__price">17.100 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-mid">Середина</span>
+                <span class="shelf-badge shelf-badge--width-narrow">Узкая полка</span>
+              </div>
+              <p class="product-card__studio">Светлана Речникова</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1513504638946-d4a17adf9d3b?w=600&q=80" alt="Отлив — торшер стекло" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Отлив</h3>
+                <p class="product-card__type">торшер стекло</p>
+                <p class="product-card__price">27.800 ₽</p>
+              </div>
+            </article>
+          </li>
+        </ul>
+      </div>
+
+      <div class="shelf-zone" id="zone-low">
+        <header class="shelf-zone__head">
+          <h2 class="shelf-zone__title">Низ полки</h2>
+          <p class="shelf-zone__subtitle">Доступный вход в комнату — как нижний ряд стеллажа.</p>
+        </header>
+        <p class="shelf-zone__note">Динамический порядок внутри зоны.</p>
+        <ul class="product-grid shelf-zone__grid product-grid--2">
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-low">Низ полки</span>
+                <span class="shelf-badge shelf-badge--width-narrow">Узкая полка</span>
+              </div>
+              <p class="product-card__studio">Татьяна Лань</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1513504638946-d4a17adf9d3b?w=600&q=80" alt="Пылинка — спот на шине" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Пылинка</h3>
+                <p class="product-card__type">спот на шине</p>
+                <p class="product-card__price">11.900 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-low">Низ полки</span>
+                <span class="shelf-badge shelf-badge--width-standard">Стандарт</span>
+              </div>
+              <p class="product-card__studio">Татьяна Лань</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1513504638946-d4a17adf9d3b?w=600&q=80" alt="Овал — подвес пара" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Овал</h3>
+                <p class="product-card__type">подвес пара</p>
+                <p class="product-card__price">22.300 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-low">Низ полки</span>
+                <span class="shelf-badge shelf-badge--width-narrow">Узкая полка</span>
+              </div>
+              <p class="product-card__studio">Иван Лыбин</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1513504638946-d4a17adf9d3b?w=600&q=80" alt="Забор — трековый светильник" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Забор</h3>
+                <p class="product-card__type">трековый светильник</p>
+                <p class="product-card__price">12.500 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-low">Низ полки</span>
+                <span class="shelf-badge shelf-badge--width-standard">Стандарт</span>
+              </div>
+              <p class="product-card__studio">Иван Лыбин</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1558618666-fbd2c810ba3b?w=600&q=80" alt="Полено — лампа напольная" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Полено</h3>
+                <p class="product-card__type">лампа напольная</p>
+                <p class="product-card__price">21.700 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-low">Низ полки</span>
+                <span class="shelf-badge shelf-badge--width-narrow">Узкая полка</span>
+              </div>
+              <p class="product-card__studio">Студия «Терра»</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1615529328331-f8917597711f?w=600&q=80" alt="Молочение — спот керамика" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Молочение</h3>
+                <p class="product-card__type">спот керамика</p>
+                <p class="product-card__price">11.300 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-low">Низ полки</span>
+                <span class="shelf-badge shelf-badge--width-standard">Стандарт</span>
+              </div>
+              <p class="product-card__studio">Студия «Терра»</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1513504638946-d4a17adf9d3b?w=600&q=80" alt="Терра люкс — подвес крупный" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Терра люкс</h3>
+                <p class="product-card__type">подвес крупный</p>
+                <p class="product-card__price">27.500 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-low">Низ полки</span>
+                <span class="shelf-badge shelf-badge--width-narrow">Узкая полка</span>
+              </div>
+              <p class="product-card__studio">Марина Кожевникова</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1513504638946-d4a17adf9d3b?w=600&q=80" alt="Узел — подвес плиссе" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Узел</h3>
+                <p class="product-card__type">подвес плиссе</p>
+                <p class="product-card__price">18.900 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-low">Низ полки</span>
+                <span class="shelf-badge shelf-badge--width-standard">Стандарт</span>
+              </div>
+              <p class="product-card__studio">Марина Кожевникова</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1615529328331-f8917597711f?w=600&q=80" alt="Кайма — лампа клипса" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Кайма</h3>
+                <p class="product-card__type">лампа клипса</p>
+                <p class="product-card__price">10.800 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-low">Низ полки</span>
+                <span class="shelf-badge shelf-badge--width-narrow">Узкая полка</span>
+              </div>
+              <p class="product-card__studio">Дмитрий Каркасов</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1513504638946-d4a17adf9d3b?w=600&q=80" alt="Угол — спот дерево" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Угол</h3>
+                <p class="product-card__type">спот дерево</p>
+                <p class="product-card__price">11.600 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-low">Низ полки</span>
+                <span class="shelf-badge shelf-badge--width-standard">Стандарт</span>
+              </div>
+              <p class="product-card__studio">Дмитрий Каркасов</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1513504638946-d4a17adf9d3b?w=600&q=80" alt="Ламель — подвес линейный" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Ламель</h3>
+                <p class="product-card__type">подвес линейный</p>
+                <p class="product-card__price">19.800 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-low">Низ полки</span>
+                <span class="shelf-badge shelf-badge--width-narrow">Узкая полка</span>
+              </div>
+              <p class="product-card__studio">Алёна Мирная</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1579783902614-a3fb3927b6a2?w=600&q=80" alt="Лощение — настольная пара" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Лощение</h3>
+                <p class="product-card__type">настольная пара</p>
+                <p class="product-card__price">18.200 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-low">Низ полки</span>
+                <span class="shelf-badge shelf-badge--width-standard">Стандарт</span>
+              </div>
+              <p class="product-card__studio">Алёна Мирная</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1612196808210-82824f8f6e12?w=600&q=80" alt="Фарфор — торшер белый" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Фарфор</h3>
+                <p class="product-card__type">торшер белый</p>
+                <p class="product-card__price">23.900 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-low">Низ полки</span>
+                <span class="shelf-badge shelf-badge--width-narrow">Узкая полка</span>
+              </div>
+              <p class="product-card__studio">Мастерская «Полдень»</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1513504638946-d4a17adf9d3b?w=600&q=80" alt="Тень короткая — спот латунь" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Тень короткая</h3>
+                <p class="product-card__type">спот латунь</p>
+                <p class="product-card__price">13.400 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-low">Низ полки</span>
+                <span class="shelf-badge shelf-badge--width-standard">Стандарт</span>
+              </div>
+              <p class="product-card__studio">Мастерская «Полдень»</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1513504638946-d4a17adf9d3b?w=600&q=80" alt="Румба — подвес кольцо" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Румба</h3>
+                <p class="product-card__type">подвес кольцо</p>
+                <p class="product-card__price">24.100 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-low">Низ полки</span>
+                <span class="shelf-badge shelf-badge--width-narrow">Узкая полка</span>
+              </div>
+              <p class="product-card__studio">Светлана Речникова</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1513504638946-d4a17adf9d3b?w=600&q=80" alt="Капля — спот прозрачный" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Капля</h3>
+                <p class="product-card__type">спот прозрачный</p>
+                <p class="product-card__price">12.200 ₽</p>
+              </div>
+            </article>
+          </li>
+          <li>
+            <article class="product-card">
+              <div class="product-card__badges">
+                <span class="shelf-badge shelf-badge--tier-low">Низ полки</span>
+                <span class="shelf-badge shelf-badge--width-standard">Стандарт</span>
+              </div>
+              <p class="product-card__studio">Светлана Речникова</p>
+              <div class="product-card__image"><img src="https://images.unsplash.com/photo-1558618666-fbd2c810ba3b?w=600&q=80" alt="Рифракция — подвес грань" width="600" height="600" loading="lazy" /></div>
+              <div class="product-card__body">
+                <h3 class="product-card__name">Рифракция</h3>
+                <p class="product-card__type">подвес грань</p>
+                <p class="product-card__price">22.600 ₽</p>
+              </div>
+            </article>
+          </li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <a class="logo logo--footer" href="index.html"><span class="logo__mark" aria-hidden="true">AB</span></a>
+        <p class="footer__name">АЛТАЙ-ВИТРИН</p>
+        <p class="footer__address">Барнаул, Алтайский край<br />Россия</p>
+      </div>
+      <div class="footer-col"><a href="index.html">Главная</a><a href="catalog.html">Каталог</a><a href="polki.html">Полки</a><a href="designers.html">Дизайнеры</a></div>
+      <div class="footer-col"><a href="collections.html">Коллекции</a><a href="contacts.html">Контакты</a><a href="about.html">О нас</a></div>
+    </div>
+    <div class="container footer-line" role="note">
+      <p class="footer__hint">Комнаты каталога и полки — концепт витрины. Бэкенд: <code>doc/backend-vitrina-shelves.txt</code>.</p>
+    </div>
+  </footer>
+  <script src="js/site-config.js"></script>
+  <script src="js/main.js" defer></script>
+</body>
+</html>

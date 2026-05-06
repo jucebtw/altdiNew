@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Алтай-Витрин · Модерация товаров</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/main.css" />
+</head>
+<body class="page-admin">
+  <a class="skip-link" href="#main">Перейти к контенту</a>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="index.html" aria-label="Алтай-Витрин — на главную">
+        <span class="logo__mark" aria-hidden="true">AB</span>
+        <span class="logo__name">Алтай-Витрин</span>
+      </a>
+      <nav class="nav" data-nav>
+        <a href="catalog.html">Каталог</a>
+        <a href="polki.html">Полки</a>
+        <a href="designers.html">Дизайнеры</a>
+        <a href="collections.html">Коллекции</a>
+        <a href="contacts.html">Контакты</a>
+        <a href="about.html">О нас</a>
+        <a href="login.html" class="btn btn--outline nav-auth-btn">Войти</a>
+      </nav>
+      <div class="header-tools" aria-label="Панель">
+        <a class="icon-btn" href="catalog.html" aria-label="Поиск" title="Поиск">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        </a>
+        <a class="icon-btn" href="cart.html" aria-label="Корзина" title="Корзина">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        </a>
+      </div>
+      <button type="button" class="nav-toggle" aria-label="Меню" aria-expanded="false" data-nav-toggle></button>
+    </div>
+  </header>
+
+  <div class="container admin-page-shell">
+    <div class="admin-app">
+      <aside class="admin-sidebar" aria-label="Разделы админки">
+        <div class="admin-sidebar__brand">
+          <a href="index.html" class="logo admin-sidebar__logo-link">
+            <span class="logo__mark" aria-hidden="true">AB</span>
+            <span class="logo__name">Алтай-Витрин</span>
+          </a>
+          <span class="admin-sidebar__sub">Администрирование</span>
+        </div>
+        <nav class="admin-sidebar__nav">
+          <a class="admin-sidebar__link" href="admin.html">Панель управления</a>
+          <a class="admin-sidebar__link is-active" href="admin-moderation.html">Модерация товаров</a>
+          <a class="admin-sidebar__link" href="index.html">На витрину</a>
+        </nav>
+        <p class="admin-sidebar__user" data-admin-email></p>
+      </aside>
+
+      <main id="main" class="admin-main admin-main--wide">
+        <header class="admin-mod-head">
+          <h1 class="admin-mod-head__title">Модерация товаров</h1>
+          <p class="admin-mod-head__lead">
+            Очередь на проверку: сначала старые заявки. После решения карточка исчезнет из списка.
+          </p>
+        </header>
+
+        <section class="admin-mod-create">
+          <h2 class="admin-mod-create__title">Добавить товар в очередь</h2>
+          <form data-product-form class="admin-mod-form">
+            <label>
+              Название
+              <input name="name" type="text" required minlength="2" maxlength="80" placeholder="Например: Свет-Линия" />
+            </label>
+            <label>
+              Тип товара
+              <input name="type" type="text" required minlength="2" maxlength="80" placeholder="Например: подвесной светильник" />
+            </label>
+            <label>
+              Автор / мастер
+              <select name="designer" required>
+                <option value="">Выберите автора</option>
+                <option>Татьяна Лань</option>
+                <option>Иван Лыбин</option>
+                <option>Студия «Терра»</option>
+                <option>Марина Кожевникова</option>
+                <option>Дмитрий Каркасов</option>
+                <option>Алёна Мирная</option>
+                <option>Мастерская «Полдень»</option>
+                <option>Светлана Речникова</option>
+              </select>
+            </label>
+            <label>
+              Тип автора
+              <select name="ownerType" required>
+                <option value="designers">Дизайнер</option>
+                <option value="masters">Мастер</option>
+              </select>
+            </label>
+            <label>
+              Категория
+              <select name="category" required>
+                <option value="">Выберите категорию</option>
+                <option value="light">Освещение</option>
+                <option value="texture">Текстура</option>
+                <option value="decor">Декор</option>
+                <option value="furniture">Мебель</option>
+              </select>
+            </label>
+            <label>
+              Материал
+              <select name="material" required>
+                <option value="">Выберите материал</option>
+                <option value="ceramic">Керамика</option>
+                <option value="wood">Дерево</option>
+                <option value="metal">Металл</option>
+                <option value="textile">Текстиль</option>
+              </select>
+            </label>
+            <label>
+              Уровень полки
+              <select name="tier" required>
+                <option value="">Выберите уровень</option>
+                <option value="tier-top">Верх полки</option>
+                <option value="tier-mid">Середина</option>
+                <option value="tier-low">Низ полки</option>
+              </select>
+            </label>
+            <label>
+              Ширина места
+              <select name="width" required>
+                <option value="">Выберите ширину</option>
+                <option value="width-wide">Широкая полка</option>
+                <option value="width-standard">Стандарт</option>
+                <option value="width-narrow">Узкая полка</option>
+              </select>
+            </label>
+            <label>
+              Цена (₽)
+              <input name="price" type="number" min="100" step="100" required placeholder="12900" />
+            </label>
+            <label class="admin-mod-form__wide">
+              Фото/видео товара (до 10 файлов)
+              <input name="mediaFiles" type="file" accept=".jpg,.jpeg,.png,.webp,.mp4" multiple required />
+            </label>
+            <label>
+              Превью (главный файл)
+              <select name="previewIndex" data-preview-index required>
+                <option value="">Сначала выберите файлы</option>
+              </select>
+            </label>
+            <label>
+              Аренда до
+              <input name="leaseEndsAt" type="datetime-local" required />
+            </label>
+            <div class="admin-mod-form__actions">
+              <button type="submit" class="btn btn--admin-solid">Добавить в очередь</button>
+              <p class="form-message" data-product-form-msg></p>
+            </div>
+          </form>
+          <p class="admin-mod-create__hint">Файлы загружаются на сервер в локальное хранилище. После добавления карточки в очередь нажмите «Опубликовать» внизу — тогда товар появится на витрине.</p>
+        </section>
+
+        <div class="admin-mod-queue">
+          <p class="admin-mod-queue__meta">В очереди: <span data-queue-count>0</span></p>
+          <div data-mod-list></div>
+          <p class="admin-mod-empty" data-mod-empty hidden>Очередь пуста.</p>
+        </div>
+        <template id="mod-card-template">
+          <article class="admin-mod-card" data-mod-card>
+            <div class="admin-mod-card__media">
+              <img src="" alt="" width="160" height="160" loading="lazy" />
+            </div>
+            <div class="admin-mod-card__body">
+              <h2 class="admin-mod-card__name"></h2>
+              <p class="admin-mod-card__studio"></p>
+              <p class="admin-mod-card__price"></p>
+              <div class="admin-mod-card__actions">
+                <button type="button" class="btn btn--admin-solid" data-mod-publish>Опубликовать</button>
+                <button type="button" class="btn btn--outline" data-mod-revision>На доработку</button>
+                <button type="button" class="btn btn--admin-reject" data-mod-reject>Отклонить</button>
+              </div>
+            </div>
+          </article>
+        </template>
+      </main>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <a class="logo logo--footer" href="index.html"><span class="logo__mark" aria-hidden="true">AB</span></a>
+        <p class="footer__name">АЛТАЙ-ВИТРИН</p>
+        <p class="footer__address">Барнаул, Алтайский край<br />Россия</p>
+      </div>
+      <div class="footer-col"><a href="index.html">Главная</a><a href="catalog.html">Каталог</a><a href="polki.html">Полки</a><a href="designers.html">Дизайнеры</a></div>
+      <div class="footer-col"><a href="collections.html">Коллекции</a><a href="contacts.html">Контакты</a><a href="about.html">О нас</a></div>
+    </div>
+    <div class="container footer-line" role="note">
+      <p class="footer__hint">Корзина и сессия в браузере. Админ-панель — вход почтой из <code>adminEmails</code> в js/site-config.js.</p>
+    </div>
+  </footer>
+
+  <script src="js/site-config.js"></script>
+  <script src="js/main.js" defer></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      try {
+        var raw = sessionStorage.getItem("av-auth");
+        var a = raw ? JSON.parse(raw) : null;
+        var el = document.querySelector("[data-admin-email]");
+        if (el && a && a.email) el.textContent = a.email;
+      } catch (e) {}
+    });
+  </script>
+</body>
+</html>

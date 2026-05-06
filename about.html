@@ -1,29 +1,30 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Алтай-Витрин - О нас</title>
+  <title>Алтай-Витрин · О нас</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/main.css" />
 </head>
-<body>
+<body class="page-about">
   <a class="skip-link" href="#main">Перейти к контенту</a>
   <header class="site-header">
     <div class="container header-inner">
-      <a class="logo" href="index.html" aria-label="Алтай-Витрин - на главную">
+      <a class="logo" href="index.html" aria-label="Алтай-Витрин — на главную">
         <span class="logo__mark" aria-hidden="true">AB</span>
         <span class="logo__name">Алтай-Витрин</span>
       </a>
       <nav class="nav" data-nav>
         <a href="catalog.html">Каталог</a>
+        <a href="polki.html">Полки</a>
         <a href="designers.html">Дизайнеры</a>
         <a href="collections.html">Коллекции</a>
         <a href="contacts.html">Контакты</a>
-        <a href="about.html">О нас</a>
-        <a href="login.html" class="btn btn--outline">Войти</a>
+        <a href="about.html" aria-current="page">О нас</a>
+        <a href="login.html" class="btn btn--outline nav-auth-btn">Войти</a>
       </nav>
       <div class="header-tools" aria-label="Панель">
         <a class="icon-btn" href="catalog.html" aria-label="Поиск" title="Поиск">
@@ -36,30 +37,135 @@
       <button type="button" class="nav-toggle" aria-label="Меню" aria-expanded="false" data-nav-toggle></button>
     </div>
   </header>
+
   <main id="main" class="inner-page">
+    <section class="about-hero" aria-labelledby="about-title">
+      <div class="container about-hero__inner">
+        <p class="about-hero__eyebrow">Барнаул · Алтайский край</p>
+        <h1 id="about-title" class="about-hero__title">О проекте «Алтай-Витрин»</h1>
+        <p class="about-hero__lead">
+          Онлайн-витрина для авторского интерьера и предметов ручной работы: мы помогаем локальным студиям показывать работы в одном премиальном формате — а вам спокойно выбирать и заказывать без лишнего шума.
+        </p>
+      </div>
+    </section>
+
+    <section class="section container" aria-labelledby="about-story">
+      <h2 id="about-story" class="visually-hidden">История и миссия</h2>
+      <div class="about-intro">
+        <div class="about-intro__copy">
+          <p class="about-kicker">Миссия</p>
+          <h3 class="about-section-title">Соединять авторов и покупателей</h3>
+          <p class="about-prose">
+            Мы верим, что сильный интерьер складывается из деталей с историей: керамика, свет, текстиль и мебель от тех, кто делает это рядом с вами. Наша задача — дать таким авторам понятную витрину и инструменты, а покупателям — удобный каталог и ясные условия.
+          </p>
+          <p class="about-prose">
+            «Алтай-Витрин» — это не анонимный маркетплейс «всего понемногу», а курируемая площадка: мы следим за качеством карточек товара, помогаем с модерацией и поддерживаем контакт между студией и клиентом.
+          </p>
+          <p class="about-prose">
+            Каталог устроен как набор <strong>комнат</strong> (освещение, текстура, декор, мебель), в каждой — <strong>полки</strong> по высоте и ширине слота — по аналогии с офлайн-концепцией «Твоя полка». Мы открыто показываем это покупателям: см. <a href="polki.html">как работают полки</a> и обзор <a href="catalog.html">комнат витрины</a>.
+          </p>
+        </div>
+        <figure class="about-intro__figure">
+          <img
+            class="about-intro__img"
+            src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=900&q=80"
+            alt="Светлый минималистичный интерьер гостиной с диваном и декором"
+            width="900"
+            height="679"
+            loading="lazy"
+            decoding="async"
+          />
+          <figcaption class="about-intro__caption">
+            Витрина объединяет предметы декора, освещение, текстиль и мебель от региональных мастерских.
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section section--about-muted" aria-labelledby="about-values-title">
+      <div class="container">
+        <h2 id="about-values-title" class="section__heading">На чём держится проект</h2>
+        <ul class="about-values">
+          <li class="about-value-card">
+            <div class="about-value-card__icon" aria-hidden="true">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L4 6v5c0 5 4 9 8 9s8-4 8-9V6l-8-4z"/><path d="M9 12l2 2 4-4"/></svg>
+            </div>
+            <h3 class="about-value-card__title">Аутентичность</h3>
+            <p class="about-value-card__text">В каталоге — реальные авторы и бренды, а не безликие массовые шаблоны. Мы относимся к карточке товара как к витрине студии.</p>
+          </li>
+          <li class="about-value-card">
+            <div class="about-value-card__icon" aria-hidden="true">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            </div>
+            <h3 class="about-value-card__title">Отбор</h3>
+            <p class="about-value-card__text">Модерация и единые правила оформления помогают держать планку качества — от фото до описания материалов.</p>
+          </li>
+          <li class="about-value-card">
+            <div class="about-value-card__icon" aria-hidden="true">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 3h15v13H1zM16 8h4l3 3v5h-7V8zM4 8v4M8 8v4M4 16h8"/></svg>
+            </div>
+            <h3 class="about-value-card__title">Доставка и сервис</h3>
+            <p class="about-value-card__text">Понятные этапы заказа и акцент на бережной логистике — чтобы вещи доезжали в том виде, в каком их задумал автор.</p>
+          </li>
+        </ul>
+      </div>
+    </section>
+
     <section class="section container">
-      <h1 class="section__heading">О нас</h1>
-      <p class="page-lead">Маркетплейс локального интерьерного дизайна и предметов ручной работы.</p>
-      <div class="two-col">
-        <img class="profile-image" src="https://images.unsplash.com/photo-1513694203232-719a280e022f?w=900&q=80" alt="Interior" />
-        <div>
-          <h2 class="subheading">Миссия</h2>
-          <p>Соединяем локальных авторов с покупателями через премиальную цифровую витрину.</p>
-          <h2 class="subheading">Ценности</h2>
-          <ul class="checklist"><li>Аутентичное ремесло</li><li>качественная кураторская подборка</li><li>безопасная доставка</li></ul>
+      <blockquote class="about-quote" cite="index.html">
+        <p>«Дизайн без границ: сделано рядом с вами».</p>
+        <footer><cite>слоган «Алтай-Витрин»</cite></footer>
+      </blockquote>
+    </section>
+
+    <section class="section container" aria-labelledby="about-steps-title">
+      <h2 id="about-steps-title" class="section__heading">Как устроена витрина</h2>
+      <ol class="about-steps">
+        <li>
+          <span class="about-steps__title">Дизайнер размещает товары</span>
+          <span class="about-steps__desc">Карточки с фото, материалами и условиями изготовления попадают в очередь на проверку.</span>
+        </li>
+        <li>
+          <span class="about-steps__title">Модерация и публикация</span>
+          <span class="about-steps__desc">Мы сверяем описание с правилами площадки и помогаем при необходимости доработать витрину.</span>
+        </li>
+        <li>
+          <span class="about-steps__title">Вы выбираете в каталоге</span>
+          <span class="about-steps__desc">Фильтры, коллекции и профили студий упрощают поиск нужной вещи под интерьер.</span>
+        </li>
+        <li>
+          <span class="about-steps__title">Заказ и поддержка</span>
+          <span class="about-steps__desc">Оформление заказа и сопровождение — с прозрачными статусами и возможностью связаться с продавцом.</span>
+        </li>
+      </ol>
+    </section>
+
+    <section class="about-cta" aria-labelledby="about-cta-title">
+      <div class="container about-cta__inner">
+        <h2 id="about-cta-title" class="about-cta__title">Загляните в каталог или напишите нам</h2>
+        <p class="about-cta__text">
+          Подберите предметы для дома или расскажите о своей студии — мы подскажем следующий шаг.
+        </p>
+        <div class="about-cta__actions">
+          <a href="catalog.html" class="btn btn--hero-solid">Смотреть каталог</a>
+          <a href="contacts.html" class="btn btn--hero-outline">Контакты</a>
         </div>
       </div>
     </section>
   </main>
+
   <footer class="site-footer">
     <div class="container footer-grid">
       <div class="footer-brand">
         <a class="logo logo--footer" href="index.html"><span class="logo__mark" aria-hidden="true">AB</span></a>
         <p class="footer__name">АЛТАЙ-ВИТРИН</p>
-        <p class="footer__address">400 University Drive Suite 200<br />Coral Gables, FL 33134 USA</p>
+        <p class="footer__address">Барнаул, Алтайский край<br />Россия</p>
       </div>
-      <div class="footer-col"><a href="index.html">Главная</a><a href="catalog.html">Каталог</a><a href="designers.html">Дизайнеры</a></div>
+      <div class="footer-col"><a href="index.html">Главная</a><a href="catalog.html">Каталог</a><a href="polki.html">Полки</a><a href="designers.html">Дизайнеры</a></div>
       <div class="footer-col"><a href="collections.html">Коллекции</a><a href="contacts.html">Контакты</a><a href="about.html">О нас</a></div>
+    </div>
+    <div class="container footer-line" role="note">
+      <p class="footer__hint">Корзина и сессия в браузере. Админ-панель — вход почтой из <code>adminEmails</code> в js/site-config.js. Письма заявок — ключ web3forms.</p>
     </div>
   </footer>
   <script src="js/site-config.js"></script>

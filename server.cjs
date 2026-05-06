@@ -701,12 +701,13 @@ async function handleVkCallback(req, res) {
     }
   }
   if (type === "confirmation") {
-    const code = String(process.env.VK_CALLBACK_CONFIRMATION || "").trim();
+    const raw = String(process.env.VK_CALLBACK_CONFIRMATION || "");
+    const code = raw.trim().replace(/^\uFEFF/, "");
     if (!code) {
       console.error("VK_CALLBACK_CONFIRMATION is empty — set it to the string from VK Callback settings.");
     }
-    res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
-    res.end(code, "utf8");
+    res.writeHead(200, { "Content-Type": "text/plain" });
+    res.end(code);
     return;
   }
   if (type === "message_new") {

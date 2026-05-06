@@ -7,6 +7,11 @@
  */
 window.SITE_CONFIG = {
   web3AccessKey: "",
+  /**
+   * true — только локальный «фейковый» код (страница с диска file:// или отладка).
+   * false — на http/https всегда запрос к серверу и реальное сообщение бота ВК.
+   */
+  vkRegistrationDemo: false,
   /** URL backend API для регистрации через VK (если пусто — используется mediaApiBase/текущий домен) */
   vkAuthApiBase: "",
   /** URL backend API для загрузки/выдачи медиа товаров (пусто => тот же домен) */

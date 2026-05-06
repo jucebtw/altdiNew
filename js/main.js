@@ -452,12 +452,6 @@
     return s;
   }
 
-  function getVkApiBase() {
-    var direct = String(cfg.vkAuthApiBase || "").trim().replace(/\/+$/, "");
-    if (direct) return direct;
-    return getMediaApiBase();
-  }
-
   function getMediaApiBase() {
     return String(cfg.mediaApiBase || "").trim().replace(/\/+$/, "");
   }
@@ -474,6 +468,15 @@
     var vkOnly = String(cfg.vkAuthApiBase || "").trim().replace(/\/+$/, "");
     if (vkOnly) return vkOnly + pathname;
     return apiUrl(pathname);
+  }
+
+  /** Локальный демо-код только при file:// или vkRegistrationDemo === true */
+  function shouldUseVkDemo() {
+    if (cfg.vkRegistrationDemo === true) return true;
+    try {
+      if (String(window.location.protocol || "").toLowerCase() === "file:") return true;
+    } catch (e) {}
+    return false;
   }
 
   function mediaApi(pathname) {
@@ -537,8 +540,7 @@
   }
 
   function requestVkCode(payload) {
-    var base = getVkApiBase();
-    if (!base) {
+    if (shouldUseVkDemo()) {
       var demoCode = String(Math.floor(100000 + Math.random() * 900000));
       sessionStorage.setItem(
         VK_PENDING_KEY,
@@ -556,19 +558,22 @@
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
-    })
-      .then(function (r) {
-        if (!r.ok) throw new Error("send-code failed");
-        return r.json();
-      })
-      .then(function (data) {
+    }).then(function (r) {
+      return r.json().then(function (data) {
+        if (!r.ok) {
+          var err = new Error(
+            (data && data.error) || "Не удалось отправить код. Проверьте бота и VK_BOT_TOKEN."
+          );
+          err.apiDetail = data;
+          throw err;
+        }
         return { ok: !!(data && data.ok), demo: false };
       });
+    });
   }
 
   function verifyVkCode(payload) {
-    var base = getVkApiBase();
-    if (!base) {
+    if (shouldUseVkDemo()) {
       try {
         var raw = sessionStorage.getItem(VK_PENDING_KEY);
         var pending = raw ? JSON.parse(raw) : null;
@@ -1432,7 +1437,9 @@
         if (msg) {
           msg.classList.remove("is-error", "is-success");
           msg.textContent =
-            action === "request-vk-code" ? "Отправляем код в VK..." : "Проверяем код...";
+            action === "request-vk-code"
+              ? "Отправляем код в ВКонтакте…"
+              : "Проверяем код…";
         }
 
         if (action === "request-vk-code") {
@@ -1442,15 +1449,19 @@
                 msg.classList.remove("is-error");
                 msg.classList.add("is-success");
                 msg.textContent = res.demo
-                  ? "Демо-режим: код " + res.code + ". В проде код придёт в VK (настройте бота и токен)."
-                  : "Код отправлен в ВКонтакте. Введите пароль, код и нажмите «Подтвердить и войти».";
+                  ? "Локальный режим: код " +
+                    res.code +
+                    ". Откройте сайт по адресу https://… чтобы код приходил от бота в ВК."
+                  : "Код отправлен в личные сообщения ВКонтакте (диалог с сообществом бота). Введите пароль и код, затем «Подтвердить и войти».";
               }
             })
-            .catch(function () {
+            .catch(function (err) {
               if (msg) {
                 msg.classList.remove("is-success");
                 msg.classList.add("is-error");
-                msg.textContent = "Не удалось отправить код. Проверьте API и VK_BOT_TOKEN.";
+                msg.textContent =
+                  (err && err.message) ||
+                  "Не удалось отправить код. Напишите боту «старт» в ЛС и проверьте VK_BOT_TOKEN.";
               }
             })
             .finally(function () {

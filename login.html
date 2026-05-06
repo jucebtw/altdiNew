@@ -60,7 +60,7 @@
           </form>
 
           <h2 class="subheading" style="margin-top:1.2rem;">Регистрация по коду из VK</h2>
-          <p class="login-admin-hint">Шаг 1: нажмите «Получить код в VK». Шаг 2: придумайте пароль для входа на сайт. Шаг 3: введите код из ВК и нажмите «Подтвердить и войти».</p>
+          <p class="login-admin-hint">Шаг 1: нажмите «Отправить код в ВКонтакте» (код придёт в личные сообщения от бота сообщества). Шаг 2: придумайте пароль. Шаг 3: введите код из ВК и нажмите «Подтвердить и войти». Если бот молчит — сначала напишите ему любое сообщение в ЛС.</p>
           <form class="form auth-form auth-form--card" data-form="vk-register">
             <label class="form__row">
               <span>Имя</span>
@@ -87,7 +87,7 @@
               <input type="text" name="code" placeholder="6 цифр" inputmode="numeric" pattern="[0-9]{6}" />
             </label>
             <div class="form__row" style="display:flex;gap:.6rem;flex-wrap:wrap;">
-              <button type="submit" class="btn btn--outline" data-action="request-vk-code">Получить код в VK</button>
+              <button type="submit" class="btn btn--outline" data-action="request-vk-code">Отправить код в ВКонтакте</button>
               <button type="submit" class="btn btn--hero-solid" data-action="verify-vk-code">Подтвердить и войти</button>
             </div>
             <p class="form-message" aria-live="polite"></p>

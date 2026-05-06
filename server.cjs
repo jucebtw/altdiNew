@@ -198,6 +198,16 @@ async function ensureDataFiles() {
       used_at INTEGER NOT NULL DEFAULT 0,
       created_at INTEGER NOT NULL
     );
+    CREATE TABLE IF NOT EXISTS users (
+      email TEXT PRIMARY KEY,
+      password_hash TEXT NOT NULL,
+      password_salt TEXT NOT NULL,
+      name TEXT NOT NULL DEFAULT '',
+      vk_handle TEXT NOT NULL DEFAULT '',
+      role TEXT NOT NULL DEFAULT 'user',
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL
+    );
     CREATE INDEX IF NOT EXISTS idx_shelf_listings_room_status ON shelf_listings(room_slug, status, ends_at);
     CREATE INDEX IF NOT EXISTS idx_shelf_listings_owner ON shelf_listings(owner_user_id, status);
     CREATE INDEX IF NOT EXISTS idx_vk_codes_lookup ON vk_codes(email, vk_handle, used_at, expires_at);
@@ -656,6 +666,40 @@ async function createVkCode(email, vkHandle) {
   return { code, expiresAt };
 }
 
+function hashUserPassword(plain) {
+  const salt = crypto.randomBytes(16);
+  const hashBuf = crypto.scryptSync(String(plain), salt, 64);
+  return { salt: salt.toString("hex"), hash: hashBuf.toString("hex") };
+}
+
+function verifyUserPassword(plain, saltHex, hashHex) {
+  try {
+    const salt = Buffer.from(saltHex, "hex");
+    const hash = Buffer.from(hashHex, "hex");
+    const cand = crypto.scryptSync(String(plain), salt, 64);
+    if (cand.length !== hash.length) return false;
+    return crypto.timingSafeEqual(cand, hash);
+  } catch {
+    return false;
+  }
+}
+
+async function upsertUserAfterVk(email, name, vkHandle, password) {
+  await ensureDataFiles();
+  const { salt, hash } = hashUserPassword(password);
+  const now = Date.now();
+  db.prepare(
+    `INSERT INTO users (email, password_hash, password_salt, name, vk_handle, role, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, 'user', ?, ?)
+     ON CONFLICT(email) DO UPDATE SET
+       password_hash = excluded.password_hash,
+       password_salt = excluded.password_salt,
+       name = excluded.name,
+       vk_handle = excluded.vk_handle,
+       updated_at = excluded.updated_at`
+  ).run(email, hash, salt, name || "", vkHandle || "", now, now);
+}
+
 async function verifyVkCode(email, vkHandle, code) {
   await ensureDataFiles();
   const now = Date.now();
@@ -889,12 +933,44 @@ async function handleVkVerifyCode(req, res) {
   const email = String(body.email || "").trim().toLowerCase();
   const vk = normalizeVkHandle(body.vk);
   const code = String(body.code || "").trim();
+  const name = String(body.name || "").trim();
+  const password = String(body.password || "");
   if (!email || !vk || !/^\d{6}$/.test(code)) {
     return json(res, 400, { ok: false, error: "email, vk and 6-digit code are required" });
   }
+  if (password.length < 8) {
+    return json(res, 400, { ok: false, error: "Пароль не короче 8 символов." });
+  }
   const ok = await verifyVkCode(email, vk, code);
   if (!ok) return json(res, 401, { ok: false, error: "Invalid or expired code" });
-  return json(res, 200, { ok: true, email, role: "seller" });
+  await upsertUserAfterVk(email, name, vk, password);
+  return json(res, 200, { ok: true, email, role: "user" });
+}
+
+async function handleAuthLogin(req, res) {
+  let body;
+  try {
+    body = await parseJsonBody(req);
+  } catch {
+    return json(res, 400, { ok: false, error: "Invalid JSON body" });
+  }
+  const email = String(body.email || "").trim().toLowerCase();
+  const password = String(body.password || "");
+  if (!email || !password) {
+    return json(res, 400, { ok: false, error: "email and password required" });
+  }
+  await ensureDataFiles();
+  const row = db.prepare("SELECT email, password_hash, password_salt, role FROM users WHERE email = ?").get(email);
+  if (!row || !verifyUserPassword(password, row.password_salt, row.password_hash)) {
+    return json(res, 401, { ok: false, error: "Неверный email или пароль." });
+  }
+  let role = String(row.role || "user");
+  const adminList = String(process.env.ADMIN_EMAILS || "")
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+  if (adminList.includes(email)) role = "admin";
+  return json(res, 200, { ok: true, email: row.email, role });
 }
 
 async function runListingsJobs(nowIso = new Date().toISOString()) {
@@ -1106,6 +1182,9 @@ const server = http.createServer(async (req, res) => {
   }
   if (req.method === "POST" && url.pathname === "/api/auth/vk/verify-code") {
     return handleVkVerifyCode(req, res);
+  }
+  if (req.method === "POST" && url.pathname === "/api/auth/login") {
+    return handleAuthLogin(req, res);
   }
   if (req.method === "POST" && url.pathname === "/api/media/run-cleanup") {
     const result = await runLeaseCleanup();

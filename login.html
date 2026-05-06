@@ -60,7 +60,7 @@
           </form>
 
           <h2 class="subheading" style="margin-top:1.2rem;">Регистрация по коду из VK</h2>
-          <p class="login-admin-hint">Шаг 1: запросите код. Шаг 2: введите код из сообщения ВКонтакте и завершите регистрацию.</p>
+          <p class="login-admin-hint">Шаг 1: нажмите «Получить код в VK». Шаг 2: придумайте пароль для входа на сайт. Шаг 3: введите код из ВК и нажмите «Подтвердить и войти».</p>
           <form class="form auth-form auth-form--card" data-form="vk-register">
             <label class="form__row">
               <span>Имя</span>
@@ -73,6 +73,14 @@
             <label class="form__row">
               <span>VK ID или ссылка</span>
               <input type="text" name="vk" placeholder="id123456 или vk.com/username" required />
+            </label>
+            <label class="form__row">
+              <span>Пароль для входа на сайт</span>
+              <input type="password" name="reg_password" minlength="8" autocomplete="new-password" placeholder="Не менее 8 символов" />
+            </label>
+            <label class="form__row">
+              <span>Пароль ещё раз</span>
+              <input type="password" name="reg_password_confirm" minlength="8" autocomplete="new-password" />
             </label>
             <label class="form__row">
               <span>Код подтверждения</span>

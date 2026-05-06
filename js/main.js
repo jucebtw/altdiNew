@@ -4,6 +4,7 @@
   var VK_PENDING_KEY = "av-vk-register-pending-v1";
   var PRODUCT_PENDING_KEY = "av-products-pending-v1";
   var PRODUCT_PUBLISHED_KEY = "av-products-published-v1";
+  var DEMO_USERS_KEY = "av-app-users-v1";
   var cfg = typeof window.SITE_CONFIG !== "undefined" ? window.SITE_CONFIG : {};
 
   function migrateAuth() {
@@ -461,11 +462,66 @@
     return String(cfg.mediaApiBase || "").trim().replace(/\/+$/, "");
   }
 
+  /** Один origin с API: пустой base → относительный путь /api/... */
+  function apiUrl(pathname) {
+    var base = getMediaApiBase();
+    if (!base) return pathname;
+    return base.replace(/\/+$/, "") + pathname;
+  }
+
+  /** Авторизация: отдельный домен в vkAuthApiBase или тот же, что и медиа/сайт */
+  function authApiUrl(pathname) {
+    var vkOnly = String(cfg.vkAuthApiBase || "").trim().replace(/\/+$/, "");
+    if (vkOnly) return vkOnly + pathname;
+    return apiUrl(pathname);
+  }
+
   function mediaApi(pathname) {
     var base = getMediaApiBase();
     if (!pathname) return base || "";
     if (!base) return pathname;
     return base + pathname;
+  }
+
+  function demoPasswordHash(email, password) {
+    var data = new TextEncoder().encode(
+      String(password) + "|" + String(email).toLowerCase() + "|av-demo"
+    );
+    return crypto.subtle.digest("SHA-256", data).then(function (buf) {
+      return Array.from(new Uint8Array(buf))
+        .map(function (b) {
+          return b.toString(16).padStart(2, "0");
+        })
+        .join("");
+    });
+  }
+
+  function storeDemoUser(email, name, vk, password) {
+    return demoPasswordHash(email, password).then(function (hash) {
+      var users = getArrayStore(DEMO_USERS_KEY);
+      var em = String(email).toLowerCase();
+      users = users.filter(function (u) {
+        return String(u.email).toLowerCase() !== em;
+      });
+      users.push({
+        email: em,
+        name: name || "",
+        vk: vk || "",
+        passwordHash: hash,
+        role: "user",
+      });
+      setArrayStore(DEMO_USERS_KEY, users);
+    });
+  }
+
+  function demoLoginCheck(email, password) {
+    return demoPasswordHash(email, password).then(function (hash) {
+      var users = getArrayStore(DEMO_USERS_KEY);
+      var u = users.find(function (x) {
+        return String(x.email).toLowerCase() === String(email).toLowerCase();
+      });
+      return !!(u && u.passwordHash === hash);
+    });
   }
 
   function resolveProductPreview(item) {
@@ -496,7 +552,7 @@
       );
       return Promise.resolve({ ok: true, demo: true, code: demoCode });
     }
-    return fetch(base + "/auth/vk/send-code", {
+    return fetch(authApiUrl("/api/auth/vk/send-code"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -523,21 +579,24 @@
           pending.code === payload.code
         ) {
           sessionStorage.removeItem(VK_PENDING_KEY);
-          return Promise.resolve({ ok: true, email: payload.email, role: "user", demo: true });
+          return storeDemoUser(payload.email, payload.name, payload.vk, payload.password).then(function () {
+            return { ok: true, email: payload.email, role: "user", demo: true };
+          });
         }
       } catch (e) {}
       return Promise.resolve({ ok: false, demo: true });
     }
-    return fetch(base + "/auth/vk/verify-code", {
+    return fetch(authApiUrl("/api/auth/vk/verify-code"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
-    })
-      .then(function (r) {
-        if (!r.ok) throw new Error("verify failed");
-        return r.json();
-      })
-      .then(function (data) {
+    }).then(function (r) {
+      return r.json().then(function (data) {
+        if (!r.ok) {
+          var err = new Error((data && data.error) || "verify failed");
+          err.apiDetail = data;
+          throw err;
+        }
         return {
           ok: !!(data && data.ok),
           email: (data && data.email) || payload.email,
@@ -545,6 +604,7 @@
           demo: false,
         };
       });
+    });
   }
 
   function updateAuthNav() {
@@ -1191,6 +1251,7 @@
         var pwInput = form.querySelector('input[name="password"]');
         var emailRaw = emailInput ? emailInput.value.trim() : "";
         var emailNorm = emailRaw.toLowerCase();
+        var pwVal = pwInput ? pwInput.value : "";
         var admins = (cfg.adminEmails || [])
           .map(function (x) {
             return String(x || "")
@@ -1198,37 +1259,127 @@
               .trim();
           })
           .filter(Boolean);
-        var role = "user";
-        if (admins.indexOf(emailNorm) >= 0) {
+        var activeLoginBtn = event.submitter || form.querySelector('[type="submit"]');
+
+        function legacyAdminLogin() {
+          var role = "admin";
+          if (admins.indexOf(emailNorm) < 0) return false;
           var needPw = adminPasswordRequired(emailNorm);
-          if (needPw !== null) {
-            var pwVal = pwInput ? pwInput.value : "";
-            if (pwVal !== needPw) {
+          if (needPw !== null && pwVal !== needPw) {
+            if (msg) {
+              msg.classList.remove("is-success");
+              msg.classList.add("is-error");
+              msg.textContent = "Неверный пароль для этой учётной записи.";
+            }
+            return true;
+          }
+          setAuth(emailRaw, role);
+          if (msg) {
+            msg.classList.remove("is-error");
+            msg.classList.add("is-success");
+            msg.textContent = "Вход как администратор. Открываем панель…";
+          }
+          form.querySelectorAll("input, textarea").forEach(function (el) {
+            if (el.type !== "email") el.value = "";
+          });
+          setTimeout(function () {
+            window.location.href = "admin.html";
+          }, 600);
+          return true;
+        }
+
+        function finishUserLogin(role) {
+          setAuth(emailRaw, role || "user");
+          updateAuthNav();
+          if (msg) {
+            msg.classList.remove("is-error");
+            msg.classList.add("is-success");
+            msg.textContent =
+              role === "admin"
+                ? "Вход как администратор. Открываем панель…"
+                : "Вход выполнен. Переходим в каталог…";
+          }
+          form.querySelectorAll("input, textarea").forEach(function (el) {
+            if (el.type !== "email") el.value = "";
+          });
+          setTimeout(function () {
+            window.location.href = role === "admin" ? "admin.html" : "catalog.html";
+          }, 600);
+        }
+
+        if (activeLoginBtn) activeLoginBtn.disabled = true;
+        fetch(authApiUrl("/api/auth/login"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: emailRaw, password: pwVal }),
+        })
+          .then(function (r) {
+            return r.json().then(function (data) {
+              return { okHttp: r.ok, status: r.status, data: data };
+            });
+          })
+          .then(function (res) {
+            if (res.data && res.data.ok) {
+              finishUserLogin(res.data.role || "user");
+              return;
+            }
+            if (res.status === 401) {
               if (msg) {
                 msg.classList.remove("is-success");
                 msg.classList.add("is-error");
-                msg.textContent = "Неверный пароль для этой учётной записи.";
+                msg.textContent =
+                  (res.data && res.data.error) || "Неверный email или пароль.";
               }
               return;
             }
-          }
-          role = "admin";
-        }
-        setAuth(emailRaw, role);
-        if (msg) {
-          msg.classList.remove("is-error");
-          msg.classList.add("is-success");
-          msg.textContent =
-            role === "admin"
-              ? "Вход как администратор. Открываем панель…"
-              : "Вход выполнен. Переходим в каталог…";
-        }
-        form.querySelectorAll("input, textarea").forEach(function (el) {
-          if (el.type !== "email") el.value = "";
-        });
-        setTimeout(function () {
-          window.location.href = role === "admin" ? "admin.html" : "catalog.html";
-        }, 600);
+            if (legacyAdminLogin()) return;
+            demoLoginCheck(emailRaw, pwVal)
+              .then(function (okDemo) {
+                if (okDemo) {
+                  finishUserLogin("user");
+                  return;
+                }
+                if (msg) {
+                  msg.classList.remove("is-success");
+                  msg.classList.add("is-error");
+                  msg.textContent =
+                    "Неверный email или пароль. Зарегистрируйтесь через VK или проверьте связь с сервером.";
+                }
+              })
+              .catch(function () {
+                if (msg) {
+                  msg.classList.remove("is-success");
+                  msg.classList.add("is-error");
+                  msg.textContent = "Не удалось проверить пароль в этом браузере (нужен HTTPS или localhost).";
+                }
+              });
+          })
+          .catch(function () {
+            if (legacyAdminLogin()) return;
+            demoLoginCheck(emailRaw, pwVal)
+              .then(function (okDemo) {
+                if (okDemo) {
+                  finishUserLogin("user");
+                  return;
+                }
+                if (msg) {
+                  msg.classList.remove("is-success");
+                  msg.classList.add("is-error");
+                  msg.textContent =
+                    "Сервер входа недоступен. Для офлайн-режима используйте учётку после регистрации (демо) или админа из конфига.";
+                }
+              })
+              .catch(function () {
+                if (msg) {
+                  msg.classList.remove("is-success");
+                  msg.classList.add("is-error");
+                  msg.textContent = "Не удалось проверить пароль в этом браузере (нужен HTTPS или localhost).";
+                }
+              });
+          })
+          .finally(function () {
+            if (activeLoginBtn) activeLoginBtn.disabled = false;
+          });
         return;
       }
 
@@ -1252,15 +1403,19 @@
 
       if (kind === "vk-register") {
         var action = (event.submitter && event.submitter.getAttribute("data-action")) || "";
+        var vkActiveBtn = event.submitter || form.querySelector('[type="submit"]');
         var nameInput = form.querySelector('input[name="name"]');
         var emailInput2 = form.querySelector('input[name="email"]');
         var vkInput = form.querySelector('input[name="vk"]');
         var codeInput = form.querySelector('input[name="code"]');
+        var regPassEl = form.querySelector('input[name="reg_password"]');
+        var regPass2El = form.querySelector('input[name="reg_password_confirm"]');
         var regPayload = {
           name: nameInput ? nameInput.value.trim() : "",
           email: emailInput2 ? emailInput2.value.trim() : "",
           vk: normalizeVkHandle(vkInput ? vkInput.value : ""),
           code: codeInput ? String(codeInput.value || "").trim() : "",
+          password: "",
           origin: window.location.origin,
         };
 
@@ -1273,7 +1428,7 @@
           return;
         }
 
-        if (submitBtn) submitBtn.disabled = true;
+        if (vkActiveBtn) vkActiveBtn.disabled = true;
         if (msg) {
           msg.classList.remove("is-error", "is-success");
           msg.textContent =
@@ -1287,19 +1442,19 @@
                 msg.classList.remove("is-error");
                 msg.classList.add("is-success");
                 msg.textContent = res.demo
-                  ? "Демо-режим: код " + res.code + ". В проде укажите vkAuthApiBase, код придет в VK."
-                  : "Код отправлен в ВКонтакте. Введите его и нажмите «Подтвердить и войти».";
+                  ? "Демо-режим: код " + res.code + ". В проде код придёт в VK (настройте бота и токен)."
+                  : "Код отправлен в ВКонтакте. Введите пароль, код и нажмите «Подтвердить и войти».";
               }
             })
             .catch(function () {
               if (msg) {
                 msg.classList.remove("is-success");
                 msg.classList.add("is-error");
-                msg.textContent = "Не удалось отправить код. Проверьте vkAuthApiBase/API.";
+                msg.textContent = "Не удалось отправить код. Проверьте API и VK_BOT_TOKEN.";
               }
             })
             .finally(function () {
-              if (submitBtn) submitBtn.disabled = false;
+              if (vkActiveBtn) vkActiveBtn.disabled = false;
             });
           return;
         }
@@ -1310,14 +1465,37 @@
             msg.classList.add("is-error");
             msg.textContent = "Введите 6-значный код подтверждения.";
           }
-          if (submitBtn) submitBtn.disabled = false;
+          if (vkActiveBtn) vkActiveBtn.disabled = false;
           return;
         }
+
+        var rp = regPassEl ? String(regPassEl.value || "") : "";
+        var rp2 = regPass2El ? String(regPass2El.value || "") : "";
+        if (rp.length < 8) {
+          if (msg) {
+            msg.classList.remove("is-success");
+            msg.classList.add("is-error");
+            msg.textContent = "Задайте пароль не короче 8 символов.";
+          }
+          if (vkActiveBtn) vkActiveBtn.disabled = false;
+          return;
+        }
+        if (rp !== rp2) {
+          if (msg) {
+            msg.classList.remove("is-success");
+            msg.classList.add("is-error");
+            msg.textContent = "Пароли не совпадают.";
+          }
+          if (vkActiveBtn) vkActiveBtn.disabled = false;
+          return;
+        }
+        regPayload.password = rp;
 
         verifyVkCode(regPayload)
           .then(function (res) {
             if (!res.ok) throw new Error("bad code");
             setAuth(res.email, res.role || "user");
+            updateAuthNav();
             if (msg) {
               msg.classList.remove("is-error");
               msg.classList.add("is-success");
@@ -1327,15 +1505,16 @@
               window.location.href = "catalog.html";
             }, 650);
           })
-          .catch(function () {
+          .catch(function (err) {
             if (msg) {
               msg.classList.remove("is-success");
               msg.classList.add("is-error");
-              msg.textContent = "Неверный код или ошибка проверки.";
+              msg.textContent =
+                (err && err.message) || "Неверный код, пароль или ошибка проверки.";
             }
           })
           .finally(function () {
-            if (submitBtn) submitBtn.disabled = false;
+            if (vkActiveBtn) vkActiveBtn.disabled = false;
           });
         return;
       }

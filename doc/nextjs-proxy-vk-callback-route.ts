@@ -1,15 +1,17 @@
 /**
- * Если сайт на Next.js, ВК шлёт POST на https://altdi.ru/api/vk/callback —
- * по умолчанию отвечает Next.js (404/HTML), а не server.cjs → «Invalid response code».
+ * Схема «nginx → 3000 (Next.js)»: ВК бьёт в https://домен/api/vk/callback,
+ * отвечает Next — добавьте этот маршрут, чтобы Next переслал тело запроса на server.cjs.
  *
- * Вариант A (предпочтительно): в nginx проксировать только этот путь на процесс server.cjs
- *   см. doc/nginx-vk-callback-snippet.conf
- *
- * Вариант B: положите этот файл как:
+ * Куда положить в проекте Next:
  *   src/app/api/vk/callback/route.ts
- * В .env на сервере у Next.js добавьте:
+ *
+ * В .env у Next.js (на сервере, пересборка после изменения):
  *   MEDIA_SERVER_URL=http://127.0.0.1:8765
- * И держите второй процесс: pm2 start server.cjs на порту 8765 (или как у вас настроено).
+ *
+ * Отдельно запущенный server.cjs (pm2), например:
+ *   PORT=8765 pm2 start server.cjs --name altdi-api
+ *
+ * В .env процесса server.cjs: VK_BOT_TOKEN, VK_CALLBACK_CONFIRMATION, VK_CALLBACK_SECRET.
  */
 
 import { NextResponse } from "next/server";

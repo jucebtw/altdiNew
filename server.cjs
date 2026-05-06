@@ -688,14 +688,26 @@ async function handleVkCallback(req, res) {
   } catch {
     return vkCallbackPlain(res, 400, "bad request");
   }
-  const secret = String(process.env.VK_CALLBACK_SECRET || "").trim();
-  if (secret && String(body.secret || "") !== secret) {
-    return vkCallbackPlain(res, 403, "forbidden");
-  }
   const type = String(body.type || "");
+  const secret = String(process.env.VK_CALLBACK_SECRET || "").trim();
+  const bodySecret = String(body.secret || "");
+  if (secret) {
+    if (bodySecret && bodySecret !== secret) {
+      return vkCallbackPlain(res, 403, "forbidden");
+    }
+    // confirmation от ВК часто без поля secret; остальные события при включённом ключе должны его слать
+    if (!bodySecret && type !== "confirmation") {
+      return vkCallbackPlain(res, 403, "forbidden");
+    }
+  }
   if (type === "confirmation") {
     const code = String(process.env.VK_CALLBACK_CONFIRMATION || "").trim();
-    return vkCallbackPlain(res, 200, code);
+    if (!code) {
+      console.error("VK_CALLBACK_CONFIRMATION is empty — set it to the string from VK Callback settings.");
+    }
+    res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
+    res.end(code, "utf8");
+    return;
   }
   if (type === "message_new") {
     const obj = body.object;

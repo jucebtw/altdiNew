@@ -9,9 +9,14 @@
 Переменные окружения на сервере (.env):
 
   VK_BOT_TOKEN=...              (токен сообщества с правом messages)
-  VK_CALLBACK_CONFIRMATION=...  (строка подтверждения из настроек Callback в ВК)
-  VK_CALLBACK_SECRET=...        (опционально: тот же «Секретный ключ», что в ВК)
+  VK_CALLBACK_CONFIRMATION=...  (строка подтверждения из настроек Callback в ВК, например fe17a41e)
+  VK_CALLBACK_SECRET=...        (тот же «Секретный ключ», что в поле ВК — если задан, без него message_new не примем)
 
-После сохранения ВК отправит запрос type=confirmation — сервер вернёт VK_CALLBACK_CONFIRMATION.
+После сохранения ВК отправит POST type=confirmation — ответ должен быть ТОЛЬКО этой строкой (text/plain), без HTML и без JSON.
+
+Если ВК пишет «Сервер вернул неправильный ответ»:
+  1) В .env на сервере должен быть VK_CALLBACK_CONFIRMATION точно как в кабинете ВК; после правки: pm2 restart ... --update-env
+  2) Запрос должен попадать на процесс server.cjs (порт pm2), а не на ответ Next.js/статики. В nginx для location = /api/vk/callback задайте proxy_pass на тот же upstream, что и остальной /api/ у медиа-сервера (например 127.0.0.1:8765).
+  3) Проверка: curl -sS -X POST https://altdi.ru/api/vk/callback -H "Content-Type: application/json" -d "{\"type\":\"confirmation\",\"group_id\":238093187}"   должна вернуть одну строку — код подтверждения.
 
 Пользователь: кнопка на сайте ведёт на https://vk.com/altdiru , первое сообщение — Старт/старт/Start/start.

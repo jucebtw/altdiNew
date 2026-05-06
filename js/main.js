@@ -1545,10 +1545,27 @@
     });
   });
 
+  function initVkBotChatLinks() {
+    document.querySelectorAll("[data-vk-bot-chat]").forEach(function (el) {
+      var url = String(cfg.vkBotChatUrl || "").trim();
+      if (url) {
+        el.setAttribute("href", url);
+        return;
+      }
+      el.addEventListener("click", function (e) {
+        e.preventDefault();
+        alert(
+          "Укажите ссылку на чат с ботом: vkBotChatUrl в js/site-config.js (например https://vk.me/im?sel=-ID_группы)."
+        );
+      });
+    });
+  }
+
   /* ——— Boot ——— */
   ensureCartBadge();
   updateCartBadge();
   updateAuthNav();
+  initVkBotChatLinks();
   initAdminProductModeration();
   renderDynamicRoomProducts();
   renderDynamicProfileProducts();

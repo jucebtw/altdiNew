@@ -655,6 +655,67 @@ async function sendVkMessage(vkHandle, message) {
   });
 }
 
+/** Ответ пользователю в уже открытый диалог (Callback API, peer_id из входящего сообщения). */
+async function sendVkPeerMessage(peerId, message) {
+  const id = Number(peerId);
+  if (!Number.isFinite(id)) throw new Error("peer-id-invalid");
+  const randomId = Math.floor(Math.random() * 2147483647);
+  await vkApi("messages.send", {
+    peer_id: String(id),
+    random_id: String(randomId),
+    message,
+  });
+}
+
+function isVkStartTrigger(text) {
+  const t = String(text || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[\s.!,]+$/g, "")
+    .trim();
+  return t === "старт" || t === "start";
+}
+
+function vkCallbackPlain(res, status, body) {
+  res.writeHead(status, { "Content-Type": "text/plain; charset=utf-8" });
+  res.end(body);
+}
+
+async function handleVkCallback(req, res) {
+  let body;
+  try {
+    body = await parseJsonBody(req);
+  } catch {
+    return vkCallbackPlain(res, 400, "bad request");
+  }
+  const secret = String(process.env.VK_CALLBACK_SECRET || "").trim();
+  if (secret && String(body.secret || "") !== secret) {
+    return vkCallbackPlain(res, 403, "forbidden");
+  }
+  const type = String(body.type || "");
+  if (type === "confirmation") {
+    const code = String(process.env.VK_CALLBACK_CONFIRMATION || "").trim();
+    return vkCallbackPlain(res, 200, code);
+  }
+  if (type === "message_new") {
+    const obj = body.object;
+    const msg =
+      obj && typeof obj === "object" && obj.message && typeof obj.message === "object"
+        ? obj.message
+        : obj;
+    if (msg && msg.peer_id != null && isVkStartTrigger(msg.text)) {
+      try {
+        const welcome =
+          "Здравствуйте! Это Алтай-Витрин. Код регистрации вы получите на сайте: откройте altdi.ru → «Войти» → заполните форму и нажмите «Отправить код».";
+        await sendVkPeerMessage(msg.peer_id, welcome);
+      } catch (err) {
+        console.error("VK callback reply failed:", err.message);
+      }
+    }
+  }
+  return vkCallbackPlain(res, 200, "ok");
+}
+
 async function createVkCode(email, vkHandle) {
   await ensureDataFiles();
   const code = String(Math.floor(100000 + Math.random() * 900000));
@@ -1186,6 +1247,9 @@ const server = http.createServer(async (req, res) => {
   if (req.method === "POST" && url.pathname === "/api/auth/login") {
     return handleAuthLogin(req, res);
   }
+  if (req.method === "POST" && url.pathname === "/api/vk/callback") {
+    return handleVkCallback(req, res);
+  }
   if (req.method === "POST" && url.pathname === "/api/media/run-cleanup") {
     const result = await runLeaseCleanup();
     return json(res, 200, { ok: true, result });
@@ -1251,5 +1315,6 @@ server.listen(PORT, "127.0.0.1", async () => {
   console.log(`Local site: http://127.0.0.1:${PORT}/`);
   console.log("Media API: POST /api/media/upload");
   console.log("Listings API: /api/rooms/:slug, /api/seller/listings, /api/admin/listings");
+  console.log("VK Callback: POST /api/vk/callback (VK_CALLBACK_CONFIRMATION, optional VK_CALLBACK_SECRET)");
   console.log("Press Ctrl+C to stop.");
 });

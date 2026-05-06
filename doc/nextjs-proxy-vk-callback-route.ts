@@ -2,8 +2,8 @@
  * Схема «nginx → 3000 (Next.js)»: ВК бьёт в https://домен/api/vk/callback,
  * отвечает Next — добавьте этот маршрут, чтобы Next переслал тело запроса на server.cjs.
  *
- * Куда положить в проекте Next:
- *   src/app/api/vk/callback/route.ts
+ * Каноническая копия в этом репозитории: src/app/api/vk/callback/route.ts
+ * (в проекте Next — тот же путь при merge или копировании).
  *
  * В .env у Next.js (на сервере, пересборка после изменения):
  *   MEDIA_SERVER_URL=http://127.0.0.1:8765

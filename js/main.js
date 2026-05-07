@@ -42,6 +42,37 @@
     }
   }
 
+  if (document.body && document.body.classList.contains("page-seller")) {
+    try {
+      var rawSellerGuard = sessionStorage.getItem(AUTH_KEY);
+      var sellerGuard = rawSellerGuard ? JSON.parse(rawSellerGuard) : null;
+      if (!sellerGuard || !sellerGuard.email) {
+        window.location.replace("login.html?next=seller-cabinet.html");
+        return;
+      }
+    } catch (errSg) {
+      window.location.replace("login.html?next=seller-cabinet.html");
+      return;
+    }
+  }
+
+  function getLoginRedirectUrl(role) {
+    try {
+      var q = new URLSearchParams(window.location.search || "");
+      var next = q.get("next");
+      if (
+        next &&
+        next.indexOf("/") === -1 &&
+        next.indexOf("..") === -1 &&
+        next.indexOf("\\") === -1 &&
+        /\.html$/i.test(next)
+      ) {
+        return next;
+      }
+    } catch (eR) {}
+    return role === "admin" ? "admin.html" : "catalog.html";
+  }
+
   function adminPasswordRequired(emailNorm) {
     var map = cfg.adminPasswords;
     if (!map || typeof map !== "object") return null;
@@ -616,12 +647,21 @@
     document.querySelectorAll("[data-admin-nav]").forEach(function (el) {
       el.remove();
     });
+    document.querySelectorAll("[data-seller-nav]").forEach(function (el) {
+      el.remove();
+    });
     var loginLink =
       document.querySelector("nav .nav-auth-btn") ||
       document.querySelector('nav a[href="login.html"]');
     if (!loginLink) return;
     var auth = getAuth();
     if (auth && auth.email) {
+      var cab = document.createElement("a");
+      cab.href = "seller-cabinet.html";
+      cab.className = "btn btn--outline";
+      cab.setAttribute("data-seller-nav", "");
+      cab.textContent = "Кабинет";
+      loginLink.parentNode.insertBefore(cab, loginLink);
       if (auth.role === "admin") {
         var adm = document.createElement("a");
         adm.href = "admin.html";
@@ -836,6 +876,71 @@
     document.dispatchEvent(new CustomEvent("av-products-changed"));
   }
 
+  function initSellerServerListings() {
+    var box = document.querySelector("[data-seller-server-list]");
+    if (!box || !document.body.classList.contains("page-seller")) return;
+    var listEl = box.querySelector("[data-seller-server-list-body]");
+    var emptyEl = box.querySelector("[data-seller-server-empty]");
+    var loadEl = box.querySelector("[data-seller-server-loading]");
+    var statusRu = {
+      active: "На витрине",
+      pending_review: "На модерации",
+      expired: "Истекла аренда",
+      cancelled: "Отклонено",
+      pending_payment: "Ожидает оплаты",
+    };
+    function refresh() {
+      var auth = getAuth();
+      if (!auth || !auth.email || !listEl) return;
+      if (loadEl) loadEl.hidden = false;
+      fetch(
+        mediaApi("/api/seller/listings?seller=" + encodeURIComponent(String(auth.email).trim().toLowerCase()))
+      )
+        .then(function (r) {
+          return r.json();
+        })
+        .then(function (data) {
+          var items = (data && data.items) || [];
+          listEl.innerHTML = "";
+          if (loadEl) loadEl.hidden = true;
+          if (emptyEl) emptyEl.hidden = items.length !== 0;
+          items.forEach(function (row) {
+            var p = row.product || {};
+            var article = document.createElement("article");
+            article.className = "seller-server-card";
+            var st = String(row.status || "");
+            var imgUrl =
+              (p.preview && p.preview.url) ||
+              p.image ||
+              resolveProductPreview({ preview: p.preview, image: p.image, media: p.media });
+            var ends = row.endsAt ? new Date(row.endsAt).toLocaleString("ru-RU") : "";
+            article.innerHTML =
+              '<div class="seller-server-card__media"><img width="120" height="120" alt="" /></div>' +
+              '<div class="seller-server-card__body">' +
+              "<h3></h3>" +
+              '<p class="seller-server-card__meta"></p>' +
+              '<p class="seller-server-card__status"></p>' +
+              "</div>";
+            var im = article.querySelector("img");
+            if (im) im.src = imgUrl || "";
+            if (im) im.alt = p.name || "Товар";
+            var h3 = article.querySelector("h3");
+            if (h3) h3.textContent = p.name || "Товар";
+            var meta = article.querySelector(".seller-server-card__meta");
+            if (meta) meta.textContent = (p.type || "") + (ends ? " · аренда до " + ends : "");
+            var stEl = article.querySelector(".seller-server-card__status");
+            if (stEl) stEl.textContent = statusRu[st] || st;
+            listEl.appendChild(article);
+          });
+        })
+        .catch(function () {
+          if (loadEl) loadEl.hidden = true;
+        });
+    }
+    document.addEventListener("av-seller-server-refresh", refresh);
+    refresh();
+  }
+
   function initAdminProductModeration() {
     var form = document.querySelector("[data-product-form]");
     var list = document.querySelector("[data-mod-list]");
@@ -909,6 +1014,7 @@
     function publishItem(item) {
       var auth = getAuth();
       var sellerEmail = auth && auth.email ? String(auth.email).trim().toLowerCase() : "";
+      var listingStatus = auth && auth.role === "admin" ? "active" : "pending_review";
       var payload = {
         productId: item.id,
         roomSlug: categoryToRoomSlug(item.category || "decor"),
@@ -916,6 +1022,7 @@
         widthTier: item.width || "width-standard",
         leaseEndsAt: item.leaseEndsAt || "",
         ownerUserId: sellerEmail,
+        status: listingStatus,
         product: {
           id: item.id,
           name: item.name,
@@ -930,18 +1037,31 @@
           image: item.image || "",
         },
       };
-      var syncPromise = fetch(mediaApi("/api/seller/listings"), {
+      return fetch(mediaApi("/api/seller/listings"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
-      }).catch(function () {
-        /* fallback below */
-      });
-      var out = getArrayStore(PRODUCT_PUBLISHED_KEY);
-      out.push(item);
-      setArrayStore(PRODUCT_PUBLISHED_KEY, out);
-      document.dispatchEvent(new CustomEvent("av-products-changed"));
-      return syncPromise;
+      })
+        .then(function (res) {
+          return res.json().then(function (data) {
+            if (!res.ok) {
+              var err = new Error((data && data.error) || "save failed");
+              err.detail = data;
+              throw err;
+            }
+            return data;
+          });
+        })
+        .then(function (data) {
+          if (listingStatus === "active") {
+            var out = getArrayStore(PRODUCT_PUBLISHED_KEY);
+            out.push(item);
+            setArrayStore(PRODUCT_PUBLISHED_KEY, out);
+          }
+          document.dispatchEvent(new CustomEvent("av-products-changed"));
+          document.dispatchEvent(new CustomEvent("av-seller-server-refresh"));
+          return data;
+        });
     }
 
     function renderQueue() {
@@ -971,6 +1091,11 @@
         if (pr) pr.innerHTML = formatRub(Number(item.price) || 0).replace(" ₽", '&nbsp;<span class="ruble">₽</span>');
         list.appendChild(node);
       });
+      if (document.body.classList.contains("page-seller")) {
+        list.querySelectorAll("[data-mod-publish]").forEach(function (b) {
+          b.textContent = "Отправить на модерацию";
+        });
+      }
     }
 
     if (mediaInput) {
@@ -1095,10 +1220,22 @@
         var btn = event.target.closest("[data-mod-publish]");
         if (btn) btn.disabled = true;
         publishItem(item)
+          .then(function () {
+            removeFromQueue(id);
+            renderQueue();
+          })
+          .catch(function (err) {
+            if (msg) {
+              msg.classList.remove("is-success");
+              msg.classList.add("is-error");
+              msg.textContent =
+                (err && err.message) || "Не удалось сохранить на сервере. Проверьте вход и API.";
+            }
+          })
           .finally(function () {
             if (btn) btn.disabled = false;
           });
-        removeFromQueue(id);
+        return;
       } else if (event.target.closest("[data-mod-revision]")) {
         removeFromQueue(id);
       } else if (event.target.closest("[data-mod-reject]")) {
@@ -1110,6 +1247,92 @@
     });
 
     renderQueue();
+  }
+
+  function initServerPendingModeration() {
+    var wrap = document.querySelector("[data-server-pending-list]");
+    var empty = document.querySelector("[data-server-pending-empty]");
+    if (!wrap || !document.body.classList.contains("page-admin")) return;
+    function refresh() {
+      fetch(mediaApi("/api/admin/listings?status=pending_review"))
+        .then(function (r) {
+          return r.json();
+        })
+        .then(function (data) {
+          var items = (data && data.items) || [];
+          wrap.innerHTML = "";
+          if (empty) empty.hidden = items.length !== 0;
+          items.forEach(function (row) {
+            var p = row.product || {};
+            var imgUrl = (p.preview && p.preview.url) || p.image || "";
+            var article = document.createElement("article");
+            article.className = "admin-mod-card admin-mod-card--server";
+            article.setAttribute("data-server-listing-id", row.id);
+            article.innerHTML =
+              '<div class="admin-mod-card__media"><img width="160" height="160" alt="" /></div>' +
+              '<div class="admin-mod-card__body">' +
+              '<h2 class="admin-mod-card__name"></h2>' +
+              '<p class="admin-mod-card__studio"></p>' +
+              '<p class="admin-mod-card__price"></p>' +
+              '<div class="admin-mod-card__actions">' +
+              '<button type="button" class="btn btn--admin-solid" data-server-approve>На витрину</button>' +
+              '<button type="button" class="btn btn--admin-reject" data-server-reject>Отклонить</button>' +
+              "</div></div>";
+            var img = article.querySelector("img");
+            if (img && imgUrl) {
+              img.src = imgUrl;
+              img.alt = p.name || "";
+            }
+            var nm = article.querySelector(".admin-mod-card__name");
+            if (nm) nm.textContent = p.name || "Без названия";
+            var st = article.querySelector(".admin-mod-card__studio");
+            if (st)
+              st.textContent =
+                (row.ownerUserId || "продавец") +
+                " · " +
+                (p.type || "") +
+                " · " +
+                (row.roomSlug || "");
+            var pr = article.querySelector(".admin-mod-card__price");
+            if (pr)
+              pr.innerHTML = formatRub(Number(p.price) || 0).replace(" ₽", '&nbsp;<span class="ruble">₽</span>');
+            wrap.appendChild(article);
+          });
+        })
+        .catch(function () {
+          if (empty) empty.hidden = false;
+        });
+    }
+    wrap.addEventListener("click", function (ev) {
+      var card = ev.target.closest("[data-server-listing-id]");
+      if (!card) return;
+      var lid = card.getAttribute("data-server-listing-id");
+      if (!lid) return;
+      if (ev.target.closest("[data-server-approve]")) {
+        fetch(mediaApi("/api/admin/listings/" + encodeURIComponent(lid)), {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "active" }),
+        }).then(function (r) {
+          if (r.ok) {
+            refresh();
+            document.dispatchEvent(new CustomEvent("av-seller-server-refresh"));
+          }
+        });
+      } else if (ev.target.closest("[data-server-reject]")) {
+        fetch(mediaApi("/api/admin/listings/" + encodeURIComponent(lid)), {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "cancelled" }),
+        }).then(function (r) {
+          if (r.ok) {
+            refresh();
+            document.dispatchEvent(new CustomEvent("av-seller-server-refresh"));
+          }
+        });
+      }
+    });
+    refresh();
   }
 
   function submitWeb3Seller(brand, email, message, msgEl, btn) {
@@ -1288,7 +1511,7 @@
             if (el.type !== "email") el.value = "";
           });
           setTimeout(function () {
-            window.location.href = "admin.html";
+            window.location.href = getLoginRedirectUrl("admin");
           }, 600);
           return true;
         }
@@ -1308,7 +1531,7 @@
             if (el.type !== "email") el.value = "";
           });
           setTimeout(function () {
-            window.location.href = role === "admin" ? "admin.html" : "catalog.html";
+            window.location.href = getLoginRedirectUrl(role);
           }, 600);
         }
 
@@ -1566,7 +1789,9 @@
   updateCartBadge();
   updateAuthNav();
   initVkBotChatLinks();
+  initSellerServerListings();
   initAdminProductModeration();
+  initServerPendingModeration();
   renderDynamicRoomProducts();
   renderDynamicProfileProducts();
   initAddToCart();

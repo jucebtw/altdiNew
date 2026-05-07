@@ -867,6 +867,14 @@ async function handleCreateSellerListing(req, res) {
   const endsAt = parseLeaseEndsAt(body.endsAt || body.leaseEndsAt);
   if (!endsAt) return json(res, 400, { ok: false, error: "endsAt is required" });
 
+  const ownerUserId = String(body.ownerUserId || body.sellerEmail || "").trim().toLowerCase();
+  if (!ownerUserId) {
+    return json(res, 400, { ok: false, error: "ownerUserId is required" });
+  }
+  const rawListingStatus = String(body.status || "").trim().toLowerCase();
+  const listingStatus =
+    rawListingStatus === "pending_review" || rawListingStatus === "active" ? rawListingStatus : "active";
+
   const listing = {
     id: normalizeToken(body.id, `lst-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`),
     productId,
@@ -875,9 +883,9 @@ async function handleCreateSellerListing(req, res) {
     widthTier: widthFromClient(body.widthTier || body.width),
     startsAt,
     endsAt,
-    status: "active",
+    status: listingStatus,
     dynamicRankScore: Number(body.dynamicRankScore || 0),
-    ownerUserId: String(body.ownerUserId || body.sellerEmail || "").trim().toLowerCase(),
+    ownerUserId,
     product: {
       id: productId,
       name: String(product.name || body.name || "").trim(),
@@ -953,7 +961,7 @@ async function handleAdminPatchListing(req, res, listingId) {
     return json(res, 400, { ok: false, error: "Invalid JSON body" });
   }
   const nextStatus = String(body.status || "").trim().toLowerCase();
-  const allowed = new Set(["active", "expired", "cancelled", "pending_payment"]);
+  const allowed = new Set(["active", "expired", "cancelled", "pending_payment", "pending_review"]);
   if (!allowed.has(nextStatus)) {
     return json(res, 400, { ok: false, error: "Invalid status" });
   }

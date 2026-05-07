@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Алтай-Витрин · Модерация товаров</title>
+  <title>Алтай-Витрин · Кабинет продавца</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/main.css" />
 </head>
-<body class="page-admin">
+<body class="page-seller">
   <a class="skip-link" href="#main">Перейти к контенту</a>
   <header class="site-header">
     <div class="container header-inner">
@@ -40,17 +40,18 @@
 
   <div class="container admin-page-shell">
     <div class="admin-app">
-      <aside class="admin-sidebar" aria-label="Разделы админки">
+      <aside class="admin-sidebar" aria-label="Разделы кабинета">
         <div class="admin-sidebar__brand">
           <a href="index.html" class="logo admin-sidebar__logo-link">
             <span class="logo__mark" aria-hidden="true">AB</span>
             <span class="logo__name">Алтай-Витрин</span>
           </a>
-          <span class="admin-sidebar__sub">Администрирование</span>
+          <span class="admin-sidebar__sub">Кабинет продавца</span>
         </div>
         <nav class="admin-sidebar__nav">
-          <a class="admin-sidebar__link" href="admin.html">Панель управления</a>
-          <a class="admin-sidebar__link is-active" href="admin-moderation.html">Модерация товаров</a>
+          <a class="admin-sidebar__link is-active" href="seller-cabinet.html">Мои товары</a>
+          <a class="admin-sidebar__link" href="admin-moderation.html" data-seller-admin-only hidden>Модерация</a>
+          <a class="admin-sidebar__link" href="admin.html" data-seller-admin-only hidden>Панель администратора</a>
           <a class="admin-sidebar__link" href="index.html">На витрину</a>
         </nav>
         <p class="admin-sidebar__user" data-admin-email></p>
@@ -58,23 +59,21 @@
 
       <main id="main" class="admin-main admin-main--wide">
         <header class="admin-mod-head">
-          <h1 class="admin-mod-head__title">Модерация товаров</h1>
+          <h1 class="admin-mod-head__title">Добавить товар на витрину</h1>
           <p class="admin-mod-head__lead">
-            Заявки продавцов с сервера (ожидают решения). Ниже — локальная очередь в браузере для черновиков.
+            Заполните карточку и загрузите медиа. После отправки модератор проверит заявку и опубликует товар на сайте.
           </p>
         </header>
 
-        <section class="admin-mod-server-pending" aria-label="Очередь на сервере">
-          <h2 class="admin-mod-create__title">На модерации (сервер)</h2>
-          <p class="admin-mod-create__hint">
-            Карточки со статусом «на модерации» не показываются на витрине, пока вы не нажмёте «На витрину».
-          </p>
-          <div data-server-pending-list class="admin-mod-server-pending__list"></div>
-          <p class="admin-mod-empty" data-server-pending-empty hidden>Нет заявок на сервере.</p>
+        <section class="admin-mod-create" data-seller-server-list>
+          <h2 class="admin-mod-create__title">Мои карточки на сервере</h2>
+          <p class="admin-mod-create__hint" data-seller-server-loading>Синхронизация со списком…</p>
+          <p class="admin-mod-empty" data-seller-server-empty hidden>Пока нет карточек. Отправьте первую заявку ниже.</p>
+          <div data-seller-server-list-body class="seller-server-list"></div>
         </section>
 
         <section class="admin-mod-create">
-          <h2 class="admin-mod-create__title">Добавить товар в очередь</h2>
+          <h2 class="admin-mod-create__title">Новая заявка</h2>
           <form data-product-form class="admin-mod-form">
             <label>
               Название
@@ -85,18 +84,8 @@
               <input name="type" type="text" required minlength="2" maxlength="80" placeholder="Например: подвесной светильник" />
             </label>
             <label>
-              Автор / мастер
-              <select name="designer" required>
-                <option value="">Выберите автора</option>
-                <option>Татьяна Лань</option>
-                <option>Иван Лыбин</option>
-                <option>Студия «Терра»</option>
-                <option>Марина Кожевникова</option>
-                <option>Дмитрий Каркасов</option>
-                <option>Алёна Мирная</option>
-                <option>Мастерская «Полдень»</option>
-                <option>Светлана Речникова</option>
-              </select>
+              Как подписать на витрине (студия или имя)
+              <input name="designer" type="text" required minlength="2" maxlength="80" placeholder="Ваша студия или имя" />
             </label>
             <label>
               Тип автора
@@ -166,11 +155,13 @@
               <p class="form-message" data-product-form-msg></p>
             </div>
           </form>
-          <p class="admin-mod-create__hint">Файлы загружаются на сервер. После добавления в очередь нажмите «Опубликовать» — карточка сразу получит статус «на витрине» (вход администратора).</p>
+          <p class="admin-mod-create__hint">
+            Файлы сохраняются на сервере. В очереди нажмите «Отправить на модерацию» — после одобрения товар появится в комнате каталога.
+          </p>
         </section>
 
         <div class="admin-mod-queue">
-          <p class="admin-mod-queue__meta">В очереди: <span data-queue-count>0</span></p>
+          <p class="admin-mod-queue__meta">Черновики в браузере: <span data-queue-count>0</span></p>
           <div data-mod-list></div>
           <p class="admin-mod-empty" data-mod-empty hidden>Очередь пуста.</p>
         </div>
@@ -184,9 +175,9 @@
               <p class="admin-mod-card__studio"></p>
               <p class="admin-mod-card__price"></p>
               <div class="admin-mod-card__actions">
-                <button type="button" class="btn btn--admin-solid" data-mod-publish>Опубликовать</button>
+                <button type="button" class="btn btn--admin-solid" data-mod-publish>Отправить на модерацию</button>
                 <button type="button" class="btn btn--outline" data-mod-revision>На доработку</button>
-                <button type="button" class="btn btn--admin-reject" data-mod-reject>Отклонить</button>
+                <button type="button" class="btn btn--admin-reject" data-mod-reject>Удалить из очереди</button>
               </div>
             </div>
           </article>
@@ -206,7 +197,7 @@
       <div class="footer-col"><a href="collections.html">Коллекции</a><a href="contacts.html">Контакты</a><a href="about.html">О нас</a></div>
     </div>
     <div class="container footer-line" role="note">
-      <p class="footer__hint">Корзина и сессия в браузере. Админ-панель — вход почтой из <code>adminEmails</code> в js/site-config.js.</p>
+      <p class="footer__hint">Вход по почте и паролю после регистрации через ВК. Нужна помощь — <a href="contacts.html">контакты</a>.</p>
     </div>
   </footer>
 
@@ -219,6 +210,11 @@
         var a = raw ? JSON.parse(raw) : null;
         var el = document.querySelector("[data-admin-email]");
         if (el && a && a.email) el.textContent = a.email;
+        if (a && a.role === "admin") {
+          document.querySelectorAll("[data-seller-admin-only]").forEach(function (link) {
+            link.hidden = false;
+          });
+        }
       } catch (e) {}
     });
   </script>

@@ -3,7 +3,7 @@
  * 1) Создайте access key
  * 2) Вставьте его в web3AccessKey ниже
  *
- * Админ-панель: почта из adminEmails (регистр не важен). Если для почты задан adminPasswords — нужен этот пароль.
+ * Администратор: учётная запись в SQLite на сервере (см. server.cjs — BOOTSTRAP_ADMIN_LOGIN / BOOTSTRAP_ADMIN_PASSWORD).
  */
 window.SITE_CONFIG = {
   web3AccessKey: "",
@@ -22,10 +22,4 @@ window.SITE_CONFIG = {
   vkAuthApiBase: "",
   /** URL backend API для загрузки/выдачи медиа товаров (пусто => тот же домен) */
   mediaApiBase: "",
-  /** Почты с правами администратора */
-  adminEmails: ["admin@altdi.ru", "admin@altay-vitrin.ru"],
-  /** Пароли для указанных админ-почт (остальные админы из списка выше — любой пароль от 6 символов) */
-  adminPasswords: {
-    "admin@altdi.ru": "Demo123!",
-  },
 };

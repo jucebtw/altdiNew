@@ -7,27 +7,6 @@
   var DEMO_USERS_KEY = "av-app-users-v1";
   var cfg = typeof window.SITE_CONFIG !== "undefined" ? window.SITE_CONFIG : {};
 
-  function migrateAuth() {
-    try {
-      var raw = sessionStorage.getItem(AUTH_KEY);
-      if (!raw) return;
-      var obj = JSON.parse(raw);
-      if (!obj || !obj.email || obj.role) return;
-      var admins = (cfg.adminEmails || [])
-        .map(function (x) {
-          return String(x || "")
-            .toLowerCase()
-            .trim();
-        })
-        .filter(Boolean);
-      obj.role =
-        admins.indexOf(String(obj.email).toLowerCase()) >= 0 ? "admin" : "user";
-      sessionStorage.setItem(AUTH_KEY, JSON.stringify(obj));
-    } catch (e) {}
-  }
-
-  migrateAuth();
-
   if (document.body && document.body.classList.contains("page-admin")) {
     try {
       var rawGuard = sessionStorage.getItem(AUTH_KEY);
@@ -71,20 +50,6 @@
       }
     } catch (eR) {}
     return role === "admin" ? "admin.html" : "catalog.html";
-  }
-
-  function adminPasswordRequired(emailNorm) {
-    var map = cfg.adminPasswords;
-    if (!map || typeof map !== "object") return null;
-    for (var k in map) {
-      if (
-        Object.prototype.hasOwnProperty.call(map, k) &&
-        String(k).toLowerCase().trim() === emailNorm
-      ) {
-        return map[k];
-      }
-    }
-    return null;
   }
 
   function slugify(s) {
@@ -1475,46 +1440,11 @@
       var kind = form.dataset.form;
 
       if (kind === "login") {
-        var emailInput = form.querySelector('input[name="email"], input[type="email"]');
+        var emailInput = form.querySelector('input[name="email"]');
         var pwInput = form.querySelector('input[name="password"]');
         var emailRaw = emailInput ? emailInput.value.trim() : "";
-        var emailNorm = emailRaw.toLowerCase();
         var pwVal = pwInput ? pwInput.value : "";
-        var admins = (cfg.adminEmails || [])
-          .map(function (x) {
-            return String(x || "")
-              .toLowerCase()
-              .trim();
-          })
-          .filter(Boolean);
         var activeLoginBtn = event.submitter || form.querySelector('[type="submit"]');
-
-        function legacyAdminLogin() {
-          var role = "admin";
-          if (admins.indexOf(emailNorm) < 0) return false;
-          var needPw = adminPasswordRequired(emailNorm);
-          if (needPw !== null && pwVal !== needPw) {
-            if (msg) {
-              msg.classList.remove("is-success");
-              msg.classList.add("is-error");
-              msg.textContent = "Неверный пароль для этой учётной записи.";
-            }
-            return true;
-          }
-          setAuth(emailRaw, role);
-          if (msg) {
-            msg.classList.remove("is-error");
-            msg.classList.add("is-success");
-            msg.textContent = "Вход как администратор. Открываем панель…";
-          }
-          form.querySelectorAll("input, textarea").forEach(function (el) {
-            if (el.type !== "email") el.value = "";
-          });
-          setTimeout(function () {
-            window.location.href = getLoginRedirectUrl("admin");
-          }, 600);
-          return true;
-        }
 
         function finishUserLogin(role) {
           setAuth(emailRaw, role || "user");
@@ -1556,11 +1486,10 @@
                 msg.classList.remove("is-success");
                 msg.classList.add("is-error");
                 msg.textContent =
-                  (res.data && res.data.error) || "Неверный email или пароль.";
+                  (res.data && res.data.error) || "Неверный логин или пароль.";
               }
               return;
             }
-            if (legacyAdminLogin()) return;
             demoLoginCheck(emailRaw, pwVal)
               .then(function (okDemo) {
                 if (okDemo) {
@@ -1571,7 +1500,7 @@
                   msg.classList.remove("is-success");
                   msg.classList.add("is-error");
                   msg.textContent =
-                    "Неверный email или пароль. Зарегистрируйтесь через VK или проверьте связь с сервером.";
+                    "Неверный логин или пароль. Зарегистрируйтесь через VK или проверьте связь с сервером.";
                 }
               })
               .catch(function () {
@@ -1583,7 +1512,6 @@
               });
           })
           .catch(function () {
-            if (legacyAdminLogin()) return;
             demoLoginCheck(emailRaw, pwVal)
               .then(function (okDemo) {
                 if (okDemo) {
@@ -1594,7 +1522,7 @@
                   msg.classList.remove("is-success");
                   msg.classList.add("is-error");
                   msg.textContent =
-                    "Сервер входа недоступен. Для офлайн-режима используйте учётку после регистрации (демо) или админа из конфига.";
+                    "Сервер входа недоступен. Проверьте соединение или зарегистрируйтесь через VK (офлайн-режим — только демо после регистрации).";
                 }
               })
               .catch(function () {

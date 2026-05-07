@@ -758,6 +758,30 @@ function verifyUserPassword(plain, saltHex, hashHex) {
   }
 }
 
+/** Учётка администратора в SQLite (логин/пароль по умолчанию или BOOTSTRAP_ADMIN_* в env). */
+function ensureBootstrapAdmin() {
+  if (!db) return;
+  const login = String(process.env.BOOTSTRAP_ADMIN_LOGIN || "admin").trim().toLowerCase();
+  const plain = String(process.env.BOOTSTRAP_ADMIN_PASSWORD || "12345678");
+  if (!login || plain.length < 8) return;
+  for (const legacy of ["admin@altdi.ru", "admin@altay-vitrin.ru"]) {
+    db.prepare("DELETE FROM users WHERE LOWER(email) = LOWER(?)").run(legacy);
+  }
+  const now = Date.now();
+  const { salt, hash } = hashUserPassword(plain);
+  const row = db.prepare("SELECT email FROM users WHERE email = ?").get(login);
+  if (row) {
+    db.prepare(
+      "UPDATE users SET password_hash = ?, password_salt = ?, role = 'admin', updated_at = ? WHERE email = ?"
+    ).run(hash, salt, now, login);
+  } else {
+    db.prepare(
+      `INSERT INTO users (email, password_hash, password_salt, name, vk_handle, role, created_at, updated_at)
+       VALUES (?, ?, ?, '', '', 'admin', ?, ?)`
+    ).run(login, hash, salt, now, now);
+  }
+}
+
 async function upsertUserAfterVk(email, name, vkHandle, password) {
   await ensureDataFiles();
   const { salt, hash } = hashUserPassword(password);
@@ -987,6 +1011,10 @@ async function handleVkSendCode(req, res) {
   const email = String(body.email || "").trim().toLowerCase();
   const vk = normalizeVkHandle(body.vk);
   const name = String(body.name || "").trim();
+  const reservedLogin = String(process.env.BOOTSTRAP_ADMIN_LOGIN || "admin").trim().toLowerCase();
+  if (email === reservedLogin) {
+    return json(res, 400, { ok: false, error: "Этот логин зарезервирован." });
+  }
   if (!email || !vk) return json(res, 400, { ok: false, error: "email and vk are required" });
   const { code, expiresAt } = await createVkCode(email, vk);
   const message =
@@ -1017,6 +1045,10 @@ async function handleVkVerifyCode(req, res) {
   const code = String(body.code || "").trim();
   const name = String(body.name || "").trim();
   const password = String(body.password || "");
+  const reservedLogin = String(process.env.BOOTSTRAP_ADMIN_LOGIN || "admin").trim().toLowerCase();
+  if (email === reservedLogin) {
+    return json(res, 400, { ok: false, error: "Этот логин зарезервирован." });
+  }
   if (!email || !vk || !/^\d{6}$/.test(code)) {
     return json(res, 400, { ok: false, error: "email, vk and 6-digit code are required" });
   }
@@ -1036,15 +1068,15 @@ async function handleAuthLogin(req, res) {
   } catch {
     return json(res, 400, { ok: false, error: "Invalid JSON body" });
   }
-  const email = String(body.email || "").trim().toLowerCase();
+  const email = String(body.email || body.login || "").trim().toLowerCase();
   const password = String(body.password || "");
   if (!email || !password) {
-    return json(res, 400, { ok: false, error: "email and password required" });
+    return json(res, 400, { ok: false, error: "login and password required" });
   }
   await ensureDataFiles();
   const row = db.prepare("SELECT email, password_hash, password_salt, role FROM users WHERE email = ?").get(email);
   if (!row || !verifyUserPassword(password, row.password_salt, row.password_hash)) {
-    return json(res, 401, { ok: false, error: "Неверный email или пароль." });
+    return json(res, 401, { ok: false, error: "Неверный логин или пароль." });
   }
   let role = String(row.role || "user");
   const adminList = String(process.env.ADMIN_EMAILS || "")
@@ -1333,6 +1365,7 @@ setInterval(() => {
 server.listen(PORT, "127.0.0.1", async () => {
   await ensureUploadRoot();
   await ensureDataFiles();
+  ensureBootstrapAdmin();
   console.log(`Local site: http://127.0.0.1:${PORT}/`);
   console.log("Media API: POST /api/media/upload");
   console.log("Listings API: /api/rooms/:slug, /api/seller/listings, /api/admin/listings");

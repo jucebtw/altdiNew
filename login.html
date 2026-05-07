@@ -44,12 +44,12 @@
           <p class="auth-kicker">Алтай-Витрин</p>
           <h1 class="auth-title">Вход в кабинет</h1>
           <p class="auth-subtitle">Управляйте каталогом, профилем и коллекциями в том же стиле, что и витрина.</p>
-          <p class="login-admin-hint">Администратору: почты и пароли задаются в <code>js/site-config.js</code> (<code>adminEmails</code>, при необходимости <code>adminPasswords</code>). Учётка <strong>admin@altdi.ru</strong> — пароль из конфига.</p>
+          <p class="login-admin-hint">Продавцы регистрируются через VK ниже. Администратор входит логином и паролем с сервера (по умолчанию создаётся учётка <strong>admin</strong>).</p>
 
           <form class="form auth-form auth-form--card" data-form="login">
             <label class="form__row">
-              <span>Эл. почта</span>
-              <input type="email" name="email" placeholder="you@example.com" autocomplete="username" required />
+              <span>Логин или почта</span>
+              <input type="text" name="email" placeholder="admin или you@example.com" autocomplete="username" required />
             </label>
             <label class="form__row">
               <span>Пароль</span>
@@ -112,7 +112,7 @@
       <div class="footer-col"><a href="collections.html">Коллекции</a><a href="contacts.html">Контакты</a><a href="about.html">О нас</a></div>
     </div>
     <div class="container footer-line" role="note">
-      <p class="footer__hint">Корзина и сессия в браузере. Админ-панель — вход почтой из <code>adminEmails</code> в js/site-config.js. Письма заявок — ключ web3forms.</p>
+      <p class="footer__hint">Корзина и сессия в браузере. Админ — учётная запись на сервере. Письма заявок — ключ web3forms в site-config.js.</p>
     </div>
   </footer>
   <script src="js/site-config.js"></script>

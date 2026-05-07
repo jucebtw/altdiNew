@@ -49,9 +49,7 @@
           <span class="admin-sidebar__sub">Кабинет продавца</span>
         </div>
         <nav class="admin-sidebar__nav">
-          <a class="admin-sidebar__link is-active" href="seller-cabinet.html">Мои товары</a>
-          <a class="admin-sidebar__link" href="admin-moderation.html" data-seller-admin-only hidden>Модерация</a>
-          <a class="admin-sidebar__link" href="admin.html" data-seller-admin-only hidden>Панель администратора</a>
+          <a class="admin-sidebar__link is-active" href="seller-cabinet.html">Добавить товар</a>
           <a class="admin-sidebar__link" href="index.html">На витрину</a>
         </nav>
         <p class="admin-sidebar__user" data-admin-email></p>
@@ -151,37 +149,14 @@
               <input name="leaseEndsAt" type="datetime-local" required />
             </label>
             <div class="admin-mod-form__actions">
-              <button type="submit" class="btn btn--admin-solid">Добавить в очередь</button>
+              <button type="submit" class="btn btn--admin-solid">Добавить товар</button>
               <p class="form-message" data-product-form-msg></p>
             </div>
           </form>
           <p class="admin-mod-create__hint">
-            Файлы сохраняются на сервере. В очереди нажмите «Отправить на модерацию» — после одобрения товар появится в комнате каталога.
+            Медиа загружаются на сервер, заявка сразу уходит на модерацию. После одобрения товар появится в комнате каталога.
           </p>
         </section>
-
-        <div class="admin-mod-queue">
-          <p class="admin-mod-queue__meta">Черновики в браузере: <span data-queue-count>0</span></p>
-          <div data-mod-list></div>
-          <p class="admin-mod-empty" data-mod-empty hidden>Очередь пуста.</p>
-        </div>
-        <template id="mod-card-template">
-          <article class="admin-mod-card" data-mod-card>
-            <div class="admin-mod-card__media">
-              <img src="" alt="" width="160" height="160" loading="lazy" />
-            </div>
-            <div class="admin-mod-card__body">
-              <h2 class="admin-mod-card__name"></h2>
-              <p class="admin-mod-card__studio"></p>
-              <p class="admin-mod-card__price"></p>
-              <div class="admin-mod-card__actions">
-                <button type="button" class="btn btn--admin-solid" data-mod-publish>Отправить на модерацию</button>
-                <button type="button" class="btn btn--outline" data-mod-revision>На доработку</button>
-                <button type="button" class="btn btn--admin-reject" data-mod-reject>Удалить из очереди</button>
-              </div>
-            </div>
-          </article>
-        </template>
       </main>
     </div>
   </div>
@@ -210,11 +185,6 @@
         var a = raw ? JSON.parse(raw) : null;
         var el = document.querySelector("[data-admin-email]");
         if (el && a && a.email) el.textContent = a.email;
-        if (a && a.role === "admin") {
-          document.querySelectorAll("[data-seller-admin-only]").forEach(function (link) {
-            link.hidden = false;
-          });
-        }
       } catch (e) {}
     });
   </script>

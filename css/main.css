@@ -1701,10 +1701,6 @@ body.page-seller {
   background: var(--bg-page);
 }
 
-body.page-seller .admin-mod-card [data-mod-revision] {
-  display: none;
-}
-
 .admin-mod-server-pending {
   margin-bottom: 1.75rem;
   padding-bottom: 1rem;

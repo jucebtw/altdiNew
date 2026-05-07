@@ -908,11 +908,13 @@
 
   function initAdminProductModeration() {
     var form = document.querySelector("[data-product-form]");
+    if (!form) return;
+    var isSellerCabinet = document.body.classList.contains("page-seller");
     var list = document.querySelector("[data-mod-list]");
     var queueCount = document.querySelector("[data-queue-count]");
     var empty = document.querySelector("[data-mod-empty]");
     var tpl = document.querySelector("#mod-card-template");
-    if (!form || !list || !queueCount || !empty || !tpl) return;
+    if (!isSellerCabinet && (!list || !queueCount || !empty || !tpl)) return;
     var msg = form.querySelector("[data-product-form-msg]");
     var mediaInput = form.querySelector('input[name="mediaFiles"]');
     var previewSelect = form.querySelector("[data-preview-index]");
@@ -964,6 +966,7 @@
     }
 
     function updateQueueMeta(n) {
+      if (!queueCount || !empty) return;
       queueCount.textContent = String(n);
       empty.hidden = n !== 0;
     }
@@ -1030,6 +1033,7 @@
     }
 
     function renderQueue() {
+      if (!list || !tpl) return;
       var queue = getArrayStore(PRODUCT_PENDING_KEY);
       list.innerHTML = "";
       updateQueueMeta(queue.length);
@@ -1056,11 +1060,6 @@
         if (pr) pr.innerHTML = formatRub(Number(item.price) || 0).replace(" ₽", '&nbsp;<span class="ruble">₽</span>');
         list.appendChild(node);
       });
-      if (document.body.classList.contains("page-seller")) {
-        list.querySelectorAll("[data-mod-publish]").forEach(function (b) {
-          b.textContent = "Отправить на модерацию";
-        });
-      }
     }
 
     if (mediaInput) {
@@ -1146,6 +1145,18 @@
             deleteAfter: lease.deleteAfter,
             createdAt: Date.now(),
           };
+          if (isSellerCabinet) {
+            if (msg) msg.textContent = "Отправляем заявку на сервер...";
+            return publishItem(item).then(function () {
+              form.reset();
+              fillPreviewChoices();
+              if (msg) {
+                msg.classList.remove("is-error");
+                msg.classList.add("is-success");
+                msg.textContent = "Товар отправлен на модерацию. Статус смотрите в списке «Мои карточки на сервере».";
+              }
+            });
+          }
           var queue = getArrayStore(PRODUCT_PENDING_KEY);
           queue.unshift(item);
           setArrayStore(PRODUCT_PENDING_KEY, queue);
@@ -1158,10 +1169,16 @@
           }
           renderQueue();
         })
-        .catch(function () {
-          if (msg) {
-            msg.classList.remove("is-success");
-            msg.classList.add("is-error");
+        .catch(function (err) {
+          if (!msg) return;
+          msg.classList.remove("is-success");
+          msg.classList.add("is-error");
+          var em = err && err.message ? String(err.message) : "";
+          if (isSellerCabinet && em && em !== "upload failed") {
+            msg.textContent = em;
+          } else if (isSellerCabinet && em === "save failed") {
+            msg.textContent = "Не удалось сохранить заявку. Проверьте вход и API.";
+          } else {
             msg.textContent =
               "Не удалось загрузить медиа. Проверьте backend media API и ограничения формата/размера.";
           }
@@ -1171,47 +1188,48 @@
         });
     });
 
-    list.addEventListener("click", function (event) {
-      var card = event.target.closest("[data-item-id]");
-      if (!card) return;
-      var id = card.getAttribute("data-item-id");
-      if (!id) return;
-      var queue = getArrayStore(PRODUCT_PENDING_KEY);
-      var item = queue.find(function (x) {
-        return x.id === id;
+    if (list) {
+      list.addEventListener("click", function (event) {
+        var card = event.target.closest("[data-item-id]");
+        if (!card) return;
+        var id = card.getAttribute("data-item-id");
+        if (!id) return;
+        var queue = getArrayStore(PRODUCT_PENDING_KEY);
+        var item = queue.find(function (x) {
+          return x.id === id;
+        });
+        if (!item) return;
+        if (event.target.closest("[data-mod-publish]")) {
+          var btn = event.target.closest("[data-mod-publish]");
+          if (btn) btn.disabled = true;
+          publishItem(item)
+            .then(function () {
+              removeFromQueue(id);
+              renderQueue();
+            })
+            .catch(function (err) {
+              if (msg) {
+                msg.classList.remove("is-success");
+                msg.classList.add("is-error");
+                msg.textContent =
+                  (err && err.message) || "Не удалось сохранить на сервере. Проверьте вход и API.";
+              }
+            })
+            .finally(function () {
+              if (btn) btn.disabled = false;
+            });
+          return;
+        } else if (event.target.closest("[data-mod-revision]")) {
+          removeFromQueue(id);
+        } else if (event.target.closest("[data-mod-reject]")) {
+          removeFromQueue(id);
+        } else {
+          return;
+        }
+        renderQueue();
       });
-      if (!item) return;
-      if (event.target.closest("[data-mod-publish]")) {
-        var btn = event.target.closest("[data-mod-publish]");
-        if (btn) btn.disabled = true;
-        publishItem(item)
-          .then(function () {
-            removeFromQueue(id);
-            renderQueue();
-          })
-          .catch(function (err) {
-            if (msg) {
-              msg.classList.remove("is-success");
-              msg.classList.add("is-error");
-              msg.textContent =
-                (err && err.message) || "Не удалось сохранить на сервере. Проверьте вход и API.";
-            }
-          })
-          .finally(function () {
-            if (btn) btn.disabled = false;
-          });
-        return;
-      } else if (event.target.closest("[data-mod-revision]")) {
-        removeFromQueue(id);
-      } else if (event.target.closest("[data-mod-reject]")) {
-        removeFromQueue(id);
-      } else {
-        return;
-      }
       renderQueue();
-    });
-
-    renderQueue();
+    }
   }
 
   function initServerPendingModeration() {

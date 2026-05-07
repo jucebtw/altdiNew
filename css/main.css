@@ -1400,6 +1400,21 @@ a.product-card--link:focus-visible {
   letter-spacing: 0.02em;
 }
 
+.form__row .form__hint {
+  display: block;
+  margin-top: 0.15rem;
+  font-weight: 400;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.form__row input[type="file"] {
+  padding: 0.5rem 0;
+  border-style: dashed;
+  cursor: pointer;
+}
+
 input,
 textarea,
 select {

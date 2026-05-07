@@ -1,9 +1,9 @@
 /**
- * Подключите реальную отправку форм: https://web3forms.com
+ * Подключите реальную отправку форм заказа: https://web3forms.com
  * 1) Создайте access key
  * 2) Вставьте его в web3AccessKey ниже
  *
- * Администратор: учётная запись в SQLite на сервере (см. server.cjs — BOOTSTRAP_ADMIN_LOGIN / BOOTSTRAP_ADMIN_PASSWORD).
+ * Заявка продавца (contacts.html) отправляется через SMTP на сервере — см. server.cjs и переменные SMTP_* / SELLER_APPLICATION_EMAIL.
  */
 window.SITE_CONFIG = {
   web3AccessKey: "",

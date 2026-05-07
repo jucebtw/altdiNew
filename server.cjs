@@ -20,6 +20,7 @@ const SQLITE_FILE = path.join(ROOT, "data", "app.db");
 const LEGACY_LISTINGS_FILE = path.join(ROOT, "data", "shelf-listings.json");
 const LEGACY_REMINDERS_FILE = path.join(ROOT, "data", "reminder-log.json");
 const MAX_FILES = 10;
+const MAX_SELLER_PORTFOLIO_FILES = 8;
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
 const MAX_VIDEO_SIZE = 50 * 1024 * 1024;
 const IMAGE_EXT = new Set([".jpg", ".jpeg", ".png", ".webp"]);
@@ -523,6 +524,172 @@ async function storeMultipartFiles(req) {
 
     req.pipe(busboy);
   });
+}
+
+/** Поля brand, email, message + файлы поля portfolio (только изображения). */
+async function storeSellerApplicationMultipart(req) {
+  return new Promise((resolve, reject) => {
+    const busboy = Busboy({
+      headers: req.headers,
+      limits: { files: MAX_SELLER_PORTFOLIO_FILES, fileSize: MAX_IMAGE_SIZE },
+    });
+    const fields = {};
+    const files = [];
+    let aborted = false;
+
+    busboy.on("field", (name, value) => {
+      fields[name] = value;
+    });
+
+    busboy.on("file", (name, stream, info) => {
+      if (name !== "portfolio") {
+        stream.resume();
+        return;
+      }
+      const originalName = String(info.filename || "file");
+      const ext = path.extname(originalName).toLowerCase();
+      if (!IMAGE_EXT.has(ext)) {
+        aborted = true;
+        stream.resume();
+        reject(new Error("unsupported-format"));
+        return;
+      }
+      const tmpName = `seller-app-${Date.now()}-${crypto.randomUUID()}${ext}`;
+      const tmpPath = path.join(os.tmpdir(), tmpName);
+      const out = fs.createWriteStream(tmpPath);
+      let written = 0;
+      let tooLarge = false;
+
+      stream.on("data", (chunk) => {
+        written += chunk.length;
+        if (written > MAX_IMAGE_SIZE) {
+          tooLarge = true;
+          stream.unpipe(out);
+          stream.resume();
+          out.destroy();
+          fsp.unlink(tmpPath).catch(() => {});
+        }
+      });
+
+      stream.on("limit", () => {
+        tooLarge = true;
+      });
+
+      out.on("error", (err) => {
+        aborted = true;
+        reject(err);
+      });
+
+      stream.pipe(out);
+      stream.on("end", () => {
+        if (aborted) return;
+        if (tooLarge) {
+          aborted = true;
+          reject(new Error("file-too-large"));
+          return;
+        }
+        files.push({
+          originalName,
+          ext,
+          tempPath: tmpPath,
+        });
+      });
+    });
+
+    busboy.on("error", (err) => reject(err));
+    busboy.on("finish", () => {
+      if (!aborted) resolve({ fields, files });
+    });
+
+    req.pipe(busboy);
+  });
+}
+
+function resolveSellerApplicationRecipient() {
+  const explicit = String(process.env.SELLER_APPLICATION_EMAIL || "").trim();
+  if (explicit) return explicit;
+  const ops = String(process.env.OPERATIONS_EMAIL || "").trim();
+  if (ops) return ops;
+  const admins = String(process.env.ADMIN_EMAILS || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  if (admins.length) return admins[0];
+  const smtpUser = String(process.env.SMTP_USER || "").trim();
+  if (smtpUser.includes("@")) return smtpUser;
+  return "";
+}
+
+async function handleSellerApplication(req, res) {
+  let payload;
+  try {
+    payload = await storeSellerApplicationMultipart(req);
+  } catch (err) {
+    if (String(err.message).includes("unsupported-format")) {
+      return json(res, 400, { ok: false, error: "Допустимы только изображения jpg, png, webp." });
+    }
+    if (String(err.message).includes("file-too-large")) {
+      return json(res, 400, { ok: false, error: "Файл превышает лимит размера (10 МБ)." });
+    }
+    return json(res, 400, { ok: false, error: "Ошибка разбора формы." });
+  }
+
+  const brand = String(payload.fields.brand || "").trim();
+  const email = String(payload.fields.email || "").trim().toLowerCase();
+  const message = String(payload.fields.message || "").trim();
+  const files = payload.files || [];
+
+  if (!brand || !email || !message) {
+    await Promise.all(files.map((f) => fsp.unlink(f.tempPath).catch(() => {})));
+    return json(res, 400, { ok: false, error: "Заполните имя/бренд, почту и сообщение." });
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    await Promise.all(files.map((f) => fsp.unlink(f.tempPath).catch(() => {})));
+    return json(res, 400, { ok: false, error: "Укажите корректный email." });
+  }
+
+  const to = resolveSellerApplicationRecipient();
+  const transporter = getMailer();
+  if (!to || !transporter) {
+    await Promise.all(files.map((f) => fsp.unlink(f.tempPath).catch(() => {})));
+    return json(res, 503, {
+      ok: false,
+      error:
+        "Почтовый сервер не настроен или не указан получатель (SMTP_* на сервере, SELLER_APPLICATION_EMAIL или ADMIN_EMAILS).",
+    });
+  }
+
+  const from = String(process.env.SMTP_FROM || process.env.SMTP_USER || "no-reReply@example.com");
+  const attachments = files.map((f) => ({
+    filename: f.originalName || "portfolio.jpg",
+    path: f.tempPath,
+  }));
+
+  const text =
+    "Новая заявка продавца (Алтай-Витрин)\n\n" +
+    `Имя / бренд: ${brand}\n` +
+    `Email для ответа: ${email}\n\n` +
+    "Сообщение:\n" +
+    message +
+    "\n\n" +
+    `Вложений (фото): ${attachments.length}\n`;
+
+  try {
+    await transporter.sendMail({
+      from,
+      to,
+      replyTo: email,
+      subject: `Заявка продавца — ${brand}`,
+      text,
+      attachments: attachments.length ? attachments : undefined,
+    });
+    return json(res, 200, { ok: true });
+  } catch (err) {
+    console.error("Seller application email failed:", err.message);
+    return json(res, 502, { ok: false, error: "Не удалось отправить письмо." });
+  } finally {
+    await Promise.all(files.map((f) => fsp.unlink(f.tempPath).catch(() => {})));
+  }
 }
 
 async function deletePathSafe(targetPath) {
@@ -1300,6 +1467,9 @@ const server = http.createServer(async (req, res) => {
   if (req.method === "POST" && url.pathname === "/api/auth/login") {
     return handleAuthLogin(req, res);
   }
+  if (req.method === "POST" && url.pathname === "/api/contact/seller-application") {
+    return handleSellerApplication(req, res);
+  }
   if (req.method === "POST" && url.pathname === "/api/vk/callback") {
     return handleVkCallback(req, res);
   }
@@ -1369,6 +1539,7 @@ server.listen(PORT, "127.0.0.1", async () => {
   console.log(`Local site: http://127.0.0.1:${PORT}/`);
   console.log("Media API: POST /api/media/upload");
   console.log("Listings API: /api/rooms/:slug, /api/seller/listings, /api/admin/listings");
+  console.log("Seller application: POST /api/contact/seller-application (multipart, SMTP)");
   console.log("VK Callback: POST /api/vk/callback (VK_CALLBACK_CONFIRMATION, optional VK_CALLBACK_SECRET)");
   console.log("Press Ctrl+C to stop.");
 });

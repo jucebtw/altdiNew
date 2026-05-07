@@ -52,6 +52,11 @@
           <label class="form__row"><span>Имя / Бренд</span><input type="text" name="brand" placeholder="Название бренда" autocomplete="organization" required /></label>
           <label class="form__row"><span>Эл. почта</span><input type="email" name="email" placeholder="you@example.com" autocomplete="email" required /></label>
           <label class="form__row"><span>Сообщение</span><textarea name="message" rows="5" placeholder="Расскажите о товарах" required></textarea></label>
+          <label class="form__row">
+            <span>Примеры работ (фото)</span>
+            <input type="file" name="portfolio" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" multiple />
+            <small class="form__hint">Необязательно. До 8 файлов, каждый до 10 МБ — менеджер увидит вложения в письме.</small>
+          </label>
           <button type="submit" class="btn btn--outline">Отправить заявку</button>
           <p class="form-message" aria-live="polite"></p>
         </form>
@@ -69,7 +74,7 @@
       <div class="footer-col"><a href="collections.html">Коллекции</a><a href="contacts.html">Контакты</a><a href="about.html">О нас</a></div>
     </div>
     <div class="container footer-line" role="note">
-      <p class="footer__hint">Корзина и сессия в браузере. Админ — учётная запись на сервере. Письма заявок — ключ web3forms в site-config.js.</p>
+      <p class="footer__hint">Корзина и сессия в браузере. Заявка продавца уходит на почту с сервера (SMTP). Заказ из корзины — ключ web3forms в site-config.js.</p>
     </div>
   </footer>
   <script src="js/site-config.js"></script>

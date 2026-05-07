@@ -1318,46 +1318,40 @@
     refresh();
   }
 
-  function submitWeb3Seller(brand, email, message, msgEl, btn) {
-    var key = cfg.web3AccessKey && String(cfg.web3AccessKey).trim();
-    if (!key) {
-      if (msgEl) {
-        msgEl.classList.remove("is-error");
-        msgEl.classList.add("is-success");
-        msgEl.textContent =
-          "Заявка принята (демо). Добавьте web3AccessKey в js/site-config.js для отправки на почту.";
-      }
-      return Promise.resolve({ demo: true });
-    }
+  function submitSellerApplication(form, msgEl, btn) {
+    var fd = new FormData(form);
     if (btn) btn.disabled = true;
-    return fetch("https://api.web3forms.com/submit", {
+    return fetch(mediaApi("/api/contact/seller-application"), {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        access_key: key,
-        subject: "Заявка продавца — Алтай-Витрин",
-        name: brand,
-        email: email,
-        message: message,
-      }),
+      body: fd,
     })
       .then(function (r) {
-        return r.json();
+        return r.json().then(function (data) {
+          return { okHttp: r.ok, status: r.status, data: data };
+        });
       })
-      .then(function (data) {
-        if (!data.success) throw new Error(data.message || "Ошибка отправки");
-        if (msgEl) {
-          msgEl.classList.remove("is-error");
-          msgEl.classList.add("is-success");
-          msgEl.textContent = "Заявка отправлена. Мы свяжемся с вами.";
+      .then(function (res) {
+        if (res.okHttp && res.data && res.data.ok) {
+          if (msgEl) {
+            msgEl.classList.remove("is-error");
+            msgEl.classList.add("is-success");
+            msgEl.textContent = "Заявка отправлена. Мы свяжемся с вами.";
+          }
+          return { ok: true };
         }
-        return { ok: true };
+        var text =
+          (res.data && res.data.error) ||
+          (res.status === 503
+            ? "Почта на сервере не настроена (SMTP)."
+            : "Не удалось отправить заявку.");
+        throw new Error(text);
       })
-      .catch(function () {
+      .catch(function (err) {
         if (msgEl) {
           msgEl.classList.remove("is-success");
           msgEl.classList.add("is-error");
-          msgEl.textContent = "Ошибка сети или ключа. Проверьте js/site-config.js.";
+          msgEl.textContent =
+            (err && err.message) || "Ошибка сети. Проверьте соединение или настройки почты на сервере.";
         }
       })
       .finally(function () {
@@ -1558,18 +1552,9 @@
       }
 
       if (kind === "seller") {
-        var brandInput = form.querySelector('input[name="brand"]');
-        var emailIn = form.querySelector('input[name="email"]');
-        var ta = form.querySelector('textarea[name="message"]');
-        var brand = brandInput ? brandInput.value.trim() : "";
-        var em = emailIn ? emailIn.value.trim() : "";
-        var messageText = ta ? ta.value.trim() : "";
-
-        submitWeb3Seller(brand, em, messageText, msg, submitBtn).then(function (res) {
-          if (res && (res.demo || res.ok)) {
-            form.querySelectorAll("input, textarea").forEach(function (el) {
-              if (el.type !== "email") el.value = "";
-            });
+        submitSellerApplication(form, msg, submitBtn).then(function (res) {
+          if (res && res.ok) {
+            form.reset();
           }
         });
         return;

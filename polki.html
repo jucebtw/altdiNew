@@ -74,7 +74,52 @@
 
       <article class="polki-section" id="width">
         <h2>Ширина полки</h2>
-        <p>Отдельно от высоты можно выбрать, сколько мест занимает карточка в одном <strong>горизонтальном ряду</strong> витрины. Условно один ряд делится на <strong>восемь узких слотов</strong>: узкая карточка занимает один, стандартная — два, широкая — четыре. На один ряд помещается, например: <strong>восемь узких</strong>, или <strong>четыре стандартных</strong>, или <strong>две широких</strong>, или сочетание вроде <strong>одна широкая и две стандартных</strong>. Комбинация «верхняя зона + широкий слот» даёт максимум видимости и стоит дороже, чем каждый параметр по отдельности.</p>
+        <p>
+          Отдельно от высоты выбирается, сколько «долей ряда» занимает карточка. Один горизонтальный ряд условно делится на <strong>8 узких слотов</strong>:
+          <strong>узкая</strong> — 1 слот, <strong>стандарт</strong> — 2, <strong>широкая</strong> — 4. Карточки в зоне выстраиваются слева направо; следующий товар идёт за предыдущим, при необходимости — с новой строки.
+        </p>
+        <p>
+          Чтобы <strong>ровно заполнить один ряд</strong> (сумма долей = 8), возможны только такие наборы (У — узких, С — стандарт, Ш — широких):
+        </p>
+        <div class="polki-table-wrap">
+          <table class="polki-combo-table">
+            <thead>
+              <tr>
+                <th scope="col">У</th>
+                <th scope="col">С</th>
+                <th scope="col">Ш</th>
+                <th scope="col">Как читать ряд</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>8</td><td>0</td><td>0</td><td>8 узких</td></tr>
+              <tr><td>6</td><td>1</td><td>0</td><td>6 узких + 1 стандарт</td></tr>
+              <tr><td>4</td><td>2</td><td>0</td><td>4 узких + 2 стандарта</td></tr>
+              <tr><td>2</td><td>3</td><td>0</td><td>2 узких + 3 стандарта</td></tr>
+              <tr><td>0</td><td>4</td><td>0</td><td>4 стандарта</td></tr>
+              <tr><td>4</td><td>0</td><td>1</td><td>4 узких + 1 широкая</td></tr>
+              <tr><td>2</td><td>1</td><td>1</td><td>2 узких + 1 стандарт + 1 широкая</td></tr>
+              <tr><td>0</td><td>2</td><td>1</td><td>2 стандарта + 1 широкая</td></tr>
+              <tr><td>0</td><td>0</td><td>2</td><td>2 широких</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Если сумма долей <strong>меньше 8</strong>, в конце ряда остаётся свободное место — это нормально. Пример: <strong>2 узких + 1 широкая</strong> = 2 + 4 = <strong>6</strong> долей из 8 (два слота пустые справа).
+        </p>
+        <figure class="polki-slot-figure">
+          <figcaption class="polki-slot-figure__cap">Схема: 2 узких + 1 широкая + 2 пустых слота</figcaption>
+          <div class="polki-slot-strip" role="presentation" aria-hidden="true">
+            <span class="polki-slot-cell polki-slot-cell--narrow"></span>
+            <span class="polki-slot-cell polki-slot-cell--narrow"></span>
+            <span class="polki-slot-cell polki-slot-cell--wide"></span>
+            <span class="polki-slot-cell polki-slot-cell--empty"></span>
+            <span class="polki-slot-cell polki-slot-cell--empty"></span>
+          </div>
+        </figure>
+        <p style="margin-top: 0.75rem">
+          Комбинация «верхняя зона + широкий слот» даёт максимум видимости и стоит дороже, чем каждый параметр по отдельности.
+        </p>
       </article>
 
       <article class="polki-section" id="timer">

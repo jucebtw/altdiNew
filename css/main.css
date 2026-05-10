@@ -406,9 +406,11 @@ img {
   }
 }
 
-/* Полки комнат: один горизонтальный ряд = 8 долей (8 узких / 4 стандарта / 2 широких / миксы вроде 1 широкий + 2 стандарта) */
+/* Полки комнат: один горизонтальный ряд = 8 долей (узкая 1, стандарт 2, широкая 4; любые сочетания, ряд может быть неполным) */
 .shelf-zone__grid.product-grid {
   grid-template-columns: repeat(8, minmax(0, 1fr));
+  grid-auto-flow: row;
+  align-items: stretch;
 }
 .shelf-zone__grid.product-grid--2 {
   grid-template-columns: repeat(8, minmax(0, 1fr));
@@ -2565,4 +2567,94 @@ body.page-seller {
 }
 .polki-diagram__row span {
   color: var(--text-muted);
+}
+
+.polki-table-wrap {
+  overflow-x: auto;
+  margin: 1rem 0;
+  -webkit-overflow-scrolling: touch;
+}
+.polki-combo-table {
+  width: 100%;
+  max-width: 42rem;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.polki-combo-table th,
+.polki-combo-table td {
+  padding: 0.45rem 0.65rem;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+.polki-combo-table th {
+  background: color-mix(in srgb, var(--bg-card) 75%, var(--bg-hero-dark) 8%);
+  font-weight: 600;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--bg-hero-dark);
+}
+.polki-combo-table td:last-child {
+  text-align: left;
+  color: var(--text-muted);
+}
+.polki-combo-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.polki-slot-figure {
+  margin: 1rem 0 0;
+  padding: 0;
+}
+.polki-slot-figure__cap {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 0.45rem;
+}
+.polki-slot-strip {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 5px;
+  height: 32px;
+  max-width: 22rem;
+}
+.polki-slot-cell--narrow {
+  grid-column: span 1;
+  border-radius: 4px;
+  background: rgba(74, 85, 104, 0.35);
+  border: 1px solid rgba(74, 85, 104, 0.45);
+}
+.polki-slot-cell--wide {
+  grid-column: span 4;
+  border-radius: 4px;
+  background: rgba(74, 85, 104, 0.22);
+  border: 1px solid rgba(74, 85, 104, 0.35);
+}
+.polki-slot-cell--empty {
+  grid-column: span 1;
+  border-radius: 4px;
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(74, 85, 104, 0.06),
+    rgba(74, 85, 104, 0.06) 4px,
+    rgba(74, 85, 104, 0.02) 4px,
+    rgba(74, 85, 104, 0.02) 8px
+  );
+  border: 1px dashed rgba(74, 85, 104, 0.22);
+}
+
+.admin-mod-form .form-field-hint {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin: -0.25rem 0 0.65rem;
+  line-height: 1.45;
+  max-width: 38rem;
+}
+.admin-mod-form .form-field-hint a {
+  color: var(--bg-hero-dark);
+  font-weight: 600;
 }

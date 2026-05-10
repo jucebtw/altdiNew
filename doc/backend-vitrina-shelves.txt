@@ -82,8 +82,9 @@ ShelfListing (размещение товара на полке)
   room_id
   tier ENUM(top | middle | bottom)   — вертикаль в комнате
   width_tier ENUM(narrow | standard | wide)
-    — на фронте один горизонтальный ряд = 8 «узких» долей: narrow занимает 1,
-      standard — 2, wide — 4 (на ряд: 8 узких / 4 стандарта / 2 широких и т.д.).
+    — на фронте ряд = 8 долей (narrow=1, standard=2, wide=4). Ровно заполняют ряд
+      только комбинации с суммой 8 (см. polki.html#width); иначе в ряду остаются
+      пустые слоты (напр. 2 narrow + 1 wide = 6 долей).
   starts_at, ends_at
   status ENUM(active | expired | cancelled | pending_payment)
   dynamic_rank_score DECIMAL — для сортировки внутри зоны (пересчёт по правилам)

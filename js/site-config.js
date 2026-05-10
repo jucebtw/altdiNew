@@ -6,7 +6,7 @@
  * Заявка продавца (contacts.html) отправляется через Web3Forms (access key ниже).
  */
 window.SITE_CONFIG = {
-  web3AccessKey: "",
+  web3AccessKey: "3d0badb8-18cd-4ff5-9e40-bb36cb6d7779",
   /**
    * true — только локальный «фейковый» код (страница с диска file:// или отладка).
    * false — на http/https всегда запрос к серверу и реальное сообщение бота ВК.

@@ -51,12 +51,7 @@
         <form class="form" data-form="seller">
           <label class="form__row"><span>Имя / Бренд</span><input type="text" name="brand" placeholder="Название бренда" autocomplete="organization" required /></label>
           <label class="form__row"><span>Эл. почта</span><input type="email" name="email" placeholder="you@example.com" autocomplete="email" required /></label>
-          <label class="form__row"><span>Сообщение</span><textarea name="message" rows="5" placeholder="Расскажите о товарах" required></textarea></label>
-          <label class="form__row">
-            <span>Примеры работ (фото)</span>
-            <input type="file" name="portfolio" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" multiple />
-            <small class="form__hint">Необязательно. До 8 файлов, каждый до 10 МБ — менеджер увидит вложения в письме.</small>
-          </label>
+          <label class="form__row"><span>Сообщение</span><textarea name="message" rows="5" placeholder="Расскажите о товарах и себе; при желании оставьте ссылки на портфолио (ВК, сайт)." required></textarea></label>
           <button type="submit" class="btn btn--outline">Отправить заявку</button>
           <p class="form-message" aria-live="polite"></p>
         </form>

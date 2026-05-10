@@ -1319,39 +1319,42 @@
   }
 
   function submitSellerApplication(form, msgEl, btn) {
+    var key = cfg.web3AccessKey && String(cfg.web3AccessKey).trim();
+    if (!key) {
+      if (msgEl) {
+        msgEl.classList.remove("is-error");
+        msgEl.classList.add("is-success");
+        msgEl.textContent = "Заявка принята (демо). Добавьте web3AccessKey в js/site-config.js.";
+      }
+      return Promise.resolve({ demo: true });
+    }
     var fd = new FormData(form);
+    fd.append("access_key", key);
+    fd.append("subject", "Заявка продавца — Алтай-Витрин");
     if (btn) btn.disabled = true;
-    return fetch(mediaApi("/api/contact/seller-application"), {
+    return fetch("https://api.web3forms.com/submit", {
       method: "POST",
       body: fd,
     })
       .then(function (r) {
-        return r.json().then(function (data) {
-          return { okHttp: r.ok, status: r.status, data: data };
-        });
+        return r.json();
       })
-      .then(function (res) {
-        if (res.okHttp && res.data && res.data.ok) {
-          if (msgEl) {
-            msgEl.classList.remove("is-error");
-            msgEl.classList.add("is-success");
-            msgEl.textContent = "Заявка отправлена. Мы свяжемся с вами.";
-          }
-          return { ok: true };
+      .then(function (data) {
+        if (!data || !data.success) {
+          throw new Error((data && data.message) || "Ошибка отправки");
         }
-        var text =
-          (res.data && res.data.error) ||
-          (res.status === 503
-            ? "Почта на сервере не настроена (SMTP)."
-            : "Не удалось отправить заявку.");
-        throw new Error(text);
+        if (msgEl) {
+          msgEl.classList.remove("is-error");
+          msgEl.classList.add("is-success");
+          msgEl.textContent = "Заявка отправлена. Мы свяжемся с вами.";
+        }
+        return { ok: true };
       })
       .catch(function (err) {
         if (msgEl) {
           msgEl.classList.remove("is-success");
           msgEl.classList.add("is-error");
-          msgEl.textContent =
-            (err && err.message) || "Ошибка сети. Проверьте соединение или настройки почты на сервере.";
+          msgEl.textContent = (err && err.message) || "Ошибка сети. Проверьте web3forms key.";
         }
       })
       .finally(function () {

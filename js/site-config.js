@@ -3,7 +3,7 @@
  * 1) Создайте access key
  * 2) Вставьте его в web3AccessKey ниже
  *
- * Заявка продавца (contacts.html) отправляется через SMTP на сервере — см. server.cjs и переменные SMTP_* / SELLER_APPLICATION_EMAIL.
+ * Заявка продавца (contacts.html) отправляется через Web3Forms (access key ниже).
  */
 window.SITE_CONFIG = {
   web3AccessKey: "",

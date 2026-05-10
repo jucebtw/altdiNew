@@ -212,11 +212,22 @@ async function ensureDataFiles() {
     CREATE INDEX IF NOT EXISTS idx_shelf_listings_room_status ON shelf_listings(room_slug, status, ends_at);
     CREATE INDEX IF NOT EXISTS idx_shelf_listings_owner ON shelf_listings(owner_user_id, status);
     CREATE INDEX IF NOT EXISTS idx_vk_codes_lookup ON vk_codes(email, vk_handle, used_at, expires_at);
+    CREATE TABLE IF NOT EXISTS app_meta (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL
+    );
   `);
 
   const existingCount = db.prepare("SELECT COUNT(*) AS n FROM shelf_listings").get().n;
-  if (existingCount === 0) {
+  const metaRow = db.prepare("SELECT value FROM app_meta WHERE key = ?").get("legacy_shelf_json_v1");
+  const legacyImportDone = metaRow && String(metaRow.value) === "1";
+  if (existingCount > 0) {
+    if (!legacyImportDone) {
+      db.prepare("INSERT OR REPLACE INTO app_meta (key, value) VALUES ('legacy_shelf_json_v1', '1')").run();
+    }
+  } else if (!legacyImportDone) {
     await migrateLegacyJsonIfExists();
+    db.prepare("INSERT OR REPLACE INTO app_meta (key, value) VALUES ('legacy_shelf_json_v1', '1')").run();
   }
 }
 

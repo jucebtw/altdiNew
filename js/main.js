@@ -734,6 +734,18 @@
     var fallbackTier = ["tier-top", "tier-mid", "tier-low"];
     var fallbackWidth = ["width-wide", "width-standard", "width-narrow"];
 
+    function shuffleShelfGrids() {
+      document.querySelectorAll("[data-shelf-shuffle] .shelf-zone__grid").forEach(function (ul) {
+        var items = Array.from(ul.children);
+        items.sort(function () {
+          return Math.random() - 0.5;
+        });
+        items.forEach(function (li) {
+          ul.appendChild(li);
+        });
+      });
+    }
+
     function paint(items) {
       items.forEach(function (p, i) {
         var tier = p.tier || fallbackTier[i % fallbackTier.length];
@@ -775,11 +787,6 @@
       });
     }
 
-    var localItems = getArrayStore(PRODUCT_PUBLISHED_KEY).filter(function (p) {
-      return p && p.category === cat;
-    });
-    paint(localItems);
-
     var roomSlug = categoryToRoomSlug(cat);
     fetch(mediaApi("/api/rooms/" + roomSlug))
       .then(function (res) {
@@ -788,14 +795,18 @@
       })
       .then(function (data) {
         var serverItems = data && Array.isArray(data.items) ? data.items : [];
-        if (!serverItems.length) return;
-        document.querySelectorAll("[data-dynamic-product]").forEach(function (el) {
-          el.remove();
+        zones.forEach(function (ul) {
+          ul.innerHTML = "";
         });
         paint(serverItems);
+        shuffleShelfGrids();
       })
       .catch(function () {
-        /* fallback на localStorage уже отрисован выше */
+        var localItems = getArrayStore(PRODUCT_PUBLISHED_KEY).filter(function (p) {
+          return p && p.category === cat;
+        });
+        paint(localItems);
+        shuffleShelfGrids();
       });
   }
 

@@ -760,6 +760,9 @@
         var zone = zones[zoneIdx] || zones[i % zones.length];
         var li = document.createElement("li");
         li.setAttribute("data-dynamic-product", "1");
+        var wSlot = String(width || "width-standard").replace(/^width-/, "");
+        if (wSlot !== "narrow" && wSlot !== "wide") wSlot = "standard";
+        li.className = "shelf-slot shelf-slot--" + wSlot;
         li.innerHTML =
           '<article class="product-card">' +
           '<div class="product-card__badges">' +
@@ -1719,6 +1722,22 @@
     });
   });
 
+  /** Статические карточки в room-*.html: классы слота по бейджу ширины (сетка 8 долей на ряд). */
+  function initShelfSlotWidthsFromBadges() {
+    if (!document.body || !document.body.classList.contains("page-room")) return;
+    document.querySelectorAll(".shelf-zone__grid > li:not(.shelf-slot)").forEach(function (li) {
+      var badge = li.querySelector('[class*="shelf-badge--width-"]');
+      if (!badge) return;
+      var cls = badge.className || "";
+      var kind = "";
+      if (cls.indexOf("shelf-badge--width-wide") >= 0) kind = "wide";
+      else if (cls.indexOf("shelf-badge--width-narrow") >= 0) kind = "narrow";
+      else if (cls.indexOf("shelf-badge--width-standard") >= 0) kind = "standard";
+      if (!kind) return;
+      li.classList.add("shelf-slot", "shelf-slot--" + kind);
+    });
+  }
+
   function initVkBotChatLinks() {
     document.querySelectorAll("[data-vk-bot-chat]").forEach(function (el) {
       var url = String(cfg.vkBotChatUrl || "").trim();
@@ -1739,6 +1758,7 @@
   ensureCartBadge();
   updateCartBadge();
   updateAuthNav();
+  initShelfSlotWidthsFromBadges();
   initVkBotChatLinks();
   initSellerServerListings();
   initAdminProductModeration();

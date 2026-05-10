@@ -6,7 +6,8 @@
   "main": "server.cjs",
   "scripts": {
     "start": "node server.cjs",
-    "clear-shelf-listings": "node scripts/clear-all-shelf-listings.cjs"
+    "clear-shelf-listings": "node scripts/clear-all-shelf-listings.cjs",
+    "build-favicon": "node scripts/build-favicon.cjs"
   },
   "dependencies": {
     "better-sqlite3": "^11.8.1",

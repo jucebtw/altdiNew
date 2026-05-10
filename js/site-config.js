@@ -20,6 +20,10 @@ window.SITE_CONFIG = {
   vkBotChatUrl: "https://vk.com/altdiru",
   /** URL backend API для регистрации через VK (если пусто — используется mediaApiBase/текущий домен) */
   vkAuthApiBase: "",
-  /** URL backend API для загрузки/выдачи медиа товаров (пусто => тот же домен) */
+  /**
+   * URL backend API для загрузки/выдачи медиа товаров (пусто => тот же домен, пути /api/...).
+   * Не ставьте http://127.0.0.1 — в браузере это «ваш» компьютер, запрос зависнет (ERR_TIMED_OUT).
+   * Если загрузка режется по времени — у nginx нужны таймауты и client_max_body_size, см. doc/nginx-media-upload-snippet.conf
+   */
   mediaApiBase: "",
 };

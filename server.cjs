@@ -1344,6 +1344,7 @@ async function runListingsJobs(nowIso = new Date().toISOString()) {
 }
 
 async function handleUpload(req, res) {
+  const uploadStarted = Date.now();
   await ensureUploadRoot();
   let payload;
   try {
@@ -1415,6 +1416,10 @@ async function handleUpload(req, res) {
     mediaIds: media.map((m) => m.id),
     updatedAt: new Date().toISOString(),
   });
+
+  console.log(
+    `[upload] ok productId=${productId} files=${media.length} ${Date.now() - uploadStarted}ms`
+  );
 
   return json(res, 200, {
     ok: true,

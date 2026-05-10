@@ -478,8 +478,14 @@
   function mediaApi(pathname) {
     var base = getMediaApiBase();
     if (!pathname) return base || "";
-    if (!base) return pathname;
-    return base + pathname;
+    var path = String(pathname);
+    if (path.charAt(0) !== "/") path = "/" + path;
+    if (!base) return path;
+    try {
+      return new URL(path, base.endsWith("/") ? base : base + "/").href;
+    } catch (e) {
+      return base.replace(/\/+$/, "") + path;
+    }
   }
 
   function demoPasswordHash(email, password) {

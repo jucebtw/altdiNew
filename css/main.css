@@ -466,6 +466,15 @@ img {
   }
 }
 
+.home-picks__placeholder {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: var(--text-muted);
+  padding: 1.35rem 1rem;
+  font-size: 0.92rem;
+  list-style: none;
+}
+
 .product-grid > li {
   min-width: 0;
   display: flex;

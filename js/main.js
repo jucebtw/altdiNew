@@ -1722,6 +1722,110 @@
     });
   });
 
+  function roomSlugToCatalogPage(slug) {
+    var map = {
+      lighting: "room-lighting.html",
+      texture: "room-texture.html",
+      decor: "room-decor.html",
+      furniture: "room-furniture.html",
+    };
+    return map[String(slug || "").toLowerCase()] || "catalog.html";
+  }
+
+  function shuffleArray(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i];
+      a[i] = a[j];
+      a[j] = t;
+    }
+    return a;
+  }
+
+  /** Главная: «Может вам понравиться» — случайные активные товары с полок (API всех комнат). */
+  function initHomeShelfPicks() {
+    var ul = document.querySelector("[data-home-picks]");
+    if (!ul) return;
+
+    var roomSlugs = ["lighting", "texture", "decor", "furniture"];
+    var maxCards = 4;
+
+    Promise.all(
+      roomSlugs.map(function (slug) {
+        return fetch(mediaApi("/api/rooms/" + slug))
+          .then(function (res) {
+            return res.ok ? res.json() : { items: [] };
+          })
+          .catch(function () {
+            return { items: [] };
+          })
+          .then(function (data) {
+            var items = (data && data.items) || [];
+            return items.map(function (p) {
+              return { p: p, roomSlug: slug };
+            });
+          });
+      })
+    )
+      .then(function (buckets) {
+        var merged = [];
+        buckets.forEach(function (part) {
+          merged = merged.concat(part);
+        });
+        var seen = Object.create(null);
+        merged = merged.filter(function (entry) {
+          var id = String((entry.p && entry.p.listingId) || (entry.p && entry.p.productId) || "");
+          if (!id) return true;
+          if (seen[id]) return false;
+          seen[id] = true;
+          return true;
+        });
+        merged = shuffleArray(merged);
+        var pick = merged.slice(0, maxCards);
+
+        ul.innerHTML = "";
+        if (!pick.length) {
+          var emptyLi = document.createElement("li");
+          emptyLi.className = "home-picks__placeholder";
+          emptyLi.textContent = "На полках пока нет активных товаров — загляните позже или откройте каталог.";
+          ul.appendChild(emptyLi);
+          return;
+        }
+
+        pick.forEach(function (entry) {
+          var p = entry.p;
+          var href = roomSlugToCatalogPage(entry.roomSlug);
+          var li = document.createElement("li");
+          var alt = escapeHtml(String((p.name || "") + " — " + (p.type || "")).trim() || "Товар");
+          var priceStr = formatRub(Number(p.price) || 0).replace(" ₽", ' <span class="ruble">₽</span>');
+          li.innerHTML =
+            '<a class="product-card product-card--link" href="' +
+            href +
+            '">' +
+            '<p class="product-card__studio">' +
+            escapeHtml(p.designer || "Автор") +
+            '</p><div class="product-card__image"><img src="' +
+            escapeHtml(resolveProductPreview(p)) +
+            '" alt="' +
+            alt +
+            '" width="366" height="356" loading="lazy" /></div><div class="product-card__body"><h3 class="product-card__name">' +
+            escapeHtml(p.name || "Товар") +
+            '</h3><p class="product-card__type">' +
+            escapeHtml(p.type || "") +
+            '</p><p class="product-card__price">' +
+            priceStr +
+            "</p></div></a>";
+          ul.appendChild(li);
+        });
+        initAddToCart();
+      })
+      .catch(function () {
+        ul.innerHTML =
+          '<li class="home-picks__placeholder">Не удалось загрузить витрину. Проверьте соединение или зайдите позже.</li>';
+      });
+  }
+
   /** Статические карточки в room-*.html: классы слота по бейджу ширины (сетка 8 долей на ряд). */
   function initShelfSlotWidthsFromBadges() {
     if (!document.body || !document.body.classList.contains("page-room")) return;
@@ -1769,5 +1873,6 @@
   renderCartPage();
   initCatalogSearch();
   initHubSearch();
+  initHomeShelfPicks();
   initShelfShuffle();
 })();

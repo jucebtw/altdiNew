@@ -5,7 +5,8 @@
   "description": "Static storefront with local media upload API",
   "main": "server.cjs",
   "scripts": {
-    "start": "node server.cjs"
+    "start": "node server.cjs",
+    "clear-shelf-listings": "node scripts/clear-all-shelf-listings.cjs"
   },
   "dependencies": {
     "better-sqlite3": "^11.8.1",

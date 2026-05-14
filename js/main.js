@@ -177,6 +177,123 @@
     });
   }
 
+  var __avCartToastTimer = null;
+
+  function prefersReducedMotion() {
+    try {
+      return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    } catch (eR) {
+      return false;
+    }
+  }
+
+  function getCartIconAnchor() {
+    return document.querySelector('a.icon-btn[href="cart.html"]');
+  }
+
+  function pulseCartIcon() {
+    document.querySelectorAll('a.icon-btn[href="cart.html"]').forEach(function (a) {
+      a.classList.remove("header-cart--pulse");
+      void a.offsetWidth;
+      a.classList.add("header-cart--pulse");
+      setTimeout(function () {
+        a.classList.remove("header-cart--pulse");
+      }, 500);
+    });
+  }
+
+  function showCartAddedToast(productName) {
+    var id = "av-cart-toast";
+    var el = document.getElementById(id);
+    if (!el) {
+      el = document.createElement("div");
+      el.id = id;
+      el.className = "av-cart-toast";
+      el.setAttribute("role", "status");
+      el.setAttribute("aria-live", "polite");
+      document.body.appendChild(el);
+    }
+    var nm = String(productName || "Товар").trim() || "Товар";
+    if (nm.length > 44) nm = nm.slice(0, 42) + "…";
+    el.textContent = nm + " в корзине";
+    el.classList.remove("av-cart-toast--out");
+    el.classList.add("av-cart-toast--visible");
+    clearTimeout(__avCartToastTimer);
+    __avCartToastTimer = setTimeout(function () {
+      el.classList.add("av-cart-toast--out");
+      el.classList.remove("av-cart-toast--visible");
+      setTimeout(function () {
+        if (el.parentNode) el.parentNode.removeChild(el);
+      }, 320);
+    }, 2600);
+  }
+
+  function flyThumbToCart(sourceEl, imageUrl) {
+    if (!imageUrl || prefersReducedMotion()) {
+      pulseCartIcon();
+      return;
+    }
+    var anchor = getCartIconAnchor();
+    var fromEl = sourceEl && sourceEl.getBoundingClientRect ? sourceEl : null;
+    var from = fromEl
+      ? fromEl.getBoundingClientRect()
+      : { left: window.innerWidth * 0.4, top: window.innerHeight * 0.45, width: 0, height: 0 };
+    var to = anchor
+      ? anchor.getBoundingClientRect()
+      : { left: window.innerWidth - 48, top: 24, width: 40, height: 40 };
+    var size = 52;
+    var fx = from.left + (from.width || size) / 2 - size / 2;
+    var fy = from.top + (from.height || size) / 2 - size / 2;
+    var tx = to.left + to.width / 2 - size / 2;
+    var ty = to.top + to.height / 2 - size / 2;
+    var fly = document.createElement("img");
+    fly.className = "av-cart-fly";
+    fly.alt = "";
+    fly.src = imageUrl;
+    fly.setAttribute("aria-hidden", "true");
+    fly.style.left = fx + "px";
+    fly.style.top = fy + "px";
+    fly.style.width = size + "px";
+    fly.style.height = size + "px";
+    document.body.appendChild(fly);
+    var dx = tx - fx;
+    var dy = ty - fy;
+    var done = function () {
+      try {
+        fly.remove();
+      } catch (eD) {}
+      pulseCartIcon();
+    };
+    if (fly.animate) {
+      var anim = fly.animate(
+        [
+          { transform: "translate(0, 0) scale(1)", opacity: 1 },
+          { transform: "translate(" + dx * 0.2 + "px," + dy * 0.15 + "px) scale(1.05)", opacity: 1, offset: 0.22 },
+          { transform: "translate(" + dx + "px," + dy + "px) scale(0.28)", opacity: 0.15 },
+        ],
+        { duration: 720, easing: "cubic-bezier(0.22, 1, 0.36, 1)" }
+      );
+      anim.onfinish = done;
+    } else {
+      fly.style.transition = "all 0.65s cubic-bezier(0.22,1,0.36,1)";
+      requestAnimationFrame(function () {
+        fly.style.transform = "translate(" + dx + "px," + dy + "px) scale(0.25)";
+        fly.style.opacity = "0.1";
+      });
+      setTimeout(done, 700);
+    }
+  }
+
+  function notifyProductAddedToCart(opts) {
+    opts = opts || {};
+    var name = opts.name || "";
+    var img = String(opts.imageUrl || "").trim();
+    var el = opts.sourceEl || null;
+    showCartAddedToast(name);
+    if (img) flyThumbToCart(el, img);
+    else pulseCartIcon();
+  }
+
   function cardProductId(card) {
     var name =
       (card.querySelector(".product-card__name, .profile-product__name") || {}).textContent || "";
@@ -188,7 +305,6 @@
   function initAddToCart() {
     document.querySelectorAll(".product-card, .profile-product").forEach(function (card) {
       if (card.querySelector("[data-add-to-cart]")) return;
-      if (card.querySelector(".product-card__cart-float")) return;
       var body = card.querySelector(".product-card__body, .profile-product__body");
       var nameEl = card.querySelector(".product-card__name, .profile-product__name");
       var priceEl = card.querySelector(".product-card__price, .profile-product__price");
@@ -203,12 +319,18 @@
       btn.setAttribute("data-add-to-cart", "");
       btn.textContent = "В корзину";
       btn.addEventListener("click", function () {
+        var imgSrc = img ? img.getAttribute("src") || "" : "";
         addLine({
           id: cardProductId(card),
           name: nameEl.textContent.trim(),
           price: price,
-          image: img ? img.getAttribute("src") || "" : "",
+          image: imgSrc,
           qty: 1,
+        });
+        notifyProductAddedToCart({
+          name: nameEl.textContent.trim(),
+          imageUrl: imgSrc,
+          sourceEl: img || btn,
         });
         btn.textContent = "Добавлено";
         setTimeout(function () {
@@ -418,6 +540,72 @@
       .replace(/"/g, "&quot;");
   }
 
+  /** Безопасное форматирование описания: **жирный**, *курсив*, __жирный__, _курсив_, списки `- ` / `1. `, абзацы. */
+  function formatRichInline(s) {
+    if (!s) return "";
+    var out = escapeHtml(s);
+    out = out.replace(/\*\*([\s\S]+?)\*\*/g, "<strong>$1</strong>");
+    out = out.replace(/__([\s\S]+?)__/g, "<strong>$1</strong>");
+    out = out.replace(/\*([^*\n<]+)\*/g, "<em>$1</em>");
+    out = out.replace(/_([^_\n<]+)_/g, "<em>$1</em>");
+    return out;
+  }
+
+  function renderRichDescription(raw) {
+    var text = String(raw || "").replace(/\r\n/g, "\n").trim();
+    if (!text) return "";
+    var blocks = text.split(/\n{2,}/);
+    return blocks
+      .map(function (block) {
+        block = block.trim();
+        if (!block) return "";
+        if (/^-{3,}$/.test(block)) return "<hr />";
+        var lines = block.split("\n");
+        var nonempty = lines.filter(function (l) {
+          return l.trim();
+        });
+        var allBullet =
+          nonempty.length > 0 &&
+          nonempty.every(function (ln) {
+            return /^\s*[-*]\s+/.test(ln);
+          });
+        if (allBullet) {
+          return (
+            "<ul>" +
+            nonempty
+              .map(function (l) {
+                return "<li>" + formatRichInline(l.replace(/^\s*[-*]\s+/, "").trim()) + "</li>";
+              })
+              .join("") +
+            "</ul>"
+          );
+        }
+        var allNum =
+          nonempty.length > 0 &&
+          nonempty.every(function (ln) {
+            return /^\s*\d+\.\s+/.test(ln);
+          });
+        if (allNum) {
+          return (
+            "<ol>" +
+            nonempty
+              .map(function (l) {
+                return "<li>" + formatRichInline(l.replace(/^\s*\d+\.\s+/, "").trim()) + "</li>";
+              })
+              .join("") +
+            "</ol>"
+          );
+        }
+        var inner = lines
+          .map(function (ln) {
+            return formatRichInline(ln.trim());
+          })
+          .join("<br />");
+        return "<p>" + inner + "</p>";
+      })
+      .join("");
+  }
+
   function getAuth() {
     try {
       var raw = sessionStorage.getItem(AUTH_KEY);
@@ -544,8 +732,33 @@
 
   var avSheetModel = null;
   var avSheetSlideIdx = 0;
+  var avCarouselTimer = null;
+  var AV_CAROUSEL_MS = 5200;
 
-  function addToCartFromViewModel(model) {
+  function avStopCarousel() {
+    if (avCarouselTimer) {
+      clearInterval(avCarouselTimer);
+      avCarouselTimer = null;
+    }
+  }
+
+  function avStartCarousel() {
+    avStopCarousel();
+    if (!avSheetModel) return;
+    var slides = avSheetSlides(avSheetModel);
+    if (slides.length < 2) return;
+    avCarouselTimer = setInterval(function () {
+      avSheetSlideIdx = (avSheetSlideIdx + 1) % slides.length;
+      avRenderSheetSlide();
+    }, AV_CAROUSEL_MS);
+  }
+
+  function avRestartCarousel() {
+    avStopCarousel();
+    avStartCarousel();
+  }
+
+  function addToCartFromViewModel(model, sourceEl) {
     if (!model) return;
     var slides = avSheetSlides(model);
     var img =
@@ -564,6 +777,11 @@
       price: Number(model.price) || 0,
       image: img || "",
       qty: 1,
+    });
+    notifyProductAddedToCart({
+      name: model.name,
+      imageUrl: img || "",
+      sourceEl: sourceEl || null,
     });
   }
 
@@ -586,7 +804,7 @@
     if (root) return root;
     root = document.createElement("div");
     root.id = "av-product-sheet";
-    root.className = "av-product-sheet";
+    root.className = "av-product-sheet av-product-sheet--fullscreen";
     root.setAttribute("hidden", "");
     root.setAttribute("aria-hidden", "true");
     root.innerHTML =
@@ -607,7 +825,7 @@
       '<h2 id="av-product-sheet-title" class="av-product-sheet__title"></h2>' +
       '<p class="av-product-sheet__type"></p>' +
       '<p class="av-product-sheet__price"></p>' +
-      '<div class="av-product-sheet__desc"></div>' +
+      '<div class="av-product-sheet__desc av-rich"></div>' +
       '<div class="av-product-sheet__actions">' +
       '<a class="btn btn--outline av-product-sheet__room" href="catalog.html">В комнату каталога</a>' +
       '<button type="button" class="btn btn--hero-solid av-product-sheet__cart">В корзину</button>' +
@@ -621,8 +839,10 @@
     root.querySelector(".av-product-sheet__nav--next").addEventListener("click", function () {
       avShiftSlide(1);
     });
-    root.querySelector(".av-product-sheet__cart").addEventListener("click", function () {
-      if (avSheetModel) addToCartFromViewModel(avSheetModel);
+    root.querySelector(".av-product-sheet__cart").addEventListener("click", function (ev) {
+      if (!avSheetModel) return;
+      var media = root.querySelector(".av-product-sheet__media");
+      addToCartFromViewModel(avSheetModel, media || ev.currentTarget);
     });
     root.querySelector(".av-product-sheet__thumbs").addEventListener("click", function (ev) {
       var btn = ev.target.closest("[data-av-thumb-index]");
@@ -631,6 +851,7 @@
       if (!isFinite(i)) return;
       avSheetSlideIdx = i;
       avRenderSheetSlide();
+      avRestartCarousel();
     });
     return root;
   }
@@ -640,6 +861,7 @@
     if (!slides.length) return;
     avSheetSlideIdx = (avSheetSlideIdx + dir + slides.length) % slides.length;
     avRenderSheetSlide();
+    avRestartCarousel();
   }
 
   function avRenderSheetSlide() {
@@ -720,11 +942,12 @@
     if (price)
       price.innerHTML = formatRub(Number(model.price) || 0).replace(" ₽", ' <span class="ruble">₽</span>');
     if (desc) {
+      desc.classList.add("av-rich");
       if (model.description) {
-        desc.textContent = model.description;
+        desc.innerHTML = renderRichDescription(model.description);
         desc.hidden = false;
       } else {
-        desc.textContent = "";
+        desc.innerHTML = "";
         desc.hidden = true;
       }
     }
@@ -734,6 +957,7 @@
       room.textContent = rs ? "Открыть комнату в каталоге" : "Каталог";
     }
     avRenderSheetSlide();
+    avStartCarousel();
     root.removeAttribute("hidden");
     root.setAttribute("aria-hidden", "false");
     document.body.classList.add("av-product-sheet-open");
@@ -754,6 +978,7 @@
   }
 
   function closeAvProductSheet() {
+    avStopCarousel();
     var root = document.getElementById("av-product-sheet");
     if (root) {
       root.classList.remove("av-product-sheet--open");
@@ -773,6 +998,26 @@
     document.body.classList.remove("av-product-sheet-open");
     document.removeEventListener("keydown", avSheetOnKeydown);
     avSheetModel = null;
+  }
+
+  function productViewModelFromPublished(p) {
+    var slug = categoryToRoomSlug(p.category || "decor");
+    return productViewModelFromApi(
+      {
+        listingId: p.id,
+        productId: p.id,
+        name: p.name,
+        type: p.type,
+        designer: p.designer,
+        price: p.price,
+        description: p.description || "",
+        media: Array.isArray(p.media) ? p.media : [],
+        previewMediaId: p.previewMediaId || "",
+        preview: p.preview || null,
+        image: p.image || "",
+      },
+      slug
+    );
   }
 
   function productViewModelFromApi(p, roomSlug) {
@@ -796,6 +1041,31 @@
 
   function productViewModelFromDom(card) {
     if (!card) return null;
+    if (card.classList.contains("profile-product")) {
+      var pn = card.querySelector(".profile-product__name");
+      var pm = card.querySelector(".profile-product__meta");
+      var pp = card.querySelector(".profile-product__price");
+      var pimg = card.querySelector(".profile-product__image-wrap img") || card.querySelector("img");
+      var pname = pn ? pn.textContent.trim() : "";
+      var price = parseRub(pp);
+      if (price === null) price = 0;
+      var imgSrc = pimg ? String(pimg.getAttribute("src") || "").trim() : "";
+      var media = imgSrc ? [{ id: "dom", kind: "image", url: imgSrc }] : [];
+      var pt = document.querySelector(".profile-title");
+      var designerName = pt ? pt.textContent.trim() : "";
+      var dc = card.getAttribute("data-cat") || "";
+      return {
+        listingId: "",
+        productId: cardProductId(card),
+        name: pname || "Товар",
+        type: pm ? pm.textContent.trim() : "",
+        designer: designerName,
+        price: price,
+        description: "",
+        media: media,
+        roomSlug: categoryToRoomSlug(dc || "decor"),
+      };
+    }
     var nameEl = card.querySelector(".product-card__name");
     var typeEl = card.querySelector(".product-card__type");
     var studioEl = card.querySelector(".product-card__studio");
@@ -819,6 +1089,28 @@
     };
   }
 
+  /** Статические карточки в designer-*.html: превью с плавающей «В корзину» и клик по карточке в модалку. */
+  function initProfileStaticProductCards() {
+    document.querySelectorAll(".profile-grid .profile-product").forEach(function (art) {
+      if (art.querySelector(".profile-product__image-wrap")) return;
+      var img = art.querySelector(":scope > img");
+      if (!img) return;
+      var wrap = document.createElement("div");
+      wrap.className = "profile-product__image-wrap";
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "product-card__cart-float";
+      btn.setAttribute("title", "В корзину");
+      btn.setAttribute("aria-label", "В корзину");
+      btn.innerHTML =
+        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>';
+      art.insertBefore(wrap, img);
+      wrap.appendChild(btn);
+      wrap.appendChild(img);
+      art.classList.add("profile-product--qv");
+    });
+  }
+
   function initProductQuickView() {
     document.addEventListener(
       "click",
@@ -827,9 +1119,20 @@
         if (floatBtn) {
           e.preventDefault();
           e.stopPropagation();
-          var c = floatBtn.closest(".product-card");
-          var m = c && c._avProductView ? c._avProductView : c ? productViewModelFromDom(c) : null;
-          if (m) addToCartFromViewModel(m);
+          var c = floatBtn.closest(".product-card, .profile-product");
+          var m =
+            c && c._avProductView
+              ? c._avProductView
+              : c
+                ? productViewModelFromDom(c)
+                : null;
+          if (m) {
+            var imgFly =
+              (c && (c.querySelector(".product-card__image img") || c.querySelector(".profile-product__image-wrap img"))) ||
+              (c && c.querySelector("img")) ||
+              floatBtn;
+            addToCartFromViewModel(m, imgFly);
+          }
           return;
         }
         if (e.target.closest(".product-card__add")) return;
@@ -838,6 +1141,12 @@
         var card = e.target.closest(".product-card--qv");
         if (!card && document.body.classList.contains("page-room")) {
           card = e.target.closest(".shelf-zone__grid .product-card");
+        }
+        if (!card) {
+          card = e.target.closest(".profile-grid .profile-product--qv");
+        }
+        if (!card) {
+          card = e.target.closest(".profile-grid .profile-product");
         }
         if (!card) return;
 
@@ -1158,22 +1467,29 @@
       })
       .forEach(function (p) {
         var article = document.createElement("article");
-        article.className = "profile-product";
+        article.className = "profile-product profile-product--qv";
         article.setAttribute("data-dynamic-profile", "1");
         article.setAttribute("data-cat", p.category || "decor");
         article.setAttribute("data-mat", p.material || "ceramic");
         article.innerHTML =
+          '<div class="profile-product__image-wrap">' +
+          '<button type="button" class="product-card__cart-float" title="В корзину" aria-label="В корзину">' +
+          '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>' +
+          "</button>" +
           '<img src="' +
           escapeHtml(resolveProductPreview(p)) +
           '" alt="' +
           escapeHtml(p.name || "Товар") +
-          '" /><div class="profile-product__body"><h3 class="profile-product__name">' +
+          '" />' +
+          "</div>" +
+          '<div class="profile-product__body"><h3 class="profile-product__name">' +
           escapeHtml(p.name || "Товар") +
           '</h3><p class="profile-product__meta">' +
           escapeHtml(p.type || "") +
           '</p><p class="profile-product__price">' +
           formatRub(Number(p.price) || 0) +
           "</p></div>";
+        article._avProductView = productViewModelFromPublished(p);
         grid.appendChild(article);
       });
     document.dispatchEvent(new CustomEvent("av-products-changed"));
@@ -1773,6 +2089,7 @@
     }
 
     document.addEventListener("av-products-changed", applyFilters);
+    document.addEventListener("av-products-changed", initAddToCart);
   }
 
   /* ——— Forms ——— */
@@ -2191,6 +2508,7 @@
   initAdminProductModeration();
   initServerPendingModeration();
   renderDynamicRoomProducts();
+  initProfileStaticProductCards();
   renderDynamicProfileProducts();
   initAddToCart();
   renderCartPage();

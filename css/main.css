@@ -1308,6 +1308,19 @@ a.product-card--link:focus-visible {
   gap: 0.8rem;
 }
 
+.profile-grid__empty {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 1.25rem 1rem;
+  text-align: center;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: #666d78;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+  border: 1px dashed var(--border);
+}
+
 .profile-product {
   background: #f7f3eb;
   border: 1px solid var(--border);

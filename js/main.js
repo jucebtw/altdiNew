@@ -258,6 +258,7 @@
     document.body.appendChild(fly);
     var dx = tx - fx;
     var dy = ty - fy;
+    var flyMs = 1040;
     var done = function () {
       try {
         fly.remove();
@@ -268,19 +269,19 @@
       var anim = fly.animate(
         [
           { transform: "translate(0, 0) scale(1)", opacity: 1 },
-          { transform: "translate(" + dx * 0.2 + "px," + dy * 0.15 + "px) scale(1.05)", opacity: 1, offset: 0.22 },
+          { transform: "translate(" + dx * 0.2 + "px," + dy * 0.15 + "px) scale(1.05)", opacity: 1, offset: 0.25 },
           { transform: "translate(" + dx + "px," + dy + "px) scale(0.28)", opacity: 0.15 },
         ],
-        { duration: 720, easing: "cubic-bezier(0.22, 1, 0.36, 1)" }
+        { duration: flyMs, easing: "cubic-bezier(0.22, 1, 0.36, 1)" }
       );
       anim.onfinish = done;
     } else {
-      fly.style.transition = "all 0.65s cubic-bezier(0.22,1,0.36,1)";
+      fly.style.transition = "all " + flyMs / 1000 + "s cubic-bezier(0.22,1,0.36,1)";
       requestAnimationFrame(function () {
         fly.style.transform = "translate(" + dx + "px," + dy + "px) scale(0.25)";
         fly.style.opacity = "0.1";
       });
-      setTimeout(done, 700);
+      setTimeout(done, flyMs + 40);
     }
   }
 
@@ -1461,11 +1462,12 @@
     document.querySelectorAll("[data-dynamic-profile]").forEach(function (el) {
       el.remove();
     });
-    getArrayStore(PRODUCT_PUBLISHED_KEY)
-      .filter(function (p) {
-        return p && normalizeDesignerName(p.designer || "") === designer;
-      })
-      .forEach(function (p) {
+    var emptyMsg = grid.querySelector("[data-profile-empty-msg]");
+    if (emptyMsg) emptyMsg.remove();
+    var items = getArrayStore(PRODUCT_PUBLISHED_KEY).filter(function (p) {
+      return p && normalizeDesignerName(p.designer || "") === designer;
+    });
+    items.forEach(function (p) {
         var article = document.createElement("article");
         article.className = "profile-product profile-product--qv";
         article.setAttribute("data-dynamic-profile", "1");
@@ -1492,6 +1494,14 @@
         article._avProductView = productViewModelFromPublished(p);
         grid.appendChild(article);
       });
+    if (items.length === 0) {
+      var p = document.createElement("p");
+      p.className = "profile-grid__empty";
+      p.setAttribute("data-profile-empty-msg", "");
+      p.textContent =
+        "Здесь появятся товары после публикации заявок с этим автором в поле «как подписать на витрине».";
+      grid.appendChild(p);
+    }
     document.dispatchEvent(new CustomEvent("av-products-changed"));
   }
 
@@ -2482,6 +2492,44 @@
     });
   }
 
+  function initProductDescriptionExampleCopy() {
+    document.addEventListener("click", function (ev) {
+      var btn = ev.target.closest(".desc-example__copy");
+      if (!btn) return;
+      ev.preventDefault();
+      var block = btn.closest(".desc-example");
+      var pre = block && block.querySelector(".desc-example__pre");
+      if (!pre) return;
+      var text = pre.textContent;
+      function markOk() {
+        var prev = btn.textContent;
+        btn.textContent = "Скопировано";
+        setTimeout(function () {
+          btn.textContent = prev;
+        }, 1500);
+      }
+      function fallback() {
+        var ta = document.createElement("textarea");
+        ta.value = text;
+        ta.setAttribute("readonly", "");
+        ta.style.position = "fixed";
+        ta.style.left = "-9999px";
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand("copy");
+        } catch (eC) {}
+        document.body.removeChild(ta);
+        markOk();
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(markOk).catch(fallback);
+      } else {
+        fallback();
+      }
+    });
+  }
+
   function initVkBotChatLinks() {
     document.querySelectorAll("[data-vk-bot-chat]").forEach(function (el) {
       var url = String(cfg.vkBotChatUrl || "").trim();
@@ -2504,6 +2552,7 @@
   updateAuthNav();
   initShelfSlotWidthsFromBadges();
   initVkBotChatLinks();
+  initProductDescriptionExampleCopy();
   initSellerServerListings();
   initAdminProductModeration();
   initServerPendingModeration();

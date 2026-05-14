@@ -188,6 +188,7 @@
   function initAddToCart() {
     document.querySelectorAll(".product-card, .profile-product").forEach(function (card) {
       if (card.querySelector("[data-add-to-cart]")) return;
+      if (card.querySelector(".product-card__cart-float")) return;
       var body = card.querySelector(".product-card__body, .profile-product__body");
       var nameEl = card.querySelector(".product-card__name, .profile-product__name");
       var priceEl = card.querySelector(".product-card__price, .profile-product__price");
@@ -541,6 +542,314 @@
     return String((item && item.image) || "");
   }
 
+  var avSheetModel = null;
+  var avSheetSlideIdx = 0;
+
+  function addToCartFromViewModel(model) {
+    if (!model) return;
+    var slides = avSheetSlides(model);
+    var img =
+      slides.length && slides[0].kind !== "video"
+        ? slides[0].url
+        : model.media && model.media[0] && model.media[0].url
+          ? String(model.media[0].url)
+          : "";
+    if (!img) img = resolveProductPreview(model);
+    var id =
+      String(model.productId || "").trim() ||
+      slugify(String(model.name || "") + "-" + String(model.designer || ""));
+    addLine({
+      id: id,
+      name: model.name,
+      price: Number(model.price) || 0,
+      image: img || "",
+      qty: 1,
+    });
+  }
+
+  function avSheetSlides(model) {
+    if (!model || !Array.isArray(model.media)) return [];
+    return model.media
+      .filter(function (m) {
+        return m && m.url;
+      })
+      .map(function (m) {
+        var k = String(m.kind || "").toLowerCase();
+        var url = String(m.url);
+        if (k === "video" || /\.mp4(\?|$)/i.test(url)) return { url: url, kind: "video" };
+        return { url: url, kind: "image" };
+      });
+  }
+
+  function ensureAvProductSheet() {
+    var root = document.getElementById("av-product-sheet");
+    if (root) return root;
+    root = document.createElement("div");
+    root.id = "av-product-sheet";
+    root.className = "av-product-sheet";
+    root.setAttribute("hidden", "");
+    root.setAttribute("aria-hidden", "true");
+    root.innerHTML =
+      '<div class="av-product-sheet__backdrop" tabindex="-1"></div>' +
+      '<div class="av-product-sheet__dialog" role="dialog" aria-modal="true" aria-labelledby="av-product-sheet-title">' +
+      '<button type="button" class="av-product-sheet__close" aria-label="Закрыть">×</button>' +
+      '<div class="av-product-sheet__grid">' +
+      '<div class="av-product-sheet__gallery">' +
+      '<div class="av-product-sheet__stage-wrap">' +
+      '<button type="button" class="av-product-sheet__nav av-product-sheet__nav--prev" aria-label="Предыдущее фото">‹</button>' +
+      '<div class="av-product-sheet__stage"></div>' +
+      '<button type="button" class="av-product-sheet__nav av-product-sheet__nav--next" aria-label="Следующее фото">›</button>' +
+      "</div>" +
+      '<div class="av-product-sheet__thumbs" role="tablist"></div>' +
+      "</div>" +
+      '<div class="av-product-sheet__info">' +
+      '<p class="av-product-sheet__studio"></p>' +
+      '<h2 id="av-product-sheet-title" class="av-product-sheet__title"></h2>' +
+      '<p class="av-product-sheet__type"></p>' +
+      '<p class="av-product-sheet__price"></p>' +
+      '<div class="av-product-sheet__desc"></div>' +
+      '<div class="av-product-sheet__actions">' +
+      '<a class="btn btn--outline av-product-sheet__room" href="catalog.html">В комнату каталога</a>' +
+      '<button type="button" class="btn btn--hero-solid av-product-sheet__cart">В корзину</button>' +
+      "</div></div></div></div>";
+    document.body.appendChild(root);
+    root.querySelector(".av-product-sheet__backdrop").addEventListener("click", closeAvProductSheet);
+    root.querySelector(".av-product-sheet__close").addEventListener("click", closeAvProductSheet);
+    root.querySelector(".av-product-sheet__nav--prev").addEventListener("click", function () {
+      avShiftSlide(-1);
+    });
+    root.querySelector(".av-product-sheet__nav--next").addEventListener("click", function () {
+      avShiftSlide(1);
+    });
+    root.querySelector(".av-product-sheet__cart").addEventListener("click", function () {
+      if (avSheetModel) addToCartFromViewModel(avSheetModel);
+    });
+    root.querySelector(".av-product-sheet__thumbs").addEventListener("click", function (ev) {
+      var btn = ev.target.closest("[data-av-thumb-index]");
+      if (!btn) return;
+      var i = parseInt(btn.getAttribute("data-av-thumb-index"), 10);
+      if (!isFinite(i)) return;
+      avSheetSlideIdx = i;
+      avRenderSheetSlide();
+    });
+    return root;
+  }
+
+  function avShiftSlide(dir) {
+    var slides = avSheetModel ? avSheetSlides(avSheetModel) : [];
+    if (!slides.length) return;
+    avSheetSlideIdx = (avSheetSlideIdx + dir + slides.length) % slides.length;
+    avRenderSheetSlide();
+  }
+
+  function avRenderSheetSlide() {
+    var root = document.getElementById("av-product-sheet");
+    if (!root || !avSheetModel) return;
+    var stage = root.querySelector(".av-product-sheet__stage");
+    var thumbs = root.querySelector(".av-product-sheet__thumbs");
+    var prev = root.querySelector(".av-product-sheet__nav--prev");
+    var next = root.querySelector(".av-product-sheet__nav--next");
+    var slides = avSheetSlides(avSheetModel);
+    if (!stage) return;
+    if (avSheetSlideIdx >= slides.length) avSheetSlideIdx = 0;
+    if (avSheetSlideIdx < 0) avSheetSlideIdx = 0;
+    var s = slides[avSheetSlideIdx];
+    if (!s && slides.length) s = slides[0];
+    if (!s) {
+      stage.innerHTML =
+        '<p class="av-product-sheet__empty-media">Нет изображения</p>';
+      if (prev) prev.hidden = true;
+      if (next) next.hidden = true;
+      if (thumbs) thumbs.innerHTML = "";
+      return;
+    }
+    if (prev) prev.hidden = slides.length < 2;
+    if (next) next.hidden = slides.length < 2;
+    if (s.kind === "video") {
+      stage.innerHTML =
+        '<video class="av-product-sheet__media" controls playsinline preload="metadata"></video>';
+      var vid = stage.querySelector("video");
+      if (vid) vid.src = s.url;
+    } else {
+      stage.innerHTML =
+        '<img class="av-product-sheet__media" alt="" />';
+      var im = stage.querySelector("img");
+      if (im) {
+        im.src = s.url;
+        im.alt = String(avSheetModel.name || "");
+      }
+    }
+    if (thumbs) {
+      thumbs.innerHTML = slides
+        .map(function (sl, idx) {
+          var active = idx === avSheetSlideIdx ? " is-active" : "";
+          var inner =
+            sl.kind === "video"
+              ? '<span class="av-product-sheet__thumb-fake">▶</span>'
+              : '<img src="' + escapeHtml(sl.url) + '" alt="" loading="lazy" />';
+          return (
+            '<button type="button" class="av-product-sheet__thumb' +
+            active +
+            '" data-av-thumb-index="' +
+            idx +
+            '" aria-label="Слайд ' +
+            (idx + 1) +
+            '">' +
+            inner +
+            "</button>"
+          );
+        })
+        .join("");
+    }
+  }
+
+  function openAvProductSheet(model) {
+    if (!model) return;
+    avSheetModel = model;
+    avSheetSlideIdx = 0;
+    var root = ensureAvProductSheet();
+    var studio = root.querySelector(".av-product-sheet__studio");
+    var title = root.querySelector(".av-product-sheet__title");
+    var type = root.querySelector(".av-product-sheet__type");
+    var price = root.querySelector(".av-product-sheet__price");
+    var desc = root.querySelector(".av-product-sheet__desc");
+    var room = root.querySelector(".av-product-sheet__room");
+    if (studio) studio.textContent = model.designer || "";
+    if (title) title.textContent = model.name || "Товар";
+    if (type) type.textContent = model.type || "";
+    if (price)
+      price.innerHTML = formatRub(Number(model.price) || 0).replace(" ₽", ' <span class="ruble">₽</span>');
+    if (desc) {
+      if (model.description) {
+        desc.textContent = model.description;
+        desc.hidden = false;
+      } else {
+        desc.textContent = "";
+        desc.hidden = true;
+      }
+    }
+    if (room) {
+      var rs = String(model.roomSlug || "").toLowerCase();
+      room.setAttribute("href", roomSlugToCatalogPage(rs));
+      room.textContent = rs ? "Открыть комнату в каталоге" : "Каталог";
+    }
+    avRenderSheetSlide();
+    root.removeAttribute("hidden");
+    root.setAttribute("aria-hidden", "false");
+    document.body.classList.add("av-product-sheet-open");
+    requestAnimationFrame(function () {
+      root.classList.add("av-product-sheet--open");
+    });
+    try {
+      root.querySelector(".av-product-sheet__close").focus();
+    } catch (eF) {}
+    document.addEventListener("keydown", avSheetOnKeydown);
+  }
+
+  function avSheetOnKeydown(ev) {
+    if (ev.key === "Escape") {
+      ev.preventDefault();
+      closeAvProductSheet();
+    }
+  }
+
+  function closeAvProductSheet() {
+    var root = document.getElementById("av-product-sheet");
+    if (root) {
+      root.classList.remove("av-product-sheet--open");
+      var v = root.querySelector(".av-product-sheet__stage video");
+      if (v) {
+        try {
+          v.pause();
+        } catch (eV) {}
+      }
+      setTimeout(function () {
+        if (!root.classList.contains("av-product-sheet--open")) {
+          root.setAttribute("hidden", "");
+          root.setAttribute("aria-hidden", "true");
+        }
+      }, 320);
+    }
+    document.body.classList.remove("av-product-sheet-open");
+    document.removeEventListener("keydown", avSheetOnKeydown);
+    avSheetModel = null;
+  }
+
+  function productViewModelFromApi(p, roomSlug) {
+    var media = Array.isArray(p.media) ? p.media.filter(function (m) { return m && m.url; }) : [];
+    if (!media.length) {
+      var u = resolveProductPreview(p);
+      if (u) media = [{ id: "m0", kind: "image", url: u }];
+    }
+    return {
+      listingId: p.listingId || "",
+      productId: p.productId || p.id || "",
+      name: p.name || "Товар",
+      type: p.type || "",
+      designer: p.designer || "Автор",
+      price: Number(p.price || 0),
+      description: String(p.description || "").trim(),
+      media: media,
+      roomSlug: roomSlug || p.category || "",
+    };
+  }
+
+  function productViewModelFromDom(card) {
+    if (!card) return null;
+    var nameEl = card.querySelector(".product-card__name");
+    var typeEl = card.querySelector(".product-card__type");
+    var studioEl = card.querySelector(".product-card__studio");
+    var priceEl = card.querySelector(".product-card__price");
+    var img = card.querySelector(".product-card__image img");
+    var name = nameEl ? nameEl.textContent.trim() : "";
+    var price = parseRub(priceEl);
+    if (price === null) price = 0;
+    var imgSrc = img ? String(img.getAttribute("src") || "").trim() : "";
+    var media = imgSrc ? [{ id: "dom", kind: "image", url: imgSrc }] : [];
+    return {
+      listingId: "",
+      productId: cardProductId(card),
+      name: name || "Товар",
+      type: typeEl ? typeEl.textContent.trim() : "",
+      designer: studioEl ? studioEl.textContent.trim() : "",
+      price: price,
+      description: "",
+      media: media,
+      roomSlug: "",
+    };
+  }
+
+  function initProductQuickView() {
+    document.addEventListener(
+      "click",
+      function (e) {
+        var floatBtn = e.target.closest(".product-card__cart-float");
+        if (floatBtn) {
+          e.preventDefault();
+          e.stopPropagation();
+          var c = floatBtn.closest(".product-card");
+          var m = c && c._avProductView ? c._avProductView : c ? productViewModelFromDom(c) : null;
+          if (m) addToCartFromViewModel(m);
+          return;
+        }
+        if (e.target.closest(".product-card__add")) return;
+        if (e.target.closest("#av-product-sheet")) return;
+
+        var card = e.target.closest(".product-card--qv");
+        if (!card && document.body.classList.contains("page-room")) {
+          card = e.target.closest(".shelf-zone__grid .product-card");
+        }
+        if (!card) return;
+
+        var model = card._avProductView || productViewModelFromDom(card);
+        if (!model || !model.name) return;
+        e.preventDefault();
+        openAvProductSheet(model);
+      },
+      true
+    );
+  }
+
   function requestVkCode(payload) {
     if (shouldUseVkDemo()) {
       var demoCode = String(Math.floor(100000 + Math.random() * 900000));
@@ -739,6 +1048,7 @@
     };
     var fallbackTier = ["tier-top", "tier-mid", "tier-low"];
     var fallbackWidth = ["width-wide", "width-standard", "width-narrow"];
+    var roomPageSlug = categoryToRoomSlug(cat);
 
     function shuffleShelfGrids() {
       document.querySelectorAll("[data-shelf-shuffle] .shelf-zone__grid").forEach(function (ul) {
@@ -764,7 +1074,7 @@
         if (wSlot !== "narrow" && wSlot !== "wide") wSlot = "standard";
         li.className = "shelf-slot shelf-slot--" + wSlot;
         li.innerHTML =
-          '<article class="product-card">' +
+          '<article class="product-card product-card--qv">' +
           '<div class="product-card__badges">' +
           '<span class="shelf-badge shelf-badge--' +
           tier +
@@ -780,7 +1090,11 @@
           '<p class="product-card__studio">' +
           escapeHtml(p.designer || "Автор") +
           "</p>" +
-          '<div class="product-card__image"><img src="' +
+          '<div class="product-card__image">' +
+          '<button type="button" class="product-card__cart-float" title="В корзину" aria-label="В корзину">' +
+          '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>' +
+          "</button>" +
+          '<img src="' +
           escapeHtml(resolveProductPreview(p)) +
           '" alt="' +
           escapeHtml((p.name || "") + " — " + (p.type || "")) +
@@ -793,6 +1107,8 @@
           formatRub(Number(p.price) || 0) +
           "</p></div></article>";
         zone.appendChild(li);
+        var article = li.querySelector(".product-card");
+        if (article) article._avProductView = productViewModelFromApi(p, roomPageSlug);
       });
     }
 
@@ -809,6 +1125,7 @@
         });
         paint(serverItems);
         shuffleShelfGrids();
+        initAddToCart();
       })
       .catch(function () {
         var localItems = getArrayStore(PRODUCT_PUBLISHED_KEY).filter(function (p) {
@@ -816,6 +1133,7 @@
         });
         paint(localItems);
         shuffleShelfGrids();
+        initAddToCart();
       });
   }
 
@@ -1018,6 +1336,7 @@
           designer: item.designer,
           category: item.category,
           material: item.material,
+          description: String(item.description || "").trim(),
           price: Number(item.price || 0),
           media: Array.isArray(item.media) ? item.media : [],
           previewMediaId: item.previewMediaId || "",
@@ -1154,6 +1473,7 @@
             ownerType: String(fd.get("ownerType") || "designers").trim(),
             category: String(fd.get("category") || "").trim(),
             material: String(fd.get("material") || "").trim(),
+            description: String(fd.get("description") || "").trim(),
             tier: String(fd.get("tier") || "").trim(),
             width: String(fd.get("width") || "").trim(),
             media: uploadedMedia,
@@ -1795,17 +2115,18 @@
 
         pick.forEach(function (entry) {
           var p = entry.p;
-          var href = roomSlugToCatalogPage(entry.roomSlug);
           var li = document.createElement("li");
           var alt = escapeHtml(String((p.name || "") + " — " + (p.type || "")).trim() || "Товар");
           var priceStr = formatRub(Number(p.price) || 0).replace(" ₽", ' <span class="ruble">₽</span>');
           li.innerHTML =
-            '<a class="product-card product-card--link" href="' +
-            href +
-            '">' +
+            '<article class="product-card product-card--qv">' +
             '<p class="product-card__studio">' +
             escapeHtml(p.designer || "Автор") +
-            '</p><div class="product-card__image"><img src="' +
+            '</p><div class="product-card__image">' +
+            '<button type="button" class="product-card__cart-float" title="В корзину" aria-label="В корзину">' +
+            '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>' +
+            "</button>" +
+            '<img src="' +
             escapeHtml(resolveProductPreview(p)) +
             '" alt="' +
             alt +
@@ -1815,8 +2136,10 @@
             escapeHtml(p.type || "") +
             '</p><p class="product-card__price">' +
             priceStr +
-            "</p></div></a>";
+            "</p></div></article>";
           ul.appendChild(li);
+          var art = li.querySelector(".product-card");
+          if (art) art._avProductView = productViewModelFromApi(p, entry.roomSlug);
         });
         initAddToCart();
       })
@@ -1874,5 +2197,6 @@
   initCatalogSearch();
   initHubSearch();
   initHomeShelfPicks();
+  initProductQuickView();
   initShelfShuffle();
 })();

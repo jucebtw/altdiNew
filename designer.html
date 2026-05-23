@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Алтай-Витрин · Профиль автора</title>
+  <link rel="icon" href="favicon.png" type="image/png" sizes="64x64" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" sizes="180x180" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/main.css" />
+</head>
+<body class="page-designer-profile">
+  <a class="skip-link" href="#main">Перейти к контенту</a>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="index.html" aria-label="Алтай-Витрин — на главную">
+        <span class="logo__mark" aria-hidden="true">AB</span>
+        <span class="logo__name">Алтай-Витрин</span>
+      </a>
+      <nav class="nav" data-nav>
+        <a href="catalog.html">Каталог</a>
+        <a href="polki.html">Полки</a>
+        <a href="designers.html">Дизайнеры</a>
+        <a href="collections.html">Коллекции</a>
+        <a href="contacts.html">Контакты</a>
+        <a href="about.html">О нас</a>
+        <a href="login.html" class="btn btn--outline nav-auth-btn">Войти</a>
+      </nav>
+      <div class="header-tools" aria-label="Панель">
+        <a class="icon-btn" href="catalog.html" aria-label="Поиск" title="Поиск">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        </a>
+        <a class="icon-btn" href="cart.html" aria-label="Корзина" title="Корзина">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        </a>
+      </div>
+      <button type="button" class="nav-toggle" aria-label="Меню" aria-expanded="false" data-nav-toggle></button>
+    </div>
+  </header>
+  <main id="main" class="inner-page">
+    <section class="section container profile-shell" data-designer-profile hidden>
+      <div class="profile-top">
+        <img class="profile-avatar" data-designer-avatar src="" alt="" />
+        <div>
+          <h1 class="profile-title" data-designer-name>Профиль</h1>
+          <p class="profile-meta" data-designer-bio></p>
+          <p class="profile-meta profile-meta--sub" data-designer-extra hidden></p>
+          <div class="profile-actions">
+            <a class="btn btn--hero-outline" href="catalog.html">Смотреть каталог</a>
+            <a class="btn btn--hero-outline" href="contacts.html">Связаться</a>
+          </div>
+        </div>
+        <div class="profile-stats" data-designer-stats>
+          <div class="profile-stat"><strong data-stat-followers>—</strong><span>подписчиков</span></div>
+          <div class="profile-stat"><strong data-stat-rating>—</strong><span>рейтинг</span></div>
+          <div class="profile-stat"><strong data-stat-reviews>—</strong><span>отзывов</span></div>
+        </div>
+      </div>
+
+      <div class="profile-tabs">
+        <a class="profile-tab is-active" href="#" data-profile-tab-profile>Профиль</a>
+        <a class="profile-tab" href="#products" data-profile-tab-products>Товары</a>
+        <a class="profile-tab" href="#materials">Материалы</a>
+        <a class="profile-tab" href="#reviews">Отзывы</a>
+      </div>
+
+      <div class="profile-layout" id="products">
+        <aside class="profile-sidebar">
+          <h3 class="profile-filter-title">Категории</h3>
+          <div class="profile-filter" data-filter-group="cat">
+            <button type="button" data-filter="all" class="is-active">Все</button>
+            <button type="button" data-filter="light">Освещение</button>
+            <button type="button" data-filter="texture">Текстура</button>
+            <button type="button" data-filter="decor">Декор</button>
+            <button type="button" data-filter="furniture">Мебель</button>
+          </div>
+          <h3 class="profile-filter-title" id="materials">Материалы</h3>
+          <div class="profile-filter" data-filter-group="mat">
+            <button type="button" data-filter="all" class="is-active">Все</button>
+            <button type="button" data-filter="ceramic">Керамика</button>
+            <button type="button" data-filter="wood">Дерево</button>
+            <button type="button" data-filter="metal">Металл</button>
+            <button type="button" data-filter="textile">Текстиль</button>
+          </div>
+        </aside>
+        <div class="profile-grid"></div>
+      </div>
+
+      <div id="reviews" class="profile-tabs" style="margin-top:1rem;">
+        <a class="profile-tab" href="contacts.html">Оставить отзыв</a>
+      </div>
+    </section>
+
+    <section class="section container" data-designer-not-found hidden>
+      <h1 class="section__heading">Автор не найден</h1>
+      <p class="page-lead">Такого профиля нет или он был удалён.</p>
+      <p><a class="btn btn--outline" href="designers.html">К списку дизайнеров</a></p>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <a class="logo logo--footer" href="index.html"><span class="logo__mark" aria-hidden="true">AB</span></a>
+        <p class="footer__name">АЛТАЙ-ВИТРИН</p>
+        <p class="footer__address">Барнаул, Алтайский край<br />Россия</p>
+      </div>
+      <div class="footer-col"><a href="index.html">Главная</a><a href="catalog.html">Каталог</a><a href="polki.html">Полки</a><a href="designers.html">Дизайнеры</a></div>
+      <div class="footer-col"><a href="collections.html">Коллекции</a><a href="contacts.html">Контакты</a><a href="about.html">О нас</a></div>
+    </div>
+    <div class="container footer-line" role="note">
+      <p class="footer__hint">Корзина и сессия в браузере. Админ — учётная запись на сервере.</p>
+    </div>
+  </footer>
+  <script src="js/site-config.js"></script>
+  <script src="js/main.js" defer></script>
+</body>
+</html>

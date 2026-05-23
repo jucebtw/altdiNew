@@ -6,6 +6,14 @@
  * Заявка продавца (contacts.html) отправляется через Web3Forms (access key ниже).
  */
 window.SITE_CONFIG = {
+  contactPhone: "+7 (923) 658-09-71",
+  contactEmail: "altay-vitrin@yandex.ru",
+  roomCards: {
+    lighting: { label: "Освещение", href: "room-lighting.html", image: "assets/for_lightroom.avif" },
+    texture: { label: "Текстура", href: "room-texture.html", image: "assets/for_texturroom.jpg" },
+    decor: { label: "Декор", href: "room-decor.html", image: "assets/for_decorroom.jpg" },
+    furniture: { label: "Мебель", href: "room-furniture.html", image: "assets/for_mebelroom.jpg" },
+  },
   web3AccessKey: "3d0badb8-18cd-4ff5-9e40-bb36cb6d7779",
   /**
    * true — только локальный «фейковый» код (страница с диска file:// или отладка).

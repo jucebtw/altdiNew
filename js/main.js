@@ -5,6 +5,7 @@
   var PRODUCT_PENDING_KEY = "av-products-pending-v1";
   var PRODUCT_PUBLISHED_KEY = "av-products-published-v1";
   var DEMO_USERS_KEY = "av-app-users-v1";
+  var DESIGNERS_KEY = "av-designers-v1";
   var cfg = typeof window.SITE_CONFIG !== "undefined" ? window.SITE_CONFIG : {};
 
   if (document.body && document.body.classList.contains("page-admin")) {
@@ -58,6 +59,597 @@
       .replace(/[^\w\u0400-\u04FF0-9]+/g, "-")
       .replace(/^-|-$/g, "")
       .slice(0, 80) || "id-" + Math.random().toString(36).slice(2);
+  }
+
+  var LEGACY_DESIGNER_PAGE_IDS = {
+    "designer-tatyana": "tatyana-lan",
+    "designer-ivan": "ivan-lybin",
+    "designer-terra": "terra",
+    "designer-marina": "marina-kozhevnikova",
+    "designer-dmitry": "dmitry-karkasov",
+    "designer-alyona": "alyona-mirnaya",
+    "designer-poluden": "poluden",
+    "designer-svetlana": "svetlana-rechnikova",
+  };
+
+  function normalizeDesignerName(s) {
+    return String(s || "")
+      .toLowerCase()
+      .replace(/[«»"']/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function getDesignersSeed() {
+    return [
+      {
+        id: "tatyana-lan",
+        name: "Татьяна Лань",
+        roleSubtitle: "Дизайнер",
+        ownerType: "designers",
+        isStudio: false,
+        avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80",
+        logoLetter: "",
+        bio: "Керамика и скульптура. В своей мастерской я создаю скульптуры и предметы для дома, вдохновляясь природой, архитектурой и тихими моментами жизни.",
+        vk: "",
+        city: "Барнаул",
+        statFollowers: 520,
+        statRating: "5.0",
+        statReviews: 114,
+      },
+      {
+        id: "ivan-lybin",
+        name: "Иван Лыбин",
+        roleSubtitle: "Дизайнер",
+        ownerType: "designers",
+        isStudio: false,
+        avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80",
+        logoLetter: "",
+        bio: "Мебель и свет из дерева. Работаю с массивом и шпоном, делаю предметы под интерьер заказчика.",
+        vk: "",
+        city: "",
+        statFollowers: 0,
+        statRating: "",
+        statReviews: 0,
+      },
+      {
+        id: "terra",
+        name: "Студия «Терра»",
+        roleSubtitle: "Студия керамических изделий",
+        ownerType: "designers",
+        isStudio: true,
+        avatarUrl: "",
+        logoLetter: "Т",
+        bio: "Керамика ручной работы: свет, декор и предметы для дома.",
+        vk: "",
+        city: "",
+        statFollowers: 0,
+        statRating: "",
+        statReviews: 0,
+      },
+      {
+        id: "marina-kozhevnikova",
+        name: "Марина Кожевникова",
+        roleSubtitle: "Текстиль и свет",
+        ownerType: "designers",
+        isStudio: false,
+        avatarUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&q=80",
+        logoLetter: "",
+        bio: "",
+        vk: "",
+        city: "",
+        statFollowers: 0,
+        statRating: "",
+        statReviews: 0,
+      },
+      {
+        id: "dmitry-karkasov",
+        name: "Дмитрий Каркасов",
+        roleSubtitle: "Металл и свет",
+        ownerType: "masters",
+        isStudio: false,
+        avatarUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&q=80",
+        logoLetter: "",
+        bio: "",
+        vk: "",
+        city: "",
+        statFollowers: 0,
+        statRating: "",
+        statReviews: 0,
+      },
+      {
+        id: "alyona-mirnaya",
+        name: "Алёна Мирная",
+        roleSubtitle: "Стекло и керамика",
+        ownerType: "designers",
+        isStudio: false,
+        avatarUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df1?w=400&q=80",
+        logoLetter: "",
+        bio: "",
+        vk: "",
+        city: "",
+        statFollowers: 0,
+        statRating: "",
+        statReviews: 0,
+      },
+      {
+        id: "poluden",
+        name: "Мастерская «Полдень»",
+        roleSubtitle: "Латунь и свет",
+        ownerType: "masters",
+        isStudio: true,
+        avatarUrl: "",
+        logoLetter: "П",
+        bio: "",
+        vk: "",
+        city: "",
+        statFollowers: 0,
+        statRating: "",
+        statReviews: 0,
+      },
+      {
+        id: "svetlana-rechnikova",
+        name: "Светлана Речникова",
+        roleSubtitle: "Дерево и текстиль",
+        ownerType: "masters",
+        isStudio: false,
+        avatarUrl: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&q=80",
+        logoLetter: "",
+        bio: "",
+        vk: "",
+        city: "",
+        statFollowers: 0,
+        statRating: "",
+        statReviews: 0,
+      },
+    ];
+  }
+
+  function getDesigners() {
+    return getArrayStore(DESIGNERS_KEY);
+  }
+
+  function setDesigners(arr) {
+    setArrayStore(DESIGNERS_KEY, arr);
+    document.dispatchEvent(new CustomEvent("av-designers-changed"));
+  }
+
+  function ensureDesignersStore() {
+    var list = getDesigners();
+    if (!list.length) {
+      setDesigners(getDesignersSeed());
+      list = getDesigners();
+    }
+    migrateProductDesignerIds(list);
+    return list;
+  }
+
+  function migrateProductDesignerIds(designers) {
+    designers = designers || getDesigners();
+    var products = getArrayStore(PRODUCT_PUBLISHED_KEY);
+    var pending = getArrayStore(PRODUCT_PENDING_KEY);
+    var changed = false;
+    function attach(p) {
+      if (!p || p.designerId) return;
+      var d = designers.find(function (x) {
+        return normalizeDesignerName(x.name) === normalizeDesignerName(p.designer);
+      });
+      if (d) {
+        p.designerId = d.id;
+        changed = true;
+      }
+    }
+    products.forEach(attach);
+    pending.forEach(attach);
+    if (changed) {
+      setArrayStore(PRODUCT_PUBLISHED_KEY, products);
+      setArrayStore(PRODUCT_PENDING_KEY, pending);
+    }
+  }
+
+  function getDesignerById(id) {
+    if (!id) return null;
+    return (
+      getDesigners().find(function (d) {
+        return d && d.id === id;
+      }) || null
+    );
+  }
+
+  function getDesignerByName(name) {
+    var n = normalizeDesignerName(name);
+    if (!n) return null;
+    return (
+      getDesigners().find(function (d) {
+        return normalizeDesignerName(d.name) === n;
+      }) || null
+    );
+  }
+
+  function designerProfileUrl(id) {
+    return "designer.html?id=" + encodeURIComponent(String(id || ""));
+  }
+
+  function productBelongsToDesigner(p, designer) {
+    if (!p || !designer) return false;
+    if (p.designerId && p.designerId === designer.id) return true;
+    return normalizeDesignerName(p.designer) === normalizeDesignerName(designer.name);
+  }
+
+  function removeDesignerAndProducts(designerId) {
+    var designer = getDesignerById(designerId);
+    if (!designer) return;
+    setDesigners(
+      getDesigners().filter(function (d) {
+        return d.id !== designerId;
+      })
+    );
+    var pub = getArrayStore(PRODUCT_PUBLISHED_KEY).filter(function (p) {
+      return !productBelongsToDesigner(p, designer);
+    });
+    var pend = getArrayStore(PRODUCT_PENDING_KEY).filter(function (p) {
+      return !productBelongsToDesigner(p, designer);
+    });
+    setArrayStore(PRODUCT_PUBLISHED_KEY, pub);
+    setArrayStore(PRODUCT_PENDING_KEY, pend);
+    document.dispatchEvent(new CustomEvent("av-products-changed"));
+  }
+
+  function saveDesignerRecord(record, previousId) {
+    var list = getDesigners();
+    var prev = previousId ? getDesignerById(previousId) : null;
+    var idx = list.findIndex(function (d) {
+      return d.id === (previousId || record.id);
+    });
+    if (idx >= 0) list[idx] = record;
+    else list.push(record);
+    setDesigners(list);
+    if (prev && prev.name !== record.name) {
+      var pub = getArrayStore(PRODUCT_PUBLISHED_KEY);
+      var pend = getArrayStore(PRODUCT_PENDING_KEY);
+      pub.forEach(function (p) {
+        if (productBelongsToDesigner(p, prev)) {
+          p.designer = record.name;
+          p.designerId = record.id;
+        }
+      });
+      pend.forEach(function (p) {
+        if (productBelongsToDesigner(p, prev)) {
+          p.designer = record.name;
+          p.designerId = record.id;
+        }
+      });
+      setArrayStore(PRODUCT_PUBLISHED_KEY, pub);
+      setArrayStore(PRODUCT_PENDING_KEY, pend);
+      document.dispatchEvent(new CustomEvent("av-products-changed"));
+    }
+  }
+
+  function renderDesignerCardHtml(d, headingTag) {
+    headingTag = headingTag || "h3";
+    var studio = d.isStudio || (!d.avatarUrl && d.logoLetter);
+    var top = studio
+      ? '<div class="designer-card__top designer-card__top--logo"><span class="designer-card__logo">' +
+        escapeHtml(String(d.logoLetter || d.name.charAt(0) || "?")) +
+        "</span></div>"
+      : '<div class="designer-card__top"><img src="' +
+        escapeHtml(d.avatarUrl || "") +
+        '" alt="' +
+        escapeHtml(d.name) +
+        '" class="designer-card__avatar" width="215" height="215" loading="lazy" /></div>';
+    return (
+      '<article class="designer-card' +
+      (studio ? " designer-card--studio" : "") +
+      '">' +
+      top +
+      '<div class="designer-card__bottom"><' +
+      headingTag +
+      ' class="designer-card__name">' +
+      escapeHtml(d.name) +
+      "</" +
+      headingTag +
+      '><p class="designer-card__role">' +
+      escapeHtml(d.roleSubtitle || "Автор") +
+      '</p><a href="' +
+      escapeHtml(designerProfileUrl(d.id)) +
+      '" class="designer-card__link">Перейти к профилю</a></div></article>'
+    );
+  }
+
+  function renderDesignerSliders() {
+    var designers = ensureDesignersStore();
+    document.querySelectorAll("[data-designer-slider]").forEach(function (strip) {
+      var headingTag = strip.closest(".section--designers") && strip.closest("main") ? "h2" : "h3";
+      if (document.body.classList.contains("page-designer-profile")) headingTag = "h3";
+      strip.innerHTML = designers.map(function (d) {
+        return renderDesignerCardHtml(d, headingTag);
+      }).join("");
+    });
+  }
+
+  function fillDesignerSelectOptions() {
+    var designers = ensureDesignersStore();
+    document.querySelectorAll("[data-designer-select]").forEach(function (sel) {
+      var cur = sel.value;
+      sel.innerHTML = '<option value="">Выберите автора</option>';
+      designers.forEach(function (d) {
+        var op = document.createElement("option");
+        op.value = d.id;
+        op.textContent = d.name;
+        sel.appendChild(op);
+      });
+      if (cur) sel.value = cur;
+    });
+  }
+
+  function initRoomCatCards() {
+    var rooms = cfg.roomCards || {};
+    var order = ["lighting", "texture", "decor", "furniture"];
+    document.querySelectorAll("[data-room-cards]").forEach(function (grid) {
+      if (!grid.hasAttribute("data-room-cards-built")) {
+        grid.innerHTML = order
+          .map(function (key) {
+            var r = rooms[key];
+            if (!r) return "";
+            var labelTag = grid.closest("[data-hub-cards]") ? "h2" : "h3";
+            return (
+              '<a class="cat-card" href="' +
+              escapeHtml(r.href) +
+              '" role="listitem" data-room="' +
+              key +
+              '"><div class="cat-card__media"><img src="' +
+              escapeHtml(r.image) +
+              '" alt="' +
+              escapeHtml(r.label) +
+              '" loading="lazy" /><' +
+              labelTag +
+              ' class="cat-card__label">' +
+              escapeHtml(r.label) +
+              "</" +
+              labelTag +
+              "></div></a>"
+            );
+          })
+          .join("");
+        grid.setAttribute("data-room-cards-built", "1");
+      } else {
+        order.forEach(function (key) {
+          var card = grid.querySelector('[data-room="' + key + '"]');
+          var r = rooms[key];
+          if (!card || !r) return;
+          var img = card.querySelector(".cat-card__media img");
+          if (img) {
+            img.src = r.image;
+            img.alt = r.label;
+          }
+        });
+      }
+    });
+  }
+
+  function initSiteContacts() {
+    var phone = String(cfg.contactPhone || "+7 (923) 658-09-71").trim();
+    var email = String(cfg.contactEmail || "altay-vitrin@yandex.ru").trim();
+    var telHref = "tel:" + phone.replace(/[^\d+]/g, "");
+    document.querySelectorAll("[data-contact-phone]").forEach(function (el) {
+      el.textContent = phone;
+    });
+    document.querySelectorAll("[data-contact-email]").forEach(function (el) {
+      el.textContent = email;
+    });
+    document.querySelectorAll("[data-contact-phone-link]").forEach(function (el) {
+      el.setAttribute("href", telHref);
+    });
+    document.querySelectorAll("[data-contact-mailto]").forEach(function (el) {
+      el.setAttribute("href", "mailto:" + email);
+    });
+  }
+
+  function getDesignerIdFromPage() {
+    try {
+      var q = new URLSearchParams(window.location.search || "");
+      var id = String(q.get("id") || "").trim();
+      if (id) return id;
+    } catch (eQ) {}
+    var path = String(window.location.pathname || "").toLowerCase();
+    var base = path.split("/").pop().replace(/\.html$/, "");
+    if (LEGACY_DESIGNER_PAGE_IDS[base]) return LEGACY_DESIGNER_PAGE_IDS[base];
+    return "";
+  }
+
+  function initDesignerProfilePage() {
+    if (!document.body.classList.contains("page-designer-profile")) return;
+    var id = getDesignerIdFromPage();
+    var shell = document.querySelector("[data-designer-profile]");
+    var notFound = document.querySelector("[data-designer-not-found]");
+    ensureDesignersStore();
+    var designer = getDesignerById(id);
+    if (!designer) {
+      if (shell) shell.hidden = true;
+      if (notFound) notFound.hidden = false;
+      document.title = "Алтай-Витрин · Автор не найден";
+      return;
+    }
+    if (notFound) notFound.hidden = true;
+    if (shell) shell.hidden = false;
+    document.title = "Алтай-Витрин · " + designer.name;
+    var av = document.querySelector("[data-designer-avatar]");
+    if (av) {
+      if (designer.isStudio && !designer.avatarUrl) {
+        av.style.display = "none";
+      } else {
+        av.style.display = "";
+        av.src = designer.avatarUrl || "";
+        av.alt = designer.name;
+      }
+    }
+    var nm = document.querySelector("[data-designer-name]");
+    if (nm) nm.textContent = designer.name;
+    var bio = document.querySelector("[data-designer-bio]");
+    if (bio) bio.textContent = designer.bio || "";
+    var extra = document.querySelector("[data-designer-extra]");
+    if (extra) {
+      var bits = [];
+      if (designer.city) bits.push(designer.city);
+      if (designer.vk) bits.push(designer.vk);
+      if (bits.length) {
+        extra.textContent = bits.join(" · ");
+        extra.hidden = false;
+      } else extra.hidden = true;
+    }
+    var sf = document.querySelector("[data-stat-followers]");
+    var sr = document.querySelector("[data-stat-rating]");
+    var sv = document.querySelector("[data-stat-reviews]");
+    if (sf) sf.textContent = designer.statFollowers ? String(designer.statFollowers) : "—";
+    if (sr) sr.textContent = designer.statRating ? String(designer.statRating) : "—";
+    if (sv) sv.textContent = designer.statReviews ? String(designer.statReviews) : "—";
+    document.querySelectorAll("[data-profile-tab-profile]").forEach(function (a) {
+      a.setAttribute("href", designerProfileUrl(designer.id));
+    });
+    document.querySelectorAll("[data-profile-tab-products]").forEach(function (a) {
+      a.setAttribute("href", designerProfileUrl(designer.id) + "#products");
+    });
+    renderDynamicProfileProducts(designer);
+  }
+
+  function initAdminDesignersPage() {
+    var form = document.querySelector("[data-designer-form]");
+    if (!form) return;
+    var listEl = document.querySelector("[data-designers-admin-list]");
+    var emptyEl = document.querySelector("[data-designers-admin-empty]");
+    var msg = document.querySelector("[data-designer-form-msg]");
+    var titleEl = document.querySelector("[data-designer-form-title]");
+    var delBtn = document.querySelector("[data-designer-delete]");
+    var resetBtn = document.querySelector("[data-designer-form-reset]");
+
+    function resetForm() {
+      form.reset();
+      form.querySelector('[name="editId"]').value = "";
+      if (delBtn) delBtn.hidden = true;
+      if (titleEl) titleEl.textContent = "Новый автор";
+      if (msg) msg.textContent = "";
+    }
+
+    function loadIntoForm(d) {
+      form.querySelector('[name="editId"]').value = d.id;
+      form.querySelector('[name="name"]').value = d.name || "";
+      form.querySelector('[name="roleSubtitle"]').value = d.roleSubtitle || "";
+      form.querySelector('[name="ownerType"]').value = d.ownerType || "designers";
+      form.querySelector('[name="isStudio"]').checked = !!d.isStudio;
+      form.querySelector('[name="logoLetter"]').value = d.logoLetter || "";
+      form.querySelector('[name="avatarUrl"]').value = d.avatarUrl || "";
+      form.querySelector('[name="bio"]').value = d.bio || "";
+      form.querySelector('[name="vk"]').value = d.vk || "";
+      form.querySelector('[name="city"]').value = d.city || "";
+      form.querySelector('[name="statFollowers"]').value =
+        d.statFollowers !== undefined && d.statFollowers !== "" ? String(d.statFollowers) : "";
+      form.querySelector('[name="statRating"]').value = d.statRating || "";
+      form.querySelector('[name="statReviews"]').value =
+        d.statReviews !== undefined && d.statReviews !== "" ? String(d.statReviews) : "";
+      if (delBtn) delBtn.hidden = false;
+      if (titleEl) titleEl.textContent = "Редактирование: " + d.name;
+    }
+
+    function paintList() {
+      var designers = ensureDesignersStore();
+      if (!listEl) return;
+      listEl.innerHTML = designers
+        .map(function (d) {
+          return (
+            '<article class="admin-designers-list__item"><div><strong>' +
+            escapeHtml(d.name) +
+            "</strong><br /><span class=\"admin-designers-list__meta\">" +
+            escapeHtml(d.roleSubtitle || "") +
+            ' · <a href="' +
+            escapeHtml(designerProfileUrl(d.id)) +
+            '">Профиль</a></span></div><button type="button" class="btn btn--outline" data-designer-edit="' +
+            escapeHtml(d.id) +
+            '">Изменить</button></article>'
+          );
+        })
+        .join("");
+      if (emptyEl) emptyEl.hidden = designers.length > 0;
+    }
+
+    paintList();
+
+    if (listEl) {
+      listEl.addEventListener("click", function (ev) {
+        var btn = ev.target.closest("[data-designer-edit]");
+        if (!btn) return;
+        var id = btn.getAttribute("data-designer-edit");
+        var d = getDesignerById(id);
+        if (d) loadIntoForm(d);
+      });
+    }
+
+    if (resetBtn) resetBtn.addEventListener("click", resetForm);
+
+    if (delBtn) {
+      delBtn.addEventListener("click", function () {
+        var id = form.querySelector('[name="editId"]').value;
+        if (!id) return;
+        if (!window.confirm("Удалить автора и все его товары с витрины?")) return;
+        removeDesignerAndProducts(id);
+        resetForm();
+        paintList();
+        renderDesignerSliders();
+        fillDesignerSelectOptions();
+        if (msg) {
+          msg.classList.add("is-success");
+          msg.textContent = "Автор и товары удалены.";
+        }
+      });
+    }
+
+    form.addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+      var fd = new FormData(form);
+      var editId = String(fd.get("editId") || "").trim();
+      var name = String(fd.get("name") || "").trim();
+      var id = editId || slugify(name);
+      var existingOther = getDesigners().find(function (d) {
+        return d.id === id && d.id !== editId;
+      });
+      if (existingOther) {
+        if (msg) {
+          msg.classList.add("is-error");
+          msg.textContent = "Такой идентификатор уже занят. Измените имя.";
+        }
+        return;
+      }
+      var record = {
+        id: id,
+        name: name,
+        roleSubtitle: String(fd.get("roleSubtitle") || "").trim(),
+        ownerType: String(fd.get("ownerType") || "designers").trim(),
+        isStudio: !!fd.get("isStudio"),
+        logoLetter: String(fd.get("logoLetter") || "").trim().slice(0, 2),
+        avatarUrl: String(fd.get("avatarUrl") || "").trim(),
+        bio: String(fd.get("bio") || "").trim(),
+        vk: String(fd.get("vk") || "").trim(),
+        city: String(fd.get("city") || "").trim(),
+        statFollowers: Number(fd.get("statFollowers") || 0) || 0,
+        statRating: String(fd.get("statRating") || "").trim(),
+        statReviews: Number(fd.get("statReviews") || 0) || 0,
+      };
+      saveDesignerRecord(record, editId || null);
+      loadIntoForm(record);
+      paintList();
+      renderDesignerSliders();
+      fillDesignerSelectOptions();
+      if (msg) {
+        msg.classList.remove("is-error");
+        msg.classList.add("is-success");
+        msg.textContent = "Сохранено.";
+      }
+    });
+
+    document.addEventListener("av-designers-changed", paintList);
   }
 
   function parseRub(el) {
@@ -1052,8 +1644,18 @@
       if (price === null) price = 0;
       var imgSrc = pimg ? String(pimg.getAttribute("src") || "").trim() : "";
       var media = imgSrc ? [{ id: "dom", kind: "image", url: imgSrc }] : [];
-      var pt = document.querySelector(".profile-title");
-      var designerName = pt ? pt.textContent.trim() : "";
+      var designerName = "";
+      var designerId = "";
+      if (document.body.classList.contains("page-designer-profile")) {
+        var dPage = getDesignerById(getDesignerIdFromPage());
+        if (dPage) {
+          designerName = dPage.name;
+          designerId = dPage.id;
+        }
+      } else {
+        var pt = document.querySelector(".profile-title");
+        designerName = pt ? pt.textContent.trim() : "";
+      }
       var dc = card.getAttribute("data-cat") || "";
       return {
         listingId: "",
@@ -1061,6 +1663,7 @@
         name: pname || "Товар",
         type: pm ? pm.textContent.trim() : "",
         designer: designerName,
+        designerId: designerId,
         price: price,
         description: "",
         media: media,
@@ -1447,26 +2050,39 @@
       });
   }
 
-  function renderDynamicProfileProducts() {
+  function renderDynamicProfileProducts(designerRecord) {
     var grid = document.querySelector(".profile-grid");
-    var title = document.querySelector(".profile-title");
-    if (!grid || !title) return;
-    function normalizeDesignerName(s) {
-      return String(s || "")
-        .toLowerCase()
-        .replace(/[«»"']/g, "")
-        .replace(/\s+/g, " ")
-        .trim();
+    if (!grid) return;
+    var designer = designerRecord;
+    if (!designer) {
+      var title = document.querySelector(".profile-title");
+      if (!title) return;
+      var byName = getDesignerByName(title.textContent || "");
+      if (byName) designer = byName;
+      else {
+        var legacyName = normalizeDesignerName(title.textContent || "");
+        designer = { id: "", name: title.textContent.trim() };
+        var itemsLegacy = getArrayStore(PRODUCT_PUBLISHED_KEY).filter(function (p) {
+          return p && normalizeDesignerName(p.designer || "") === legacyName;
+        });
+        paintProfileProducts(grid, itemsLegacy);
+        return;
+      }
     }
-    var designer = normalizeDesignerName(title.textContent || "");
     document.querySelectorAll("[data-dynamic-profile]").forEach(function (el) {
       el.remove();
     });
     var emptyMsg = grid.querySelector("[data-profile-empty-msg]");
     if (emptyMsg) emptyMsg.remove();
     var items = getArrayStore(PRODUCT_PUBLISHED_KEY).filter(function (p) {
-      return p && normalizeDesignerName(p.designer || "") === designer;
+      return productBelongsToDesigner(p, designer);
     });
+    paintProfileProducts(grid, items);
+    document.dispatchEvent(new CustomEvent("av-products-changed"));
+  }
+
+  function paintProfileProducts(grid, items) {
+    items = items || [];
     items.forEach(function (p) {
         var article = document.createElement("article");
         article.className = "profile-product profile-product--qv";
@@ -1502,7 +2118,6 @@
         "Здесь появятся товары после публикации заявок с этим автором в поле «как подписать на витрине».";
       grid.appendChild(p);
     }
-    document.dispatchEvent(new CustomEvent("av-products-changed"));
   }
 
   function initSellerServerListings() {
@@ -1573,6 +2188,9 @@
   function initAdminProductModeration() {
     var form = document.querySelector("[data-product-form]");
     if (!form) return;
+    ensureDesignersStore();
+    fillDesignerSelectOptions();
+    document.addEventListener("av-designers-changed", fillDesignerSelectOptions);
     var isSellerCabinet = document.body.classList.contains("page-seller");
     var list = document.querySelector("[data-mod-list]");
     var queueCount = document.querySelector("[data-queue-count]");
@@ -1791,11 +2409,14 @@
           var preview = uploadedMedia.find(function (m) {
             return m && m.id === uploadResult.previewMediaId;
           }) || uploadedMedia[0];
+          var designerField = String(fd.get("designer") || "").trim();
+          var dRec = getDesignerById(designerField) || getDesignerByName(designerField);
           var item = {
             id: itemId,
             name: String(fd.get("name") || "").trim(),
             type: String(fd.get("type") || "").trim(),
-            designer: String(fd.get("designer") || "").trim(),
+            designer: dRec ? dRec.name : designerField,
+            designerId: dRec ? dRec.id : "",
             ownerType: String(fd.get("ownerType") || "designers").trim(),
             category: String(fd.get("category") || "").trim(),
             material: String(fd.get("material") || "").trim(),
@@ -2550,6 +3171,13 @@
   ensureCartBadge();
   updateCartBadge();
   updateAuthNav();
+  initSiteContacts();
+  initRoomCatCards();
+  ensureDesignersStore();
+  renderDesignerSliders();
+  fillDesignerSelectOptions();
+  initDesignerProfilePage();
+  initAdminDesignersPage();
   initShelfSlotWidthsFromBadges();
   initVkBotChatLinks();
   initProductDescriptionExampleCopy();
@@ -2558,7 +3186,9 @@
   initServerPendingModeration();
   renderDynamicRoomProducts();
   initProfileStaticProductCards();
-  renderDynamicProfileProducts();
+  if (!document.body.classList.contains("page-designer-profile")) {
+    renderDynamicProfileProducts();
+  }
   initAddToCart();
   renderCartPage();
   initCatalogSearch();

@@ -331,7 +331,7 @@ img {
 .cat-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
+  gap: 1.15rem;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -351,29 +351,40 @@ img {
   border-radius: var(--radius);
   box-shadow: var(--shadow-card);
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
+  display: block;
   border: 1px solid var(--border);
+  text-decoration: none;
+  color: inherit;
 }
-.cat-card__label {
-  font-size: 0.95rem;
-  font-weight: 600;
-  text-align: center;
-  margin: 0;
-  padding: 0.9rem 0.5rem 0.4rem;
-  text-transform: capitalize;
-  font-family: var(--font-serif);
-}
-.cat-card__img {
-  flex: 1;
-  min-height: 0;
-  aspect-ratio: 366 / 219;
+.cat-card__media {
+  position: relative;
+  aspect-ratio: 4 / 3.35;
   background: #ddd8d0;
 }
-.cat-card__img img {
+.cat-card__media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
+}
+.cat-card__label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  font-size: 1.02rem;
+  font-weight: 600;
+  text-align: center;
+  margin: 0;
+  padding: 0.85rem 0.55rem;
+  text-transform: capitalize;
+  font-family: var(--font-serif);
+  background: var(--bg-card);
+  border-bottom: 1px solid rgba(36, 39, 45, 0.06);
+}
+.cat-card__img {
+  display: none;
 }
 
 /* ——— Products ——— */
@@ -831,12 +842,8 @@ a.product-card--link:focus-visible {
 }
 /* Extra pages and fixes */
 .cat-grid {
-  max-width: 1120px;
+  max-width: 1240px;
   margin-inline: auto;
-}
-.cat-card {
-  text-decoration: none;
-  color: inherit;
 }
 .inner-page {
   min-height: 65vh;
@@ -2771,6 +2778,42 @@ body.page-seller {
   resize: vertical;
   font-family: inherit;
   line-height: 1.45;
+}
+
+.admin-designers-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+@media (max-width: 960px) {
+  .admin-designers-layout {
+    grid-template-columns: 1fr;
+  }
+}
+.admin-designers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+.admin-designers-list__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+}
+.admin-designers-list__meta {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+.profile-meta--sub {
+  margin-top: 0.35rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
 }
 
 /* ——— Карточка товара (модалка) + корзина на превью ——— */

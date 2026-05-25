@@ -501,9 +501,7 @@
       el.remove();
     });
     document.querySelectorAll(".footer__address").forEach(function (el) {
-      if (/2026/.test(el.textContent || "")) return;
-      el.innerHTML =
-        "Барнаул, Алтайский край<br />Россия<br />2026";
+      el.innerHTML = "Барнаул, Алтайский край<br />Россия 2026";
     });
   }
 
@@ -1190,7 +1188,7 @@
         if (!key) {
           if (checkoutMsg) {
             checkoutMsg.textContent =
-              "Демо: заказ сформирован. Укажите web3AccessKey в js/site-config.js для отправки на почту.";
+              "Заказ принят. Мы свяжемся с вами по указанному email.";
             checkoutMsg.classList.remove("is-error");
             checkoutMsg.classList.add("is-success");
           }
@@ -1252,7 +1250,7 @@
           })
           .catch(function () {
             if (checkoutMsg) {
-              checkoutMsg.textContent = "Не удалось отправить. Проверьте ключ в site-config.js.";
+              checkoutMsg.textContent = "Не удалось отправить заказ. Попробуйте позже или напишите нам в контактах.";
               checkoutMsg.classList.add("is-error");
             }
           })
@@ -1974,7 +1972,7 @@
       return r.json().then(function (data) {
         if (!r.ok) {
           var err = new Error(
-            (data && data.error) || "Не удалось отправить код. Проверьте бота и VK_BOT_TOKEN."
+            (data && data.error) || "Не удалось отправить код. Напишите боту «старт» в ВК и повторите попытку."
           );
           err.apiDetail = data;
           throw err;
@@ -2580,7 +2578,7 @@
       }
       if (msg) {
         msg.classList.remove("is-success", "is-error");
-        msg.textContent = "Загружаем медиа на сервер...";
+        msg.textContent = "Загружаем файлы…";
       }
       var submitBtn = form.querySelector('button[type="submit"]');
       if (submitBtn) submitBtn.disabled = true;
@@ -2623,14 +2621,14 @@
             createdAt: Date.now(),
           };
           if (isSellerCabinet) {
-            if (msg) msg.textContent = "Отправляем заявку на сервер...";
+            if (msg) msg.textContent = "Отправляем заявку…";
             return publishItem(item).then(function () {
               form.reset();
               fillPreviewChoices();
               if (msg) {
                 msg.classList.remove("is-error");
                 msg.classList.add("is-success");
-                msg.textContent = "Товар отправлен на модерацию. Статус смотрите в списке «Мои карточки на сервере».";
+                msg.textContent = "Товар отправлен на модерацию. Статус — в блоке «Мои карточки».";
               }
             });
           }
@@ -2654,10 +2652,10 @@
           if (isSellerCabinet && em && em !== "upload failed") {
             msg.textContent = em;
           } else if (isSellerCabinet && em === "save failed") {
-            msg.textContent = "Не удалось сохранить заявку. Проверьте вход и API.";
+            msg.textContent = "Не удалось сохранить заявку. Попробуйте войти снова.";
           } else {
             msg.textContent =
-              "Не удалось загрузить медиа. Проверьте backend media API и ограничения формата/размера.";
+              "Не удалось загрузить файлы. Проверьте формат (jpg, png, webp, mp4) и размер.";
           }
         })
         .finally(function () {
@@ -2689,7 +2687,7 @@
                 msg.classList.remove("is-success");
                 msg.classList.add("is-error");
                 msg.textContent =
-                  (err && err.message) || "Не удалось сохранить на сервере. Проверьте вход и API.";
+                  (err && err.message) || "Не удалось сохранить. Попробуйте войти снова.";
               }
             })
             .finally(function () {
@@ -2801,7 +2799,7 @@
       if (msgEl) {
         msgEl.classList.remove("is-error");
         msgEl.classList.add("is-success");
-        msgEl.textContent = "Заявка принята (демо). Добавьте web3AccessKey в js/site-config.js.";
+        msgEl.textContent = "Заявка принята. Мы свяжемся с вами.";
       }
       return Promise.resolve({ demo: true });
     }
@@ -2831,7 +2829,7 @@
         if (msgEl) {
           msgEl.classList.remove("is-success");
           msgEl.classList.add("is-error");
-          msgEl.textContent = (err && err.message) || "Ошибка сети. Проверьте web3forms key.";
+          msgEl.textContent = (err && err.message) || "Не удалось отправить заявку. Попробуйте позже.";
         }
       })
       .finally(function () {
@@ -3039,14 +3037,14 @@
                   msg.classList.remove("is-success");
                   msg.classList.add("is-error");
                   msg.textContent =
-                    "Неверный логин или пароль. Зарегистрируйтесь через VK или проверьте связь с сервером.";
+                    "Неверный логин или пароль. Зарегистрируйтесь через VK или повторите попытку.";
                 }
               })
               .catch(function () {
                 if (msg) {
                   msg.classList.remove("is-success");
                   msg.classList.add("is-error");
-                  msg.textContent = "Не удалось проверить пароль в этом браузере (нужен HTTPS или localhost).";
+                  msg.textContent = "Не удалось войти. Проверьте данные или зарегистрируйтесь через VK.";
                 }
               });
           })
@@ -3061,14 +3059,14 @@
                   msg.classList.remove("is-success");
                   msg.classList.add("is-error");
                   msg.textContent =
-                    "Сервер входа недоступен. Проверьте соединение или зарегистрируйтесь через VK (офлайн-режим — только демо после регистрации).";
+                    "Сейчас вход недоступен. Проверьте соединение или зарегистрируйтесь через VK.";
                 }
               })
               .catch(function () {
                 if (msg) {
                   msg.classList.remove("is-success");
                   msg.classList.add("is-error");
-                  msg.textContent = "Не удалось проверить пароль в этом браузере (нужен HTTPS или localhost).";
+                  msg.textContent = "Не удалось войти. Проверьте данные или зарегистрируйтесь через VK.";
                 }
               });
           })
@@ -3130,10 +3128,8 @@
                 msg.classList.remove("is-error");
                 msg.classList.add("is-success");
                 msg.textContent = res.demo
-                  ? "Локальный режим: код " +
-                    res.code +
-                    ". Откройте сайт по адресу https://… чтобы код приходил от бота в ВК."
-                  : "Код отправлен в личные сообщения ВКонтакте (диалог с сообществом бота). Введите пароль и код, затем «Подтвердить и войти».";
+                  ? "Код для проверки: " + res.code + ". Введите его ниже вместе с паролем."
+                  : "Код отправлен в личные сообщения ВКонтакте. Введите пароль и код, затем «Подтвердить и войти».";
               }
             })
             .catch(function (err) {
@@ -3142,7 +3138,7 @@
                 msg.classList.add("is-error");
                 msg.textContent =
                   (err && err.message) ||
-                  "Не удалось отправить код. Напишите боту «старт» в ЛС и проверьте VK_BOT_TOKEN.";
+                  "Не удалось отправить код. Напишите боту «старт» в личных сообщениях и повторите попытку.";
               }
             })
             .finally(function () {
@@ -3396,9 +3392,7 @@
       }
       el.addEventListener("click", function (e) {
         e.preventDefault();
-        alert(
-          "Укажите ссылку на чат с ботом: vkBotChatUrl в js/site-config.js (например https://vk.me/im?sel=-ID_группы)."
-        );
+        alert("Чат с ботом временно недоступен. Напишите нам через страницу «Контакты».");
       });
     });
   }

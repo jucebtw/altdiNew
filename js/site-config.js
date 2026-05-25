@@ -8,6 +8,31 @@
 window.SITE_CONFIG = {
   contactPhone: "+7 (923) 658-09-71",
   contactEmail: "altay-vitrin@yandex.ru",
+  assets: {
+    heroAbout: "assets/aboutusAndIndex.jpg",
+    login: "assets/login.png",
+    productPlaceholder: "assets/aboutusAndIndex.jpg",
+  },
+  designerAvatars: {
+    "tatyana-lan": "assets/tatyanalan.jpg",
+    "ivan-lybin": "assets/ivanlibin.jpg",
+    "marina-kozhevnikova": "assets/marinakozhevnikova.jpg",
+    "dmitry-karkasov": "assets/dmitriykarkasov.jpg",
+    "alyona-mirnaya": "assets/alenamirnaya.avif",
+    "svetlana-rechnikova": "assets/svetlanarechnikova.png",
+  },
+  /** Тарифы аренды полки, руб./сутки (табл. 1.4 бизнес-плана) */
+  shelfRentPerDay: {
+    "tier-low:width-narrow": 79,
+    "tier-low:width-standard": 109,
+    "tier-low:width-wide": 159,
+    "tier-mid:width-narrow": 119,
+    "tier-mid:width-standard": 179,
+    "tier-mid:width-wide": 249,
+    "tier-top:width-narrow": 199,
+    "tier-top:width-standard": 279,
+    "tier-top:width-wide": 449,
+  },
   roomCards: {
     lighting: { label: "Освещение", href: "room-lighting.html", image: "assets/for_lightroom.avif" },
     texture: { label: "Текстура", href: "room-texture.html", image: "assets/for_texturroom.jpg" },

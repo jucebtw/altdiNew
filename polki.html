@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
@@ -124,6 +124,37 @@
         </p>
       </article>
 
+      <article class="polki-section" id="rent-calc">
+        <h2>Калькулятор аренды полки</h2>
+        <p>Ориентировочная стоимость размещения по тарифам витрины (руб./сутки). Точная сумма фиксируется при оплате в кабинете продавца.</p>
+        <div class="polki-rent-calc" data-polki-rent-calc>
+          <label class="polki-rent-calc__field">
+            <span>Высота</span>
+            <select data-calc-tier>
+              <option value="tier-low">Низ полки</option>
+              <option value="tier-mid" selected>Середина</option>
+              <option value="tier-top">Верх полки</option>
+            </select>
+          </label>
+          <label class="polki-rent-calc__field">
+            <span>Ширина</span>
+            <select data-calc-width>
+              <option value="width-narrow">Узкая</option>
+              <option value="width-standard" selected>Стандарт</option>
+              <option value="width-wide">Широкая</option>
+            </select>
+          </label>
+          <label class="polki-rent-calc__field">
+            <span>Срок, суток</span>
+            <input type="number" data-calc-days min="1" max="365" value="7" />
+          </label>
+          <div class="polki-rent-calc__result">
+            <p class="polki-rent-calc__rate">Ставка: <strong data-calc-rate>—</strong></p>
+            <p class="polki-rent-calc__total">Итого: <strong data-calc-total>—</strong></p>
+          </div>
+        </div>
+      </article>
+
       <article class="polki-section" id="timer">
         <h2>Срок аренды и напоминания</h2>
         <p>
@@ -146,10 +177,7 @@
       <div class="footer-col"><a href="index.html">Главная</a><a href="catalog.html">Каталог</a><a href="polki.html">Полки</a><a href="designers.html">Дизайнеры</a></div>
       <div class="footer-col"><a href="collections.html">Коллекции</a><a href="contacts.html">Контакты</a><a href="about.html">О нас</a></div>
     </div>
-    <div class="container footer-line" role="note">
-      <p class="footer__hint">Корзина и сессия в браузере. Документ для бэкенда полок: <code>doc/backend-vitrina-shelves.txt</code>.</p>
-    </div>
-  </footer>
+</footer>
   <script src="js/site-config.js"></script>
   <script src="js/main.js" defer></script>
 </body>

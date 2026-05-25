@@ -80,6 +80,46 @@
       .trim();
   }
 
+  function designerAvatarFromConfig(id) {
+    var map = cfg.designerAvatars || {};
+    return map[id] ? String(map[id]) : "";
+  }
+
+  function localizeMediaUrl(url) {
+    var u = String(url || "").trim();
+    if (!u || u.indexOf("data:") === 0 || u.indexOf("blob:") === 0) return u;
+    if (u.indexOf("/") === 0 || !/^https?:/i.test(u)) return u;
+    try {
+      if (new URL(u, window.location.href).origin !== window.location.origin) {
+        return (cfg.assets && cfg.assets.productPlaceholder) || "assets/aboutusAndIndex.jpg";
+      }
+    } catch (eLoc) {
+      return (cfg.assets && cfg.assets.productPlaceholder) || "assets/aboutusAndIndex.jpg";
+    }
+    return u;
+  }
+
+  function migrateDesignerAvatars() {
+    var map = cfg.designerAvatars || {};
+    var keys = Object.keys(map);
+    if (!keys.length) return;
+    var list = getDesigners();
+    var changed = false;
+    list.forEach(function (d) {
+      if (!d || !d.id) return;
+      var local = map[d.id];
+      if (!local) return;
+      var cur = String(d.avatarUrl || "");
+      if (!cur || /^https?:\/\//i.test(cur)) {
+        if (cur !== local) {
+          d.avatarUrl = local;
+          changed = true;
+        }
+      }
+    });
+    if (changed) setDesigners(list);
+  }
+
   function getDesignersSeed() {
     return [
       {
@@ -88,7 +128,7 @@
         roleSubtitle: "Дизайнер",
         ownerType: "designers",
         isStudio: false,
-        avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80",
+        avatarUrl: designerAvatarFromConfig("tatyana-lan"),
         logoLetter: "",
         bio: "Керамика и скульптура. В своей мастерской я создаю скульптуры и предметы для дома, вдохновляясь природой, архитектурой и тихими моментами жизни.",
         vk: "",
@@ -103,7 +143,7 @@
         roleSubtitle: "Дизайнер",
         ownerType: "designers",
         isStudio: false,
-        avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80",
+        avatarUrl: designerAvatarFromConfig("ivan-lybin"),
         logoLetter: "",
         bio: "Мебель и свет из дерева. Работаю с массивом и шпоном, делаю предметы под интерьер заказчика.",
         vk: "",
@@ -133,7 +173,7 @@
         roleSubtitle: "Текстиль и свет",
         ownerType: "designers",
         isStudio: false,
-        avatarUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&q=80",
+        avatarUrl: designerAvatarFromConfig("marina-kozhevnikova"),
         logoLetter: "",
         bio: "",
         vk: "",
@@ -148,7 +188,7 @@
         roleSubtitle: "Металл и свет",
         ownerType: "masters",
         isStudio: false,
-        avatarUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&q=80",
+        avatarUrl: designerAvatarFromConfig("dmitry-karkasov"),
         logoLetter: "",
         bio: "",
         vk: "",
@@ -163,7 +203,7 @@
         roleSubtitle: "Стекло и керамика",
         ownerType: "designers",
         isStudio: false,
-        avatarUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df1?w=400&q=80",
+        avatarUrl: designerAvatarFromConfig("alyona-mirnaya"),
         logoLetter: "",
         bio: "",
         vk: "",
@@ -193,7 +233,7 @@
         roleSubtitle: "Дерево и текстиль",
         ownerType: "masters",
         isStudio: false,
-        avatarUrl: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&q=80",
+        avatarUrl: designerAvatarFromConfig("svetlana-rechnikova"),
         logoLetter: "",
         bio: "",
         vk: "",
@@ -221,6 +261,7 @@
       list = getDesigners();
     }
     migrateProductDesignerIds(list);
+    migrateDesignerAvatars();
     return list;
   }
 
@@ -333,7 +374,7 @@
         escapeHtml(String(d.logoLetter || d.name.charAt(0) || "?")) +
         "</span></div>"
       : '<div class="designer-card__top"><img src="' +
-        escapeHtml(d.avatarUrl || "") +
+        escapeHtml(localizeMediaUrl(d.avatarUrl || "")) +
         '" alt="' +
         escapeHtml(d.name) +
         '" class="designer-card__avatar" width="215" height="215" loading="lazy" /></div>';
@@ -425,6 +466,75 @@
         });
       }
     });
+  }
+
+  function initSiteFooter() {
+    document.querySelectorAll(".footer-line").forEach(function (el) {
+      el.remove();
+    });
+    document.querySelectorAll(".footer__address").forEach(function (el) {
+      if (/2026/.test(el.textContent || "")) return;
+      el.innerHTML =
+        "Барнаул, Алтайский край<br />Россия<br />2026";
+    });
+  }
+
+  function localizeProductCardImages(root) {
+    var scope = root || document;
+    scope.querySelectorAll(".product-card__image img, .profile-product img, .profile-product__image-wrap img").forEach(function (img) {
+      var src = String(img.getAttribute("src") || "");
+      if (!src) return;
+      var next = localizeMediaUrl(src);
+      if (next && next !== src) img.src = next;
+    });
+  }
+
+  function initHeroAndAuthImages() {
+    var heroImg = (cfg.assets && cfg.assets.heroAbout) || "assets/aboutusAndIndex.jpg";
+    document.querySelectorAll(".hero__visual img").forEach(function (img) {
+      img.src = heroImg;
+      img.removeAttribute("srcset");
+    });
+    document.querySelectorAll(".about-intro__img").forEach(function (img) {
+      img.src = heroImg;
+      img.removeAttribute("srcset");
+    });
+    var loginImg = (cfg.assets && cfg.assets.login) || "assets/login.png";
+    document.querySelectorAll(".auth-hero__right img").forEach(function (img) {
+      img.src = loginImg;
+      img.removeAttribute("srcset");
+    });
+  }
+
+  function shelfRentRatePerDay(tier, width) {
+    var rates = cfg.shelfRentPerDay || {};
+    var key = String(tier || "tier-mid") + ":" + String(width || "width-standard");
+    var n = Number(rates[key]);
+    if (isFinite(n) && n > 0) return n;
+    return 179;
+  }
+
+  function initPolkiRentCalculator() {
+    var root = document.querySelector("[data-polki-rent-calc]");
+    if (!root) return;
+    var tierEl = root.querySelector("[data-calc-tier]");
+    var widthEl = root.querySelector("[data-calc-width]");
+    var daysEl = root.querySelector("[data-calc-days]");
+    var totalEl = root.querySelector("[data-calc-total]");
+    var rateEl = root.querySelector("[data-calc-rate]");
+    function recalc() {
+      var tier = tierEl ? tierEl.value : "tier-mid";
+      var width = widthEl ? widthEl.value : "width-standard";
+      var days = Math.max(1, parseInt(daysEl && daysEl.value, 10) || 1);
+      var rate = shelfRentRatePerDay(tier, width);
+      if (rateEl) rateEl.textContent = formatRub(rate) + "/сут.";
+      if (totalEl) totalEl.textContent = formatRub(rate * days);
+    }
+    [tierEl, widthEl, daysEl].forEach(function (el) {
+      if (el) el.addEventListener("input", recalc);
+      if (el) el.addEventListener("change", recalc);
+    });
+    recalc();
   }
 
   function initSiteContacts() {
@@ -1312,15 +1422,16 @@
   }
 
   function resolveProductPreview(item) {
-    if (item && item.preview && item.preview.url) return String(item.preview.url);
-    if (item && Array.isArray(item.media) && item.media.length) {
+    var url = "";
+    if (item && item.preview && item.preview.url) url = String(item.preview.url);
+    else if (item && Array.isArray(item.media) && item.media.length) {
       var byId = item.media.find(function (m) {
         return m && m.id === item.previewMediaId;
       });
-      if (byId && byId.url) return String(byId.url);
-      if (item.media[0] && item.media[0].url) return String(item.media[0].url);
-    }
-    return String((item && item.image) || "");
+      if (byId && byId.url) url = String(byId.url);
+      else if (item.media[0] && item.media[0].url) url = String(item.media[0].url);
+    } else url = String((item && item.image) || "");
+    return localizeMediaUrl(url);
   }
 
   var avSheetModel = null;
@@ -1386,7 +1497,7 @@
       })
       .map(function (m) {
         var k = String(m.kind || "").toLowerCase();
-        var url = String(m.url);
+        var url = localizeMediaUrl(String(m.url));
         if (k === "video" || /\.mp4(\?|$)/i.test(url)) return { url: url, kind: "video" };
         return { url: url, kind: "image" };
       });
@@ -1426,18 +1537,45 @@
     document.body.appendChild(root);
     root.querySelector(".av-product-sheet__backdrop").addEventListener("click", closeAvProductSheet);
     root.querySelector(".av-product-sheet__close").addEventListener("click", closeAvProductSheet);
-    root.querySelector(".av-product-sheet__nav--prev").addEventListener("click", function () {
+    root.querySelector(".av-product-sheet__nav--prev").addEventListener("click", function (ev) {
+      ev.preventDefault();
+      ev.stopPropagation();
       avShiftSlide(-1);
     });
-    root.querySelector(".av-product-sheet__nav--next").addEventListener("click", function () {
+    root.querySelector(".av-product-sheet__nav--next").addEventListener("click", function (ev) {
+      ev.preventDefault();
+      ev.stopPropagation();
       avShiftSlide(1);
     });
+    var stageWrap = root.querySelector(".av-product-sheet__stage-wrap");
+    if (stageWrap && !stageWrap.hasAttribute("data-av-swipe-bound")) {
+      stageWrap.setAttribute("data-av-swipe-bound", "1");
+      var swipeX = 0;
+      stageWrap.addEventListener(
+        "pointerdown",
+        function (ev) {
+          if (ev.button !== 0) return;
+          swipeX = ev.clientX;
+        },
+        { passive: true }
+      );
+      stageWrap.addEventListener(
+        "pointerup",
+        function (ev) {
+          var dx = ev.clientX - swipeX;
+          if (Math.abs(dx) < 42) return;
+          avShiftSlide(dx < 0 ? 1 : -1);
+        },
+        { passive: true }
+      );
+    }
     root.querySelector(".av-product-sheet__cart").addEventListener("click", function (ev) {
       if (!avSheetModel) return;
       var media = root.querySelector(".av-product-sheet__media");
       addToCartFromViewModel(avSheetModel, media || ev.currentTarget);
     });
     root.querySelector(".av-product-sheet__thumbs").addEventListener("click", function (ev) {
+      ev.stopPropagation();
       var btn = ev.target.closest("[data-av-thumb-index]");
       if (!btn) return;
       var i = parseInt(btn.getAttribute("data-av-thumb-index"), 10);
@@ -1567,6 +1705,16 @@
     if (ev.key === "Escape") {
       ev.preventDefault();
       closeAvProductSheet();
+      return;
+    }
+    if (ev.key === "ArrowLeft") {
+      ev.preventDefault();
+      avShiftSlide(-1);
+      return;
+    }
+    if (ev.key === "ArrowRight") {
+      ev.preventDefault();
+      avShiftSlide(1);
     }
   }
 
@@ -1614,7 +1762,19 @@
   }
 
   function productViewModelFromApi(p, roomSlug) {
-    var media = Array.isArray(p.media) ? p.media.filter(function (m) { return m && m.url; }) : [];
+    var media = Array.isArray(p.media)
+      ? p.media
+          .filter(function (m) {
+            return m && m.url;
+          })
+          .map(function (m) {
+            return {
+              id: m.id,
+              kind: m.kind,
+              url: localizeMediaUrl(m.url),
+            };
+          })
+      : [];
     if (!media.length) {
       var u = resolveProductPreview(p);
       if (u) media = [{ id: "m0", kind: "image", url: u }];
@@ -2038,6 +2198,7 @@
         });
         paint(serverItems);
         shuffleShelfGrids();
+        localizeProductCardImages(document);
         initAddToCart();
       })
       .catch(function () {
@@ -2046,6 +2207,7 @@
         });
         paint(localItems);
         shuffleShelfGrids();
+        localizeProductCardImages(document);
         initAddToCart();
       });
   }
@@ -2665,22 +2827,68 @@
     });
   }
 
-  /* ——— Designer slider ——— */
-  var slider = document.querySelector("[data-designer-slider]");
-  var prev = document.querySelector("[data-slider-prev]");
-  var next = document.querySelector("[data-slider-next]");
-  if (slider && prev && next) {
-    var step = function (dir) {
-      var w = slider.querySelector(".designer-card")?.offsetWidth || 320;
-      slider.scrollBy({ left: dir * (w + 20), behavior: "smooth" });
-    };
-    prev.addEventListener("click", function () {
-      step(-1);
-    });
-    next.addEventListener("click", function () {
-      step(1);
+  /* ——— Designer slider (кнопки + перетаскивание мышью) ——— */
+  function initDesignerSliderControls() {
+    document.querySelectorAll("[data-designer-slider]").forEach(function (slider) {
+      var section = slider.closest(".section") || slider.parentElement;
+      var prev = section && section.querySelector("[data-slider-prev]");
+      var next = section && section.querySelector("[data-slider-next]");
+      var step = function (dir) {
+        var w = slider.querySelector(".designer-card");
+        var cardW = w ? w.offsetWidth : 320;
+        slider.scrollBy({ left: dir * (cardW + 20), behavior: "smooth" });
+      };
+      if (prev) prev.addEventListener("click", function () { step(-1); });
+      if (next) next.addEventListener("click", function () { step(1); });
+
+      var dragging = false;
+      var startX = 0;
+      var scrollStart = 0;
+      var moved = 0;
+      slider.addEventListener("pointerdown", function (ev) {
+        if (ev.button !== 0) return;
+        if (ev.target.closest("a")) return;
+        dragging = true;
+        moved = 0;
+        startX = ev.clientX;
+        scrollStart = slider.scrollLeft;
+        slider.classList.add("is-dragging");
+        try {
+          slider.setPointerCapture(ev.pointerId);
+        } catch (eCap) {}
+      });
+      slider.addEventListener("pointermove", function (ev) {
+        if (!dragging) return;
+        var dx = ev.clientX - startX;
+        moved = Math.max(moved, Math.abs(dx));
+        slider.scrollLeft = scrollStart - dx;
+      });
+      function endDrag(ev) {
+        if (!dragging) return;
+        dragging = false;
+        slider.classList.remove("is-dragging");
+        if (moved > 8 && ev && ev.target && ev.target.closest) {
+          var link = ev.target.closest("a");
+          if (link) {
+            link.addEventListener(
+              "click",
+              function (eA) {
+                eA.preventDefault();
+              },
+              { once: true }
+            );
+          }
+        }
+      }
+      slider.addEventListener("pointerup", endDrag);
+      slider.addEventListener("pointercancel", endDrag);
+      slider.addEventListener("lostpointercapture", function () {
+        dragging = false;
+        slider.classList.remove("is-dragging");
+      });
     });
   }
+  initDesignerSliderControls();
 
   /* ——— Designer profile filters ——— */
   var profileLayout = document.querySelector(".profile-layout");
@@ -3171,8 +3379,12 @@
   ensureCartBadge();
   updateCartBadge();
   updateAuthNav();
+  initSiteFooter();
+  initHeroAndAuthImages();
   initSiteContacts();
   initRoomCatCards();
+  initPolkiRentCalculator();
+  localizeProductCardImages(document);
   ensureDesignersStore();
   renderDesignerSliders();
   fillDesignerSelectOptions();

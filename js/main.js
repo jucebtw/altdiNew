@@ -423,6 +423,34 @@
     });
   }
 
+  function initCollectionCards() {
+    var cards = cfg.collectionCards;
+    if (!Array.isArray(cards) || !cards.length) return;
+    document.querySelectorAll("[data-collection-cards]").forEach(function (grid) {
+      grid.innerHTML = cards
+        .map(function (c) {
+          return (
+            "<li><a class=\"product-card product-card--link\" href=\"" +
+            escapeHtml(c.href || "catalog.html") +
+            "\"><p class=\"product-card__studio\">" +
+            escapeHtml(c.studio || "") +
+            "</p><div class=\"product-card__image\"><img src=\"" +
+            escapeHtml(c.image || "") +
+            "\" alt=\"" +
+            escapeHtml(c.name || "") +
+            "\" width=\"700\" height=\"700\" loading=\"lazy\" decoding=\"async\" /></div><div class=\"product-card__body\"><h3 class=\"product-card__name\">" +
+            escapeHtml(c.name || "") +
+            "</h3><p class=\"product-card__type\">" +
+            escapeHtml(c.type || "") +
+            "</p><p class=\"product-card__price\">" +
+            escapeHtml(c.count || "") +
+            "</p></div></a></li>"
+          );
+        })
+        .join("");
+    });
+  }
+
   function initRoomCatCards() {
     var rooms = cfg.roomCards || {};
     var order = ["lighting", "texture", "decor", "furniture"];
@@ -3382,6 +3410,7 @@
   initSiteFooter();
   initHeroAndAuthImages();
   initSiteContacts();
+  initCollectionCards();
   initRoomCatCards();
   initPolkiRentCalculator();
   localizeProductCardImages(document);

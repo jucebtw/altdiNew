@@ -39,6 +39,41 @@ window.SITE_CONFIG = {
     decor: { label: "Декор", href: "room-decor.html", image: "assets/for_decorroom.jpg" },
     furniture: { label: "Мебель", href: "room-furniture.html", image: "assets/for_mebelroom.jpg" },
   },
+  /** Карточки на странице collections.html — только локальные assets */
+  collectionCards: [
+    {
+      href: "room-lighting.html",
+      studio: "Коллекция «Северный уют»",
+      name: "Северный уют",
+      type: "мягкий свет и фактуры",
+      count: "12 товаров",
+      image: "assets/for_lightroom.avif",
+    },
+    {
+      href: "room-decor.html",
+      studio: "Коллекция «Керамика»",
+      name: "Ручная керамика",
+      type: "вазы и посуда",
+      count: "18 товаров",
+      image: "assets/for_decorroom.jpg",
+    },
+    {
+      href: "room-furniture.html",
+      studio: "Коллекция «Мебель»",
+      name: "Тихий минимализм",
+      type: "столы и витрины",
+      count: "9 товаров",
+      image: "assets/for_mebelroom.jpg",
+    },
+    {
+      href: "room-texture.html",
+      studio: "Коллекция «Акцент»",
+      name: "Акцентные детали",
+      type: "декор и текстиль",
+      count: "14 товаров",
+      image: "assets/for_texturroom.jpg",
+    },
+  ],
   web3AccessKey: "3d0badb8-18cd-4ff5-9e40-bb36cb6d7779",
   /**
    * true — только локальный «фейковый» код (страница с диска file:// или отладка).

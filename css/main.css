@@ -253,6 +253,12 @@ img {
   color: #fff;
   border-color: #fff;
 }
+.hero__actions .btn--hero-catalog {
+  padding: 0.55rem 1.15rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
 .hero__actions .btn--seller-cta {
   padding: 0.95rem 2.1rem;
   font-size: 1rem;

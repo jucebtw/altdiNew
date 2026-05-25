@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Бизнес-план ООО «Алтай-Витрин» — разделы Резюме, 1–4</title>
+  <style>
+    /* Оформление под диплом/бизнес-план: перенос в Word; таблицы — по методичке (название над таблицей, слева, без точки в конце; ссылка в тексте «в таблице …»; интервал между названием и таблицей одинарный; после таблицы — отступ до следующего абзаца; при переносе таблицы на следующую страницу в Word — «Продолжение таблицы N» и строка номеров колонок под шапкой на первой странице) */
+    :root {
+      --text: #1a1a1a;
+      --muted: #444;
+      --border: #333;
+      --caption: #333;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Times New Roman", Times, serif;
+      font-size: 14pt;
+      line-height: 1.5;
+      color: var(--text);
+      max-width: 210mm;
+      margin: 0 auto;
+      padding: 20mm 15mm 20mm 25mm;
+      background: #fafafa;
+    }
+    @media print {
+      body { background: #fff; padding: 15mm 12mm 15mm 20mm; }
+      .no-print { display: none; }
+      a { color: inherit; text-decoration: none; }
+    }
+    h1 {
+      font-size: 16pt;
+      text-align: center;
+      font-weight: bold;
+      margin: 1.2em 0 0.8em;
+      text-transform: uppercase;
+    }
+    h2 {
+      font-size: 14pt;
+      text-align: center;
+      font-weight: bold;
+      margin: 1.4em 0 0.6em;
+    }
+    h3 {
+      font-size: 14pt;
+      font-weight: bold;
+      margin: 1.1em 0 0.5em;
+      text-align: left;
+    }
+    p {
+      margin: 0 0 0.55em;
+      text-align: justify;
+      text-indent: 1.25cm;
+    }
+    p.no-indent, li, .caption, .note, table + p { text-indent: 0; }
+    .center { text-align: center; text-indent: 0; }
+    .small { font-size: 12pt; color: var(--muted); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12pt;
+      margin: 0.8em 0 1em;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 6px 8px;
+      vertical-align: top;
+      text-align: left;
+    }
+    th { background: #eee; font-weight: bold; text-align: center; }
+    .num { text-align: center; }
+    figcaption, .figure-caption {
+      font-size: 12pt;
+      text-align: center;
+      margin: 0.4em 0 1em;
+      color: var(--caption);
+      text-indent: 0;
+    }
+    /* п. 3.3 методички: иллюстрация, под ней по центру подпись «Рисунок … – …», одинарный интервал в подписи, отступ до следующего текста */
+    figure.illustration {
+      margin: 0.6em auto 0;
+      text-align: center;
+      max-width: 100%;
+    }
+    figure.illustration svg {
+      display: block;
+      margin: 0 auto 0.35em;
+      max-width: 100%;
+      height: auto;
+    }
+    .illustration-caption {
+      font-size: 12pt;
+      text-align: center;
+      text-indent: 0;
+      line-height: 1;
+      margin: 0.35em 0 1.1em;
+      color: var(--caption);
+    }
+    .note {
+      font-size: 12pt;
+      border-left: 3px solid #999;
+      padding-left: 10px;
+      margin: 1em 0;
+      text-align: justify;
+    }
+    ul { margin: 0.3em 0 0.8em 0; padding-left: 1.6cm; }
+    li { margin-bottom: 0.35em; text-align: justify; }
+    .page-break { break-before: page; }
+    table.compact { font-size: 11pt; }
+    table.compact th,
+    table.compact td { padding: 4px 5px; }
+    p.table-title {
+      text-align: left;
+      text-indent: 0;
+      font-size: 14pt;
+      line-height: 1;
+      margin: 0.85em 0 0.2em 0;
+      font-weight: normal;
+    }
+    table {
+      margin-top: 0;
+      margin-bottom: 1.05em;
+    }
+  
+    figure.evidence img { max-width: 100%; height: auto; }
+    table.bmc { font-size: 10pt; }
+    table.bmc th, table.bmc td { vertical-align: top; }
+    p.conclusion, p .conclusion { margin-top: 0.4em; }
+    .placeholder-screenshot {
+      border: 2px dashed #888; background: #f5f5f5; padding: 24px; text-align: center;
+      font-size: 12pt; color: #555; margin: 0.5em 0 1em;
+    }
+  
+    figure.evidence img { max-width: 100%; height: auto; }
+    table.bmc { font-size: 10pt; }
+    table.bmc th, table.bmc td { vertical-align: top; }
+    p.conclusion, p .conclusion { margin-top: 0.4em; }
+    .placeholder-screenshot {
+      border: 2px dashed #888; background: #f5f5f5; padding: 24px; text-align: center;
+      font-size: 12pt; color: #555; margin: 0.5em 0 1em;
+    }
+  
+    figure.evidence img { max-width: 100%; height: auto; }
+    table.bmc { font-size: 10pt; }
+    table.bmc th, table.bmc td { vertical-align: top; }
+    p.conclusion, p .conclusion { margin-top: 0.4em; }
+    .placeholder-screenshot {
+      border: 2px dashed #888; background: #f5f5f5; padding: 24px; text-align: center;
+      font-size: 12pt; color: #555; margin: 0.5em 0 1em;
+    }
+  
+    figure.evidence img { max-width: 100%; height: auto; }
+    table.bmc { font-size: 10pt; }
+    table.bmc th, table.bmc td { vertical-align: top; }
+    p.conclusion, p .conclusion { margin-top: 0.4em; }
+    .placeholder-screenshot {
+      border: 2px dashed #888; background: #f5f5f5; padding: 24px; text-align: center;
+      font-size: 12pt; color: #555; margin: 0.5em 0 1em;
+    }
+  </style>
+</head>
+<body>
+
+<p class="no-indent small center no-print">Бизнес-план ООО «Алтай-Витрин» (altdi.ru). Версия по замечаниям научрука. Печать: Ctrl+P → A4.</p>
+
+<h1>1 Резюме проекта</h1>
+<p class="table-title"><strong>Таблица Р.1</strong> – Резюме проекта</p>
+<table>
+<thead><tr><th>Наименование</th><th>Описание</th></tr></thead>
+<tbody>
+<tr><td>Организация</td><td>ООО «Алтай-Витрин», г. Барнаул</td></tr>
+<tr><td>Суть</td><td>Витрина авторского декора altdi.ru + логистика и хранение оператора</td></tr>
+<tr><td>Продукт</td><td>Товары дизайнеров и услуги размещения; сайт — канал</td></tr>
+<tr><td>Доход</td><td>8 % комиссия; аренда полки от 1 суток</td></tr>
+<tr><td>Цель</td><td>50 дизайнеров; 250 SKU; 60 заказов/мес.; чек 4 800 руб.</td></tr>
+<tr><td>Персонал</td><td>3 чел.; УСН 6 %</td></tr>
+</tbody>
+</table>
+<p class="no-indent"><strong>Вывод:</strong> проект реализуем при фокусе на локальных авторах и сервисе оператора.</p>
+
+
+<div class="page-break"></div>
+
+<h1>1 Описание отрасли и продукта (услуги)</h1>
+
+<h2>1.1 Характеристика отрасли</h2>
+<p>Проект <strong>ООО «Алтай-Витрин»</strong> работает в сегменте розничной e-commerce (ОКВЭД 47.91.2) и креативных индустрий Алтайского края. Рынок смещается от массовых маркетплейсов к нишевым витринам: часть мастеров уходит с площадок с высокой комиссией, что подтверждается отраслевыми обзорами handmade-сегмента (2024–2026).</p>
+<p class="no-indent"><strong>Вывод:</strong> ниша локального кураторского декора в крае недонасыщена комплексным оператором.</p>
+
+
+<h2>1.2 Описание продукта (товары и услуги)</h2>
+<p><strong>Продукт</strong> — совокупность <strong>физических изделий</strong> (декор, текстиль, керамика, свет, подарки) и <strong>услуг оператора</strong>: размещение на цифровой полке, модерация, приёмка на склад, упаковка, доставка, расчёты с авторами, гарантия целостности при хранении и передаче перевозчику.</p>
+<p>Сайт <strong>altdi.ru</strong> — канал продаж, а не сам продукт. Реализация: Node.js, SQLite; валюта — рубль; запуск — 2026 г.</p>
+<p><strong>Модель «полок»:</strong> высота (верх / середина / низ) и ширина слота (1 / 2 / 4 места в ряду); аренда от <strong>1 суток</strong>; комиссия <strong>8 %</strong> (таблица 1.4).</p>
+
+<figure class="illustration evidence">
+  <img src="preview-screenshots/altay-index-1280.png" alt="Главная страница витрины altdi.ru" style="max-width:100%;border:1px solid #ccc;" />
+  <p class="illustration-caption">Рисунок 1.1 – Главная страница витрины altdi.ru</p>
+</figure>
+
+
+<figure class="illustration evidence">
+  <img src="preview-screenshots/preview-catalog.png" alt="Каталог товаров с разделами-комнатами" style="max-width:100%;border:1px solid #ccc;" />
+  <p class="illustration-caption">Рисунок 1.2 – Каталог товаров с разделами-комнатами</p>
+</figure>
+
+<p class="table-title"><strong>Таблица 1.4</strong> – Тарифы ООО «Алтай-Витрин» (руб.)</p>
+<table class="compact">
+<thead><tr><th>Услуга</th><th>Условие</th><th class="num">Ставка</th></tr></thead>
+<tbody>
+<tr><td>Комиссия</td><td>% с продажи</td><td class="num">8 %</td></tr>
+<tr><td>Полка, низ, узкий</td><td>руб./сутки</td><td class="num">79</td></tr>
+<tr><td>Полка, середина, стандарт</td><td>руб./сутки</td><td class="num">179</td></tr>
+<tr><td>Полка, верх, широкий</td><td>руб./сутки</td><td class="num">349</td></tr>
+<tr><td>Комбо верх+широкий</td><td>руб./сутки</td><td class="num">449</td></tr>
+<tr><td>Хранение SKU</td><td>до 45³ см / мес.</td><td class="num">390</td></tr>
+<tr><td>Упаковка заказа</td><td>за отправление</td><td class="num">149</td></tr>
+</tbody>
+</table>
+<p class="no-indent"><strong>Вывод:</strong> тарифы ниже совокупной комиссии крупных агрегаторов и сопоставимы с арендой места в локальном шоуруме.</p>
+
+
+<h2>1.3 Взаимодействие клиента и платформы</h2>
+<p>На платформе выделены роли: <strong>покупатель</strong>, <strong>продавец (дизайнер)</strong>, <strong>администратор</strong>.</p>
+<p><strong>Покупатель:</strong> вход на altdi.ru → каталог / «комнаты» → карточка товара → корзина → оформление заказа → оплата → статус «в обработке» → сборка на складе → доставка СДЭК/Почта → получение.</p>
+<p><strong>Продавец:</strong> регистрация → кабинет → добавление товара → модерация → оплата полки (от 1 сут.) → публикация → уведомление о заказе → передача товара на склад (или отгрузка по договору) → выплата за вычетом 8 %.</p>
+
+<figure class="illustration evidence">
+  <img src="preview-screenshots/altay-cart.png" alt="Корзина и оформление заказа на altdi.ru" style="max-width:100%;border:1px solid #ccc;" />
+  <p class="illustration-caption">Рисунок 1.3 – Корзина и оформление заказа на altdi.ru</p>
+</figure>
+
+<p class="no-indent"><strong>Вывод:</strong> сценарии фиксируют прозрачный путь денег, товара и ответственности оператора.</p>
+
+
+<h2>1.4 Бизнес-модель (канва Остервальдера)</h2>
+<p>Бизнес-модель представлена на <strong>рисунке 1.0</strong> (заменяет упрощённую таблицу).</p>
+
+<p class="table-title"><strong>Рисунок 1.0</strong> – Бизнес-модель ООО «Алтай-Витрин» (канва А. Остервальдера и И. Пинье)</p>
+<table class="bmc">
+  <tr>
+    <th>Ключевые партнёры</th>
+    <th>Ключевые виды деятельности</th>
+    <th colspan="2">Ценностное предложение</th>
+    <th>Взаимоотношения с клиентами</th>
+    <th>Потребительские сегменты</th>
+  </tr>
+  <tr>
+    <td rowspan="2">Дизайнеры и мастерские; СДЭК и Почта России; арендодатель склада; банк и эквайринг; VK; типография; ААГ</td>
+    <td>Разработка altdi.ru; модерация; привлечение авторов; приёмка, хранение, упаковка; доставка; расчёты; маркетинг</td>
+    <td colspan="2" rowspan="2"><strong>Покупателю:</strong> локальный кураторский декор, единый заказ, доставка, гарантия целостности на складе.<br/><br/><strong>Дизайнеру:</strong> продажи без своего магазина, полки от 1 суток, комиссия 8 %, логистика оператора</td>
+    <td>Онлайн-поддержка; статусы заказа; подборки; ЛК продавца; прозрачные выплаты</td>
+    <td rowspan="2"><strong>B2C:</strong> жители края 20–50 лет.<br/><strong>B2B:</strong> дизайнеры, кафе, студии</td>
+  </tr>
+  <tr>
+    <td>Ключевые ресурсы: сайт, склад, бренд, команда, договоры, база клиентов</td>
+    <td>Каналы: altdi.ru, VK, Telegram, ярмарки, B2B</td>
+  </tr>
+  <tr>
+    <th colspan="3">Структура издержек</th>
+    <th colspan="3">Потоки поступления доходов</th>
+  </tr>
+  <tr>
+    <td colspan="3">ИТ, аренда склада, упаковка, доставка, ФОТ, реклама, налоги, эквайринг, юрсопровождение</td>
+    <td colspan="3">8 % комиссия; аренда полок; хранение; упаковка; оформление карточек; платное продвижение</td>
+  </tr>
+</table>
+<p class="no-indent"><strong>Вывод:</strong> модель показывает разделение ценности для покупателя и дизайнера при монетизации через комиссию и аренду полок.</p>
+
+
+
+<figure class="illustration evidence">
+  <img src="preview-screenshots/osterwalder-canvas.png" alt="Схема бизнес-модели (для приложения — цветная канва)" style="max-width:100%;border:1px solid #ccc;" />
+  <p class="illustration-caption">Рисунок 1.0а – Схема бизнес-модели (для приложения — цветная канва)</p>
+</figure>
+<p class="no-indent small">При необходимости заменить на экспорт канвы из шаблона Остервальдера.</p>
+
+<div class="page-break"></div>
+
+<h1>2 Целевой рынок</h1>
+<p>Рынок — Алтайский край и соседние регионы. Опрос покупателей: Google Формы, n=50, март 2026.</p>
+
+
+<figure class="illustration">
+<svg viewBox="0 0 420 200" width="420" height="200" xmlns="http://www.w3.org/2000/svg"><path d="M 120 100 L 120 30 A 70 70 0 0 1 153.7227571871201 161.34146760307044 Z" fill="#4a7c59"/><path d="M 120 100 L 153.7227571871201 161.34146760307044 A 70 70 0 0 1 53.426043859339245 78.36881039375369 Z" fill="#6b8cae"/><path d="M 120 100 L 53.426043859339245 78.36881039375369 A 70 70 0 0 1 119.99999999999999 30 Z" fill="#c44"/><text x="230" y="30" font-size="12" font-family="Times New Roman">■ Да — 42%</text><text x="230" y="52" font-size="12" font-family="Times New Roman">■ Скорее да — 38%</text><text x="230" y="74" font-size="12" font-family="Times New Roman">■ Нет — 20%</text></svg>
+<p class="illustration-caption">Рисунок 2.1 – Доля ответов: интерес к товарам дизайнеров Алтая</p>
+</figure>
+<p class="no-indent"><strong>Вывод:</strong> на основе опроса покупателей (таблица 2.5).</p>
+
+
+
+
+<p class="table-title"><strong>Приемлемая цена авторского декора (опрос, %)</strong></p>
+<figure class="illustration">
+<svg viewBox="0 0 480 148" width="480" height="148" xmlns="http://www.w3.org/2000/svg" role="img">
+<text x="0" y="34" font-size="12" font-family="Times New Roman">до 1 500</text>
+      <rect x="140" y="20" width="132" height="22" fill="#6b8cae"/>
+      <text x="277" y="35" font-size="12" font-family="Times New Roman">24%</text><text x="0" y="70" font-size="12" font-family="Times New Roman">1 500–5 000</text>
+      <rect x="140" y="56" width="320" height="22" fill="#4a7c59"/>
+      <text x="465" y="71" font-size="12" font-family="Times New Roman">58%</text><text x="0" y="106" font-size="12" font-family="Times New Roman">5 000+</text>
+      <rect x="140" y="92" width="99" height="22" fill="#888"/>
+      <text x="244" y="107" font-size="12" font-family="Times New Roman">18%</text>
+</svg>
+<p class="illustration-caption">Рисунок 2.2 – Приемлемая цена авторского декора (опрос, %)</p>
+</figure>
+<p class="no-indent"><strong>Вывод:</strong> диаграмма иллюстрирует распределение ответов (n=50, март 2026 г.).</p>
+
+
+
+
+<p class="table-title"><strong>Готовность заказать на локальной витрине (%, n=50)</strong></p>
+<figure class="illustration">
+<svg viewBox="0 0 480 148" width="480" height="148" xmlns="http://www.w3.org/2000/svg" role="img">
+<text x="0" y="34" font-size="12" font-family="Times New Roman">Да</text>
+      <rect x="140" y="20" width="320" height="22" fill="#4a7c59"/>
+      <text x="465" y="35" font-size="12" font-family="Times New Roman">52%</text><text x="0" y="70" font-size="12" font-family="Times New Roman">Возможно</text>
+      <rect x="140" y="56" width="209" height="22" fill="#6b8cae"/>
+      <text x="354" y="71" font-size="12" font-family="Times New Roman">34%</text><text x="0" y="106" font-size="12" font-family="Times New Roman">Нет</text>
+      <rect x="140" y="92" width="86" height="22" fill="#c44"/>
+      <text x="231" y="107" font-size="12" font-family="Times New Roman">14%</text>
+</svg>
+<p class="illustration-caption">Рисунок 2.3 – Готовность заказать на локальной витрине (%, n=50)</p>
+</figure>
+<p class="no-indent"><strong>Вывод:</strong> диаграмма иллюстрирует распределение ответов (n=50, март 2026 г.).</p>
+
+
+
+<p class="table-title"><strong>Таблица 2.5</strong> – Результаты опроса (фрагмент)</p>
+<table class="compact">
+<thead><tr><th>Вопрос</th><th>Варианты</th><th class="num">%</th></tr></thead>
+<tbody>
+<tr><td>Покупали декор онлайн за год</td><td>Да / Нет</td><td class="num">64 / 36</td></tr>
+<tr><td>Интересны товары дизайнеров Алтая</td><td>Да / Скорее да / Нет</td><td class="num">42 / 38 / 20</td></tr>
+<tr><td>Готовы заказать на altdi.ru</td><td>Да / Возможно / Нет</td><td class="num">52 / 34 / 14</td></tr>
+</tbody>
+</table>
+<p class="no-indent"><strong>Вывод:</strong> три графика и таблица согласуются: ядро ЦА — средний чек 1 500–5 000 руб., готовность к локальной витрине выше 50 %.</p>
+
+
+<div class="page-break"></div>
+
+<h1>3 Маркетинговый план</h1>
+
+<h2>3.0 Маркетинговый комплекс</h2>
+<p><strong>Продукт:</strong> кураторский ассортимент, полки, гарантия на складе. <strong>Цена:</strong> 8 % + полка. <strong>Сбыт:</strong> altdi.ru, VK, ярмарки. <strong>Продвижение:</strong> VK-реклама, SEO, сарафанное радио; бюджет до 500 000 руб./год.</p>
+<p class="no-indent"><strong>Вывод:</strong> комплекс согласован с нишевым позиционированием.</p>
+
+
+<h2>3.0.1 Продуктовый маркетинг</h2>
+<p>Продуктовый маркетинг включает: (1) <strong>ассортиментную матрицу</strong> — декор, текстиль, керамика, свет; (2) <strong>качество карточки</strong> — фото, история автора, «комната»; (3) <strong>жизненный цикл полки</strong> — напоминание за 24 ч до окончания аренды; (4) <strong>упаковку и unboxing</strong> — фирменная коробка оператора.</p>
+
+<figure class="illustration evidence">
+  <img src="preview-screenshots/preview-catalog.png" alt="Карточка товара: фото, описание, автор" style="max-width:100%;border:1px solid #ccc;" />
+  <p class="illustration-caption">Рисунок 3.1 – Карточка товара: фото, описание, автор</p>
+</figure>
+
+
+<figure class="illustration evidence">
+  <img src="preview-screenshots/altay-polki.png" alt="Раздел «Полки» — тарификация видимости" style="max-width:100%;border:1px solid #ccc;" />
+  <p class="illustration-caption">Рисунок 3.2 – Раздел «Полки» — тарификация видимости</p>
+</figure>
+<p class="no-indent small">Локально: polki.html в корне проекта.</p>
+<p class="no-indent"><strong>Вывод:</strong> продуктовый маркетинг опирается на визуальную дифференциацию и понятные правила полок.</p>
+
+
+<h2>3.1 Маркетинговые исследования</h2>
+<p>Используются <strong>анкетирование</strong> (n=50) и <strong>холл-тест</strong> знака/слогана (n=36). Глубинные интервью не проводились.</p>
+<p class="table-title"><strong>Таблица 3.1</strong> – Маркетинговые исследования</p>
+<table class="compact">
+<thead><tr><th>Цель</th><th>Метод</th><th class="num">n</th><th>Вывод</th></tr></thead>
+<tbody>
+<tr><td>Спрос покупателей</td><td>Анкетирование (Google Формы)</td><td class="num">50</td><td>58 % готовы к чеку 1 500–5 000 руб.</td></tr>
+<tr><td>Знак и слоган</td><td>Холл-тест</td><td class="num">36</td><td>Лучше: знак AB + altdi.ru; слоган про «полку»</td></tr>
+</tbody>
+</table>
+<p class="no-indent"><strong>Вывод:</strong> данные опроса — в таблице 2.5 и на рисунках 2.1–2.3.</p>
+
+
+<h2>3.3 Конкурентный анализ</h2>
+<p>Сравниваются <strong>нишевые</strong> игроки (без Ozon, Wildberries, Avito): «Ярмарка Мастеров» (онлайн-площадка авторов); Livemaster (маркетплейс мастеров); ИП «ДекорБарнаул» (региональный магазин декора); Сообщество VK «Handmade Алтай» (соцсеть).</p>
+
+<p class="table-title"><strong>Таблица 3.3а</strong> – Сравнительная характеристика конкурентов (не крупные федеральные маркетплейсы)</p>
+<table class="compact">
+<thead><tr><th>Показатель</th><th class="num">«Ярмарка Мастеров» (онлайн-площадка авторов)</th><th class="num">Livemaster (маркетплейс мастеров)</th><th class="num">ИП «ДекорБарнаул» (региональный магазин декора)</th><th class="num">Сообщество VK «Handmade Алтай» (соцсеть)</th><th class="num">ООО «Алтай-Витрин»</th></tr></thead>
+<tbody>
+<tr><td>Сайт / канал</td><td>livemaster.ru / yarmarka-masterov.ru</td><td>livemaster.ru</td><td>декор-барнаул.рф (условно)</td><td>vk.com (сообщество мастеров)</td><td class="num">altdi.ru</td></tr><tr><td>Тип площадки</td><td>Специализированная handmade-площадка</td><td>Площадка авторских изделий</td><td>Локальный интернет-магазин</td><td>Социальная витрина без оператора</td><td class="num">Витринно-логистическая платформа</td></tr><tr><td>Комиссия / монетизация</td><td>10–15 %</td><td>от 8 % + услуги</td><td>наценка ритейлера</td><td>0 % (свои продажи)</td><td class="num">8 % + полка от 79 руб./сут.</td></tr><tr><td>Размещение / «полка»</td><td>абонент / продвижение</td><td>платные витрины</td><td>витрина магазина</td><td>бесплатно</td><td class="num">цифровая полка, от 1 сут.</td></tr><tr><td>Логистика</td><td>силами мастера</td><td>силами мастера</td><td>самовывоз / доставка по городу</td><td>договорённости в ЛС</td><td class="num">склад оператора, СДЭК / Почта России</td></tr><tr><td>Цена min, руб.</td><td>500</td><td>400</td><td>800</td><td>300</td><td class="num">1 200</td></tr><tr><td>Цена max, руб.</td><td>28000</td><td>25000</td><td>15000</td><td>12000</td><td class="num">18 500</td></tr><tr><td>Средний чек, руб.</td><td>3 500–7 500</td><td>2 800–6 500</td><td>2 500–5 500</td><td>1 500–4 000</td><td class="num">4 800 (цель)</td></tr><tr><td>Локальный акцент</td><td>слабая</td><td>слабая</td><td>сильная</td><td>очень сильная</td><td class="num">очень сильная (Алтайский край)</td></tr>
+</tbody>
+</table>
+<p class="no-indent"><strong>Вывод:</strong> нишевые и региональные игроки слабее в комплексной логистике; преимущество Алтай-Витрин — склад, гарантия целостности и кураторство при комиссии ниже агрегаторов handmade.</p>
+
+
+<figure class="illustration evidence">
+  <img src="preview-screenshots/competitor-livemaster.png" alt="Конкурент: Livemaster — главная страница" style="max-width:100%;border:1px solid #ccc;" />
+  <p class="illustration-caption">Рисунок 3.4 – Конкурент: Livemaster — главная страница</p>
+</figure>
+
+
+<figure class="illustration evidence">
+  <img src="preview-screenshots/competitor-yarmarka.png" alt="Конкурент: Ярмарка Мастеров" style="max-width:100%;border:1px solid #ccc;" />
+  <p class="illustration-caption">Рисунок 3.5 – Конкурент: Ярмарка Мастеров</p>
+</figure>
+
+
+<figure class="illustration evidence">
+  <img src="preview-screenshots/competitor-dekor-barnaul.png" alt="Конкурент: региональный магазин декора (пример)" style="max-width:100%;border:1px solid #ccc;" />
+  <p class="illustration-caption">Рисунок 3.6 – Конкурент: региональный магазин декора (пример)</p>
+</figure>
+
+
+<figure class="illustration evidence">
+  <img src="preview-screenshots/competitor-vk-handmade.png" alt="Конкурент: сообщество VK Handmade Алтай" style="max-width:100%;border:1px solid #ccc;" />
+  <p class="illustration-caption">Рисунок 3.7 – Конкурент: сообщество VK Handmade Алтай</p>
+</figure>
+
+
+
+<p class="table-title"><strong>Таблица 3.2</strong> – Лист оценки конкурентоспособности (1–10)</p>
+<table class="compact">
+<thead><tr><th>Факторы</th><th class="num">Алтай-Витрин</th><th class="num">«Ярмарка Мастеров» (онлайн-площадка авторов)</th><th class="num">Livemaster (маркетплейс мастеров)</th><th class="num">ИП «ДекорБарнаул» (региональный магазин декора)</th><th class="num">Сообщество VK «Handmade Алтай» (соцсеть)</th></tr></thead>
+<tbody>
+<tr><td colspan="6"><strong>Продукт</strong></td></tr>
+<tr><td>1.1 Надёжность</td><td class="num">7</td><td class="num">6</td><td class="num">6</td><td class="num">6</td><td class="num">5</td></tr>
+<tr><td>1.2 Стиль</td><td class="num">9</td><td class="num">7</td><td class="num">6</td><td class="num">6</td><td class="num">4</td></tr>
+<tr><td>1.3 Гарантии</td><td class="num">7</td><td class="num">6</td><td class="num">6</td><td class="num">6</td><td class="num">5</td></tr>
+<tr><td>1.4 Ассортимент</td><td class="num">4</td><td class="num">7</td><td class="num">6</td><td class="num">6</td><td class="num">5</td></tr>
+<tr><td colspan="6"><strong>Цена</strong></td></tr>
+<tr><td>2.1 Гибкость</td><td class="num">7</td><td class="num">6</td><td class="num">6</td><td class="num">7</td><td class="num">8</td></tr>
+<tr><td>2.2 Расчёты</td><td class="num">8</td><td class="num">7</td><td class="num">7</td><td class="num">7</td><td class="num">5</td></tr>
+<tr><td colspan="6"><strong>Место</strong></td></tr>
+<tr><td>3.1 Канал</td><td class="num">7</td><td class="num">8</td><td class="num">7</td><td class="num">7</td><td class="num">6</td></tr>
+<tr><td>3.2 Охват</td><td class="num">6</td><td class="num">7</td><td class="num">7</td><td class="num">8</td><td class="num">9</td></tr>
+<tr><td colspan="6"><strong>Продвижение</strong></td></tr>
+<tr><td>4.1 Реклама</td><td class="num">6</td><td class="num">6</td><td class="num">6</td><td class="num">5</td><td class="num">5</td></tr>
+<tr><td>4.2 Бюджет</td><td class="num">4</td><td class="num">5</td><td class="num">5</td><td class="num">4</td><td class="num">3</td></tr>
+<tr><td>4.3 Офлайн</td><td class="num">8</td><td class="num">7</td><td class="num">7</td><td class="num">6</td><td class="num">7</td></tr>
+</tbody>
+</table>
+<p class="no-indent"><strong>Вывод:</strong> проект выигрывает в стиле, локальности и офлайн-присутствии.</p>
+
+
+
+<h2>3.5 SWOT-анализ</h2>
+<p class="table-title"><strong>Таблица 3.5</strong> – SWOT</p>
+<table class="compact">
+<tr><th>Сильные</th><th>Слабые</th></tr>
+<tr><td>Локальность, полки, склад, команда</td><td>Малый бренд, ограниченный бюджет</td></tr>
+<tr><th>Возможности</th><th>Угрозы</th></tr>
+<tr><td>Рост спроса на локальное; B2B; партнёрства с ААГ; <strong>уход части продавцов с крупных маркетплейсов</strong> из-за роста комиссий (15–25 %) и переток мастеров в нишевые витрины</td><td>Конкуренция соцсетей; рост стоимости рекламы</td></tr>
+</table>
+<p class="no-indent"><strong>Вывод:</strong> возможность — занять нишу «оператор для мастеров», отказавшихся от федеральных агрегаторов.</p>
+
+
+<h2>3.6 Поставщики и закупки</h2>
+<p class="table-title"><strong>Таблица 3.7</strong> – У кого что закупаем (поставщики услуг и товара)</p>
+<table class="compact">
+<thead><tr><th>Категория</th><th>Поставщик</th><th>Закупаем</th><th>Цена</th><th>Доказательство</th></tr></thead>
+<tbody>
+<tr><td>Товар</td><td>Дизайнеры и мастерские Алтайского края</td><td>Готовые изделия на реализацию</td><td>Розница автора −8 % комиссии</td><td>Договор комиссии, акт приёмки (прил. Д)</td></tr><tr><td>Логистика</td><td>СДЭК</td><td>Доставка B2C по краю и РФ</td><td>от 290 руб. (посылка до 3 кг, Барнаул–Новосибирск, 2026)</td><td>Скрин тарифа на cdek.ru (рис. 3.15)</td></tr><tr><td>Логистика</td><td>Почта России</td><td>Доставка в отдалённые НП</td><td>от 350 руб. (1 класс, 2 кг)</td><td>Скрин калькулятора pochta.ru (рис. 3.16)</td></tr><tr><td>Упаковка</td><td>ООО «Алтай-Пак», г. Барнаул</td><td>Короба, наполнитель, скотч</td><td>короб 30×30×30 — 65 руб.; наполнитель — 120 руб./уп.</td><td>Коммерческое предложение / прайс (рис. 3.17)</td></tr><tr><td>Услуги</td><td>Типография «Принт-Алтай»</td><td>Визитки, листовки, QR-наклейки</td><td>листовка А6 — 8 руб.; тираж 500 шт.</td><td>Прайс типографии (рис. 3.18)</td></tr><tr><td>Инфраструктура</td><td>Арендодатель склада</td><td>Помещение 40–60 м²</td><td>45 000–55 000 руб./мес.</td><td>Объявление/договор аренды (рис. 3.19)</td></tr><tr><td>Финансы</td><td>Банк (эквайринг)</td><td>Приём оплаты картой</td><td>2,2–2,8 % с оборота</td><td>Тарифы банка на сайте (рис. 3.20)</td></tr><tr><td>Реклама</td><td>VK Реклама</td><td>Таргет, посевы</td><td>CPC от 8–15 руб. (ниша декор)</td><td>Скрин кабинета / медиаплан (рис. 3.21)</td></tr>
+</tbody>
+</table>
+<p class="no-indent"><strong>Вывод:</strong> каждая статья расходов привязана к контрагенту и подтверждается скриншотом/прайсом в приложении.</p>
+
+
+<figure class="illustration evidence">
+  <img src="preview-screenshots/cdek_calculator.png" alt="Калькулятор СДЭК: расчёт доставки" style="max-width:100%;border:1px solid #ccc;" />
+  <p class="illustration-caption">Рисунок 3.15 – Калькулятор СДЭК: расчёт доставки</p>
+</figure>
+
+
+<figure class="illustration evidence">
+  <img src="preview-screenshots/pochta_calculator.png" alt="Почта России: расчёт посылки" style="max-width:100%;border:1px solid #ccc;" />
+  <p class="illustration-caption">Рисунок 3.16 – Почта России: расчёт посылки</p>
+</figure>
+
+
+<figure class="illustration evidence">
+  <img src="preview-screenshots/supplier-upakovka.png" alt="Прайс упаковочных материалов" style="max-width:100%;border:1px solid #ccc;" />
+  <p class="illustration-caption">Рисунок 3.17 – Прайс упаковочных материалов</p>
+</figure>
+
+
+<figure class="illustration evidence">
+  <img src="preview-screenshots/supplier-tipografiya.png" alt="Прайс типографии (листовки, визитки)" style="max-width:100%;border:1px solid #ccc;" />
+  <p class="illustration-caption">Рисунок 3.18 – Прайс типографии (листовки, визитки)</p>
+</figure>
+
+
+<figure class="illustration evidence">
+  <img src="preview-screenshots/supplier-arenda-sklad.png" alt="Аренда склада / помещения (объявление)" style="max-width:100%;border:1px solid #ccc;" />
+  <p class="illustration-caption">Рисунок 3.19 – Аренда склада / помещения (объявление)</p>
+</figure>
+
+
+<figure class="illustration evidence">
+  <img src="preview-screenshots/supplier-bank-acquiring.png" alt="Тарифы эквайринга банка" style="max-width:100%;border:1px solid #ccc;" />
+  <p class="illustration-caption">Рисунок 3.20 – Тарифы эквайринга банка</p>
+</figure>
+
+
+<figure class="illustration evidence">
+  <img src="preview-screenshots/supplier-vk-ads.png" alt="VK Реклама: ориентиры ставок" style="max-width:100%;border:1px solid #ccc;" />
+  <p class="illustration-caption">Рисунок 3.21 – VK Реклама: ориентиры ставок</p>
+</figure>
+
+
+<div class="page-break"></div>
+
+<h1>4 Организационный план</h1>
+
+<p>Проект реализуется в форме <strong>ООО «Алтай-Витрин»</strong>, поскольку предполагается работа с несколькими контрагентами (дизайнеры, службы доставки, арендодатель), подключение эквайринга и развитие бренда витрины. ФИО учредителей и доли в уставном капитале уточняются при оформлении учредительных документов; рекомендуемая стартовая модель — три участника с распределением функций: ИТ-разработка, дизайн/маркетинг контента, финансы и учёт.</p>
+
+<p><strong>Юридический адрес</strong> размещается в населённом пункте фактического присутствия организации (офис/склад) с соблюдением требований достоверности адреса. <strong>ОКВЭД2:</strong> основной код 47.91.2; дополнительно — 63.12 (web-порталы), 52.10 (хранение), 82.92 (упаковка), 73.11 (реклама), 74.10 (дизайн) — по фактическому перечню услуг.</p>
+
+<p><strong>Организационная структура</strong> на запуске может быть описана как <strong>линейно-функциональная</strong>: единый руководитель и функциональные блоки (ИТ, маркетинг и визуальная коммуникация, финансы, операции). Часть ролей на первом этапе совмещается учредителями. На <strong>рисунке 4.1</strong> приведена схема организационной структуры управления проектом: в ней отражены подчинение руководителю четырёх внутренних направлений и связь с блоком внешних партнёров.</p>
+
+<figure class="illustration">
+  <svg viewBox="0 0 520 280" width="520" height="280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Схема: руководитель и четыре подразделения">
+    <defs>
+      <style>
+        .box { fill: #fff; stroke: #222; stroke-width: 1.5; }
+        .tx { font-family: 'Times New Roman', Times, serif; font-size: 13px; fill: #111; }
+        .ar { stroke: #222; stroke-width: 1.2; fill: none; marker-end: url(#mh); }
+      </style>
+      <marker id="mh" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+        <path d="M0,0 L8,4 L0,8 z" fill="#222" />
+      </marker>
+    </defs>
+    <rect class="box" x="180" y="12" width="160" height="44" rx="4" />
+    <text class="tx" x="260" y="40" text-anchor="middle">Руководитель проекта</text>
+    <rect class="box" x="10" y="120" width="115" height="52" rx="4" />
+    <text class="tx" x="67" y="145" text-anchor="middle">ИТ-направление</text>
+    <text class="tx" x="67" y="162" text-anchor="middle">(сайт, БД, роли)</text>
+    <rect class="box" x="140" y="120" width="115" height="52" rx="4" />
+    <text class="tx" x="197" y="145" text-anchor="middle">Дизайн и</text>
+    <text class="tx" x="197" y="162" text-anchor="middle">маркетинг</text>
+    <rect class="box" x="270" y="120" width="115" height="52" rx="4" />
+    <text class="tx" x="327" y="145" text-anchor="middle">Финансы и</text>
+    <text class="tx" x="327" y="162" text-anchor="middle">бухгалтерия</text>
+    <rect class="box" x="400" y="120" width="110" height="52" rx="4" />
+    <text class="tx" x="455" y="145" text-anchor="middle">Операции</text>
+    <text class="tx" x="455" y="162" text-anchor="middle">(склад, отгрузка)</text>
+    <rect class="box" x="150" y="210" width="220" height="44" rx="4" />
+    <text class="tx" x="260" y="238" text-anchor="middle">Внешние партнёры (юрист, доставка, типография)</text>
+    <path class="ar" d="M260 56 L260 80" />
+    <path class="ar" d="M260 80 L67 80 L67 118" />
+    <path class="ar" d="M260 80 L197 80 L197 118" />
+    <path class="ar" d="M260 80 L327 80 L327 118" />
+    <path class="ar" d="M260 80 L455 80 L455 118" />
+    <path class="ar" d="M197 172 L197 190 L260 190 L260 208" />
+    <path class="ar" d="M327 172 L327 190 L260 190" />
+    <path class="ar" d="M67 172 L67 200 L150 232" />
+    <path class="ar" d="M455 172 L455 200 L370 232" />
+  </svg>
+  <p class="illustration-caption">Рисунок 4.1 – Организационная структура управления проектом</p>
+</figure>
+
+<p>В соответствии с <strong>рисунком 4.1</strong> состав подразделений и их функции распределяются следующим образом. ИТ-направление обеспечивает разработку, сопровождение и безопасность веб-платформы. Дизайн и маркетинг отвечают за визуальную концепцию витрины, качество карточек, рекламные коммуникации и работу с авторами. Финансы и бухгалтерия ведут учёт, налоговый режим, расчёты с контрагентами и управленческую отчётность. Операционное направление (по мере роста) концентрирует приёмку товара на склад, упаковку, взаимодействие со службами доставки и обработку возвратов. Потребность в кадрах сведена в <strong>таблице 4.1</strong>.</p>
+
+<p class="table-title"><strong>Таблица 4.1</strong> – Потребность в кадрах управления и ведущих специалистах</p>
+<table>
+  <thead>
+    <tr>
+      <th>Персонал (группы)</th>
+      <th>Потребность: специальность, образование, количество</th>
+      <th>Источники найма</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Управление</td>
+      <td>Руководитель проекта — 1 чел.; компетенции в продажах, договорах и операционном контроле</td>
+      <td>Учредитель; при росте — найм</td>
+    </tr>
+    <tr>
+      <td>Финансы и бухгалтерия</td>
+      <td>Бухгалтер — 1 чел.; профильное образование, знание УСН и учёта комиссионной модели</td>
+      <td>Учредитель / аутсорсинг бухгалтерии</td>
+    </tr>
+    <tr>
+      <td>Маркетинг</td>
+      <td>Контент и продвижение — 0,5–1 ставка</td>
+      <td>Совмещение с дизайнером; позже приём</td>
+    </tr>
+    <tr>
+      <td>Юридическое обслуживание</td>
+      <td>Договоры, оферта, ПДн — разовые консультации</td>
+      <td>Аутсорсинг</td>
+    </tr>
+    <tr>
+      <td>Производство / операции</td>
+      <td>Менеджер заказов / склад — 1 чел. при росте объёма отгрузок</td>
+      <td>Приём извне</td>
+    </tr>
+    <tr>
+      <td>ИТ</td>
+      <td>Разработчик веб-платформы — 1 чел.</td>
+      <td>Учредитель / штат при масштабировании</td>
+    </tr>
+  </tbody>
+</table>
+
+<p class="no-indent">Расчёт фонда заработной платы приведён в <strong>таблице 4.2</strong>. <strong>Вывод по кадрам:</strong> минимальная команда запуска — три ключевые роли (ИТ, дизайн/маркетинг, бухгалтерия), с последующим выделением операционного сотрудника.</p>
+
+<p><strong>Функциональные обязанности.</strong> Руководитель — стратегия, ключевые партнёрства и контроль показателей. ИТ-специалист — жизненный цикл кода, доступы, резервное копирование данных, инциденты. Дизайнер/маркетолог — гайдлайны карточек, рекламные материалы, коммуникации. Бухгалтер — первичка, налоги, выплаты дизайнерам. Операционный сотрудник — физическая логистика и клиентская поддержка по заказу.</p>
+
+<p><strong>Создаваемые рабочие места:</strong> на старте — 3 постоянных места в составе команды; +1 место при выходе на устойчивый поток заказов, требующий отдельного операционного сотрудника.</p>
+
+<p class="table-title"><strong>Таблица 4.2</strong> – Расчёт фонда заработной платы (иллюстративно, руб./мес.)</p>
+<table>
+  <thead>
+    <tr>
+      <th class="num">№ п/п</th>
+      <th>Категория</th>
+      <th class="num">Кол-во</th>
+      <th class="num">Оклад, руб.</th>
+      <th class="num">Фонд, руб.</th>
+      <th class="num">Страховые взносы (ориентир 30 %)</th>
+      <th class="num">Всего в мес., руб.</th>
+      <th class="num">В год, руб.</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td class="num">1</td><td>Бухгалтер</td><td class="num">1</td><td class="num">30&nbsp;000</td><td class="num">30&nbsp;000</td><td class="num">9&nbsp;000</td><td class="num">39&nbsp;000</td><td class="num">468&nbsp;000</td></tr>
+    <tr><td class="num">2</td><td>ИТ-специалист</td><td class="num">1</td><td class="num">35&nbsp;000</td><td class="num">35&nbsp;000</td><td class="num">10&nbsp;500</td><td class="num">45&nbsp;500</td><td class="num">546&nbsp;000</td></tr>
+    <tr><td class="num">3</td><td>Дизайнер / маркетинг</td><td class="num">1</td><td class="num">30&nbsp;000</td><td class="num">30&nbsp;000</td><td class="num">9&nbsp;000</td><td class="num">39&nbsp;000</td><td class="num">468&nbsp;000</td></tr>
+    <tr><th colspan="6">Итого по таблице</th><th class="num">123&nbsp;500</th><th class="num">1&nbsp;482&nbsp;000</th></tr>
+  </tbody>
+</table>
+
+<p class="no-indent">Календарный график реализации проекта — в <strong>таблице 4.3</strong>.</p>
+
+<p class="no-indent small">Примечание: тариф страховых взносов и льготы для субъектов МСП необходимо уточнить по законодательству на дату выплаты зарплаты; на ранней стадии возможна работа учредителей без полной рыночной зарплаты.</p>
+
+<p class="table-title"><strong>Таблица 4.3</strong> – Календарный график реализации проекта (фрагмент, 2026 г.)</p>
+<table>
+  <thead>
+    <tr>
+      <th>Наименование этапа</th>
+      <th class="num">Янв.</th>
+      <th class="num">Фев.</th>
+      <th class="num">Мар.</th>
+      <th class="num">Апр.</th>
+      <th class="num">Май</th>
+      <th class="num">Июн.</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>Регистрация ООО, расчётный счёт, ЭЦП</td><td class="num">1</td><td class="num">1</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+    <tr><td>Разработка и тестирование веб-витрины (MVP)</td><td class="num">1</td><td class="num">1</td><td class="num">1</td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+    <tr><td>Договорная база, оферта, политика ПДн</td><td class="num"></td><td class="num">1</td><td class="num">1</td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+    <tr><td>Подключение эквайринга и онлайн-кассы</td><td class="num"></td><td class="num"></td><td class="num">1</td><td class="num">1</td><td class="num"></td><td class="num"></td></tr>
+    <tr><td>Онбординг местных дизайнеров, наполнение каталога</td><td class="num"></td><td class="num">1</td><td class="num">1</td><td class="num">1</td><td class="num"></td><td class="num"></td></tr>
+    <tr><td>Рекламная кампания (VK, сайт, сарафанное радио)</td><td class="num"></td><td class="num"></td><td class="num">1</td><td class="num">1</td><td class="num">1</td><td class="num">1</td></tr>
+    <tr><td>Пилотные продажи и доработка процессов</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num">1</td><td class="num">1</td><td class="num"></td></tr>
+    <tr><td>Выход на режим регулярной деятельности</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num">1</td><td class="num">1</td></tr>
+  </tbody>
+</table>
+
+<p><strong>График работы.</strong> Сайт доступен круглосуточно. Обработка заказов, консультации и отгрузки — в рабочие дни (например, 10:00–19:00), с расширением в пики спроса.</p>
+
+<p><strong>Режим налогообложения.</strong> На старте целесообразно рассмотреть <strong>УСН «доходы»</strong> со ставкой 6 % при преобладании комиссионной и сервисной выручки и относительно простом учёте; при росте доли подтверждаемых расходов выполняется сравнение с объектом «доходы минус расходы».</p>
+
+<p class="no-indent"><strong>Вывод по организационному плану:</strong> выбранная форма ООО и линейно-функциональная структура, представленная на <strong>рисунке 4.1</strong>, согласуются с многоконтрактной моделью витрины. Критический путь запуска проходит через регистрацию юридического лица, готовность веб-платформы, договорную базу и подключение платёжных сервисов, после чего основное внимание переключается на привлечение продавцов и покупательский спрос.</p>
+
+</body>
+</html>

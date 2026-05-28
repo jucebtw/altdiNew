@@ -2966,29 +2966,47 @@ body.av-product-sheet-open {
 .av-product-sheet--fullscreen .av-product-sheet__gallery {
   min-height: 0;
   flex: 1 1 auto;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto auto;
+  align-content: stretch;
 }
 
 .av-product-sheet--fullscreen .av-product-sheet__stage-wrap {
-  flex: 1 1 auto;
-  min-height: 12rem;
-  aspect-ratio: auto;
-  max-height: min(72vh, calc(100dvh - 14rem));
+  position: relative;
+  min-height: 0;
+  height: 100%;
+  max-height: none;
+  aspect-ratio: unset;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .av-product-sheet--fullscreen .av-product-sheet__stage {
-  max-height: min(72vh, calc(100dvh - 14rem));
-  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  max-height: none;
+  overflow: visible;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .av-product-sheet--fullscreen .av-product-sheet__media {
+  display: block;
   max-width: 100%;
-  max-height: min(68vh, calc(100dvh - 16rem));
+  max-height: 100%;
   width: auto;
   height: auto;
   margin: 0 auto;
   object-fit: contain;
+  object-position: center;
+}
+
+.av-product-sheet--fullscreen .av-product-sheet__thumbs {
+  flex-shrink: 0;
 }
 
 .av-product-sheet--fullscreen .av-product-sheet__info {
@@ -3263,20 +3281,15 @@ body.av-product-sheet-open {
 
 /* ——— Отзывы в модалке товара ——— */
 .av-sheet-reviews {
-  flex: 0 1 auto;
+  flex-shrink: 0;
   min-height: 0;
-  max-height: min(42vh, 22rem);
+  max-height: min(34vh, 16rem);
   overflow-y: auto;
   margin-top: 0.65rem;
   padding: 0.85rem 0.75rem 0.25rem;
   border-top: 1px solid var(--border);
   background: #f7f4ef;
   border-radius: 0 0 var(--radius) var(--radius);
-}
-.av-sheet-reviews__block + .av-sheet-reviews__block {
-  margin-top: 1rem;
-  padding-top: 0.85rem;
-  border-top: 1px solid var(--border);
 }
 .av-sheet-reviews__title {
   font-family: var(--font-serif);
@@ -3440,7 +3453,10 @@ body.av-product-sheet-open {
 }
 
 @media (max-width: 900px) {
+  .av-product-sheet--fullscreen .av-product-sheet__gallery {
+    grid-template-rows: minmax(12rem, 50vh) auto auto;
+  }
   .av-product-sheet--fullscreen .av-sheet-reviews {
-    max-height: none;
+    max-height: min(40vh, 18rem);
   }
 }

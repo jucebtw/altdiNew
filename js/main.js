@@ -1714,7 +1714,6 @@
   function avSheetReviewsPanelHtml() {
     return (
       '<div class="av-sheet-reviews" data-av-sheet-reviews>' +
-      '<section class="av-sheet-reviews__block">' +
       '<h3 class="av-sheet-reviews__title">Отзывы о товаре</h3>' +
       '<div class="av-sheet-reviews__list" data-product-reviews-list></div>' +
       '<p class="av-sheet-reviews__empty" data-product-reviews-empty hidden>Пока нет отзывов о товаре.</p>' +
@@ -1741,37 +1740,8 @@
       "</div>" +
       '<p class="form-message" data-product-review-msg aria-live="polite"></p>' +
       "</div>" +
-      '<button type="button" class="btn btn--outline av-sheet-reviews__write" data-open-product-review>Написать отзыв о товаре</button>' +
-      "</section>" +
-      '<section class="av-sheet-reviews__block">' +
-      '<h3 class="av-sheet-reviews__title">Отзывы об авторе</h3>' +
-      '<div class="av-sheet-reviews__list" data-author-reviews-list></div>' +
-      '<p class="av-sheet-reviews__empty" data-author-reviews-empty hidden>Пока нет отзывов об авторе.</p>' +
-      '<p class="av-sheet-reviews__hint" data-author-review-hint hidden></p>' +
-      '<div class="av-sheet-reviews__form" data-author-review-form hidden>' +
-      '<p class="av-sheet-reviews__form-label">Ваша оценка</p>' +
-      '<div class="av-review-stars-input" data-star-input="author">' +
-      [1, 2, 3, 4, 5]
-        .map(function (n) {
-          return (
-            '<button type="button" class="av-review-stars-input__btn" data-star-val="' +
-            n +
-            '" aria-label="' +
-            n +
-            ' из 5">★</button>'
-          );
-        })
-        .join("") +
-      "</div>" +
-      '<label class="av-sheet-reviews__textarea-label">Комментарий<textarea rows="3" data-author-review-text maxlength="1200" placeholder="Расскажите об авторе"></textarea></label>' +
-      '<div class="av-sheet-reviews__form-actions">' +
-      '<button type="button" class="btn btn--hero-solid" data-submit-author-review>Отправить</button>' +
-      '<button type="button" class="btn btn--outline" data-cancel-author-review>Отмена</button>' +
-      "</div>" +
-      '<p class="form-message" data-author-review-msg aria-live="polite"></p>' +
-      "</div>" +
-      '<button type="button" class="btn btn--outline av-sheet-reviews__write" data-open-author-review>Написать отзыв об авторе</button>' +
-      "</section></div>"
+      '<button type="button" class="btn btn--outline av-sheet-reviews__write" data-open-product-review>Написать отзыв</button>' +
+      "</div>"
     );
   }
 
@@ -1779,7 +1749,8 @@
     var gallery = root.querySelector(".av-product-sheet__gallery");
     if (!gallery) return;
     var panel = gallery.querySelector("[data-av-sheet-reviews]");
-    if (!panel) {
+    if (!panel || panel.querySelector("[data-author-reviews-list]")) {
+      if (panel) panel.remove();
       gallery.insertAdjacentHTML("beforeend", avSheetReviewsPanelHtml());
       panel = gallery.querySelector("[data-av-sheet-reviews]");
     }
@@ -1789,13 +1760,13 @@
     }
   }
 
-  var avSheetReviewRating = { product: 0, author: 0 };
+  var avSheetReviewRating = 0;
 
-  function setStarInput(group, val) {
-    avSheetReviewRating[group] = val;
+  function setStarInput(val) {
+    avSheetReviewRating = val;
     var root = document.getElementById("av-product-sheet");
     if (!root) return;
-    var wrap = root.querySelector('[data-star-input="' + group + '"]');
+    var wrap = root.querySelector('[data-star-input="product"]');
     if (!wrap) return;
     wrap.querySelectorAll("[data-star-val]").forEach(function (btn) {
       var v = parseInt(btn.getAttribute("data-star-val"), 10);
@@ -1809,40 +1780,24 @@
       if (starBtn) {
         var wrap = starBtn.closest("[data-star-input]");
         if (wrap) {
-          var group = wrap.getAttribute("data-star-input");
           var val = parseInt(starBtn.getAttribute("data-star-val"), 10);
-          if (group) setStarInput(group, val);
+          setStarInput(val);
         }
         return;
       }
       if (ev.target.closest("[data-open-product-review]")) {
         ev.preventDefault();
-        openReviewForm(root, "product");
-        return;
-      }
-      if (ev.target.closest("[data-open-author-review]")) {
-        ev.preventDefault();
-        openReviewForm(root, "author");
+        openReviewForm(root);
         return;
       }
       if (ev.target.closest("[data-cancel-product-review]")) {
         ev.preventDefault();
-        closeReviewForm(root, "product");
-        return;
-      }
-      if (ev.target.closest("[data-cancel-author-review]")) {
-        ev.preventDefault();
-        closeReviewForm(root, "author");
+        closeReviewForm(root);
         return;
       }
       if (ev.target.closest("[data-submit-product-review]")) {
         ev.preventDefault();
         submitProductReview(root);
-        return;
-      }
-      if (ev.target.closest("[data-submit-author-review]")) {
-        ev.preventDefault();
-        submitAuthorReview(root);
         return;
       }
       var del = ev.target.closest("[data-review-delete]");
@@ -1877,29 +1832,19 @@
     });
   }
 
-  function openReviewForm(root, kind) {
-    var form = root.querySelector(
-      kind === "author" ? "[data-author-review-form]" : "[data-product-review-form]"
-    );
-    var btn = root.querySelector(
-      kind === "author" ? "[data-open-author-review]" : "[data-open-product-review]"
-    );
+  function openReviewForm(root) {
+    var form = root.querySelector("[data-product-review-form]");
+    var btn = root.querySelector("[data-open-product-review]");
     if (form) form.hidden = false;
     if (btn) btn.hidden = true;
-    setStarInput(kind, 5);
-    var ta = root.querySelector(
-      kind === "author" ? "[data-author-review-text]" : "[data-product-review-text]"
-    );
+    setStarInput(5);
+    var ta = root.querySelector("[data-product-review-text]");
     if (ta) ta.value = "";
   }
 
-  function closeReviewForm(root, kind) {
-    var form = root.querySelector(
-      kind === "author" ? "[data-author-review-form]" : "[data-product-review-form]"
-    );
-    var btn = root.querySelector(
-      kind === "author" ? "[data-open-author-review]" : "[data-open-product-review]"
-    );
+  function closeReviewForm(root) {
+    var form = root.querySelector("[data-product-review-form]");
+    var btn = root.querySelector("[data-open-product-review]");
     if (form) form.hidden = true;
     if (btn) btn.hidden = false;
   }
@@ -1930,7 +1875,7 @@
       }
       return;
     }
-    var rating = avSheetReviewRating.product || 0;
+    var rating = avSheetReviewRating || 0;
     var text = String(
       (root.querySelector("[data-product-review-text]") || {}).value || ""
     ).trim();
@@ -1962,87 +1907,13 @@
       createdAt: Date.now(),
     });
     setArrayStore(PRODUCT_REVIEWS_KEY, list);
-    closeReviewForm(root, "product");
+    closeReviewForm(root);
     if (msg) {
       msg.textContent = "Спасибо! Отзыв опубликован.";
       msg.classList.remove("is-error");
       msg.classList.add("is-success");
     }
     avRenderSheetReviews(avSheetModel);
-  }
-
-  function submitAuthorReview(root) {
-    if (!avSheetModel) return;
-    var auth = getAuth();
-    var msg = root.querySelector("[data-author-review-msg]");
-    var designerId = resolveDesignerIdForProduct(avSheetModel.designer, avSheetModel.designerId);
-    if (!designerId) {
-      if (msg) {
-        msg.textContent = "Не удалось определить автора.";
-        msg.classList.add("is-error");
-      }
-      return;
-    }
-    if (!auth || !auth.email) {
-      if (msg) {
-        msg.textContent = "Войдите в аккаунт, чтобы оставить отзыв.";
-        msg.classList.add("is-error");
-      }
-      return;
-    }
-    if (!hasPurchasedFromDesigner(auth.email, designerId)) {
-      if (msg) {
-        msg.textContent = "Отзыв об авторе доступен после покупки его товара.";
-        msg.classList.add("is-error");
-      }
-      return;
-    }
-    if (userAuthorReview(auth.email, designerId)) {
-      if (msg) {
-        msg.textContent = "Вы уже оставили отзыв об этом авторе.";
-        msg.classList.add("is-error");
-      }
-      return;
-    }
-    var rating = avSheetReviewRating.author || 0;
-    var text = String(
-      (root.querySelector("[data-author-review-text]") || {}).value || ""
-    ).trim();
-    if (rating < 1) {
-      if (msg) {
-        msg.textContent = "Выберите оценку от 1 до 5.";
-        msg.classList.add("is-error");
-      }
-      return;
-    }
-    if (text.length < 5) {
-      if (msg) {
-        msg.textContent = "Напишите комментарий хотя бы из нескольких слов.";
-        msg.classList.add("is-error");
-      }
-      return;
-    }
-    var list = getArrayStore(AUTHOR_REVIEWS_KEY);
-    list.push({
-      id: "ar-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8),
-      designerId: designerId,
-      productId: normalizeProductIdForModel(avSheetModel),
-      productName: avSheetModel.name || "",
-      authorEmail: String(auth.email).toLowerCase(),
-      authorName: reviewAuthorDisplayName(auth),
-      rating: rating,
-      text: text,
-      createdAt: Date.now(),
-    });
-    setArrayStore(AUTHOR_REVIEWS_KEY, list);
-    closeReviewForm(root, "author");
-    if (msg) {
-      msg.textContent = "Спасибо! Отзыв опубликован.";
-      msg.classList.remove("is-error");
-      msg.classList.add("is-success");
-    }
-    avRenderSheetReviews(avSheetModel);
-    renderAuthorReviewsCarousel(designerId);
   }
 
   function avRenderSheetReviews(model) {
@@ -2051,17 +1922,11 @@
     mountAvSheetReviewsPanel(root);
     var auth = getAuth();
     var productId = normalizeProductIdForModel(model);
-    var designerId = resolveDesignerIdForProduct(model.designer, model.designerId);
     var productList = root.querySelector("[data-product-reviews-list]");
     var productEmpty = root.querySelector("[data-product-reviews-empty]");
-    var authorList = root.querySelector("[data-author-reviews-list]");
-    var authorEmpty = root.querySelector("[data-author-reviews-empty]");
     var productHint = root.querySelector("[data-product-review-hint]");
-    var authorHint = root.querySelector("[data-author-review-hint]");
     var openProduct = root.querySelector("[data-open-product-review]");
-    var openAuthor = root.querySelector("[data-open-author-review]");
     var productReviews = getProductReviews(productId);
-    var authorReviews = designerId ? getAuthorReviews(designerId) : [];
     if (productList) {
       productList.innerHTML = productReviews
         .map(function (r) {
@@ -2070,27 +1935,12 @@
         .join("");
     }
     if (productEmpty) productEmpty.hidden = productReviews.length > 0;
-    if (authorList) {
-      authorList.innerHTML = authorReviews
-        .map(function (r) {
-          return renderReviewCardHtml(r, { kind: "author", showProduct: true });
-        })
-        .join("");
-    }
-    if (authorEmpty) authorEmpty.hidden = authorReviews.length > 0;
-    closeReviewForm(root, "product");
-    closeReviewForm(root, "author");
+    closeReviewForm(root);
     var canProduct =
       auth &&
       auth.email &&
       hasPurchasedProduct(auth.email, productId) &&
       !userProductReview(auth.email, productId);
-    var canAuthor =
-      auth &&
-      auth.email &&
-      designerId &&
-      hasPurchasedFromDesigner(auth.email, designerId) &&
-      !userAuthorReview(auth.email, designerId);
     if (openProduct) {
       openProduct.hidden = !canProduct;
       if (productHint) {
@@ -2105,23 +1955,6 @@
           productHint.textContent = "Вы уже оставили отзыв о товаре.";
         } else {
           productHint.hidden = true;
-        }
-      }
-    }
-    if (openAuthor) {
-      openAuthor.hidden = !canAuthor;
-      if (authorHint) {
-        if (!auth || !auth.email) {
-          authorHint.hidden = false;
-          authorHint.textContent = "Войдите и оформите покупку, чтобы оставить отзыв.";
-        } else if (!designerId || !hasPurchasedFromDesigner(auth.email, designerId)) {
-          authorHint.hidden = false;
-          authorHint.textContent = "Отзыв об авторе доступен после покупки его товара.";
-        } else if (userAuthorReview(auth.email, designerId)) {
-          authorHint.hidden = false;
-          authorHint.textContent = "Вы уже оставили отзыв об авторе.";
-        } else {
-          authorHint.hidden = true;
         }
       }
     }

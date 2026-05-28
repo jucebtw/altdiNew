@@ -87,9 +87,17 @@
         <div class="profile-grid"></div>
       </div>
 
-      <div id="reviews" class="profile-tabs" style="margin-top:1rem;">
-        <a class="profile-tab" href="contacts.html">Оставить отзыв</a>
-      </div>
+      <section class="profile-author-reviews section--tight" id="reviews" aria-labelledby="reviews-heading">
+        <div class="section__row">
+          <h2 id="reviews-heading" class="section__heading">Отзывы покупателей</h2>
+          <div class="slider-nav" data-author-reviews-nav hidden>
+            <button type="button" class="slider-nav__btn" data-author-reviews-prev aria-label="Назад">‹</button>
+            <button type="button" class="slider-nav__btn" data-author-reviews-next aria-label="Вперёд">›</button>
+          </div>
+        </div>
+        <p class="author-reviews-empty" data-author-reviews-empty hidden>Пока нет отзывов об авторе.</p>
+        <div class="author-reviews-strip" data-author-reviews-strip tabindex="0" role="list" hidden></div>
+      </section>
     </section>
 
     <section class="section container" data-designer-not-found hidden>

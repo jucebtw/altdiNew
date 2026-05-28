@@ -6,6 +6,9 @@
   var PRODUCT_PUBLISHED_KEY = "av-products-published-v1";
   var DEMO_USERS_KEY = "av-app-users-v1";
   var DESIGNERS_KEY = "av-designers-v1";
+  var PURCHASES_KEY = "av-purchases-v1";
+  var PRODUCT_REVIEWS_KEY = "av-product-reviews-v1";
+  var AUTHOR_REVIEWS_KEY = "av-author-reviews-v1";
   var cfg = typeof window.SITE_CONFIG !== "undefined" ? window.SITE_CONFIG : {};
 
   if (document.body && document.body.classList.contains("page-admin")) {
@@ -646,6 +649,8 @@
       a.setAttribute("href", designerProfileUrl(designer.id) + "#products");
     });
     renderDynamicProfileProducts(designer);
+    renderAuthorReviewsCarousel(designer.id);
+    initAuthorReviewsCarousel();
   }
 
   function initAdminDesignersPage() {
@@ -857,6 +862,8 @@
         price: line.price,
         image: line.image || "",
         qty: line.qty || 1,
+        designer: line.designer || "",
+        designerId: line.designerId || "",
       });
     }
     saveCart(items);
@@ -1185,6 +1192,11 @@
           })
           .join("\n");
 
+        var orderEmailEl = root.querySelector("[data-order-email]");
+        var auth = getAuth();
+        var orderEmail =
+          (auth && auth.email) || (orderEmailEl && orderEmailEl.value && orderEmailEl.value.trim());
+
         if (!key) {
           if (checkoutMsg) {
             checkoutMsg.textContent =
@@ -1192,15 +1204,11 @@
             checkoutMsg.classList.remove("is-error");
             checkoutMsg.classList.add("is-success");
           }
+          if (orderEmail) recordPurchasesFromCart(items, orderEmail);
           saveCart([]);
           paint();
           return;
         }
-
-        var orderEmailEl = root.querySelector("[data-order-email]");
-        var auth = getAuth();
-        var orderEmail =
-          (auth && auth.email) || (orderEmailEl && orderEmailEl.value && orderEmailEl.value.trim());
         if (!orderEmail || !orderEmail.includes("@")) {
           if (checkoutMsg) {
             checkoutMsg.classList.remove("is-success");
@@ -1242,6 +1250,7 @@
                 checkoutMsg.textContent = "Заказ отправлен. Мы свяжемся с вами.";
                 checkoutMsg.classList.add("is-success");
               }
+              if (orderEmail) recordPurchasesFromCart(items, orderEmail);
               saveCart([]);
               paint();
             } else {
@@ -1501,18 +1510,677 @@
     var id =
       String(model.productId || "").trim() ||
       slugify(String(model.name || "") + "-" + String(model.designer || ""));
+    var designerId = String(model.designerId || "").trim();
+    if (!designerId && model.designer) {
+      var dCart = getDesignerByName(model.designer);
+      if (dCart) designerId = dCart.id;
+    }
     addLine({
       id: id,
       name: model.name,
       price: Number(model.price) || 0,
       image: img || "",
       qty: 1,
+      designer: model.designer || "",
+      designerId: designerId,
     });
     notifyProductAddedToCart({
       name: model.name,
       imageUrl: img || "",
       sourceEl: sourceEl || null,
     });
+  }
+
+  function isAdminSession() {
+    var auth = getAuth();
+    return !!(auth && auth.role === "admin");
+  }
+
+  function reviewAuthorDisplayName(auth) {
+    if (!auth) return "Покупатель";
+    var n = String(auth.name || "").trim();
+    if (n) return n;
+    var em = String(auth.email || "");
+    if (em.indexOf("@") > 0) return em.split("@")[0];
+    return em || "Покупатель";
+  }
+
+  function normalizeProductIdForModel(model) {
+    if (!model) return "";
+    return (
+      String(model.productId || "").trim() ||
+      slugify(String(model.name || "") + "-" + String(model.designer || ""))
+    );
+  }
+
+  function resolveDesignerIdForProduct(designerName, designerId) {
+    if (designerId) return String(designerId);
+    var d = getDesignerByName(designerName || "");
+    return d ? d.id : "";
+  }
+
+  function recordPurchasesFromCart(items, email) {
+    var em = String(email || "")
+      .trim()
+      .toLowerCase();
+    if (!em || !Array.isArray(items) || !items.length) return;
+    var purchases = getArrayStore(PURCHASES_KEY);
+    items.forEach(function (line) {
+      var productId = String(line.id || "").trim();
+      if (!productId) return;
+      var dup = purchases.some(function (p) {
+        return p && p.email === em && p.productId === productId;
+      });
+      if (dup) return;
+      var designerId = String(line.designerId || "").trim();
+      if (!designerId && line.designer) {
+        var d = getDesignerByName(line.designer);
+        if (d) designerId = d.id;
+      }
+      purchases.push({
+        email: em,
+        productId: productId,
+        productName: String(line.name || ""),
+        designer: String(line.designer || ""),
+        designerId: designerId,
+        purchasedAt: Date.now(),
+      });
+    });
+    setArrayStore(PURCHASES_KEY, purchases);
+  }
+
+  function hasPurchasedProduct(email, productId) {
+    var em = String(email || "")
+      .trim()
+      .toLowerCase();
+    var pid = String(productId || "").trim();
+    if (!em || !pid) return false;
+    return getArrayStore(PURCHASES_KEY).some(function (p) {
+      return p && p.email === em && p.productId === pid;
+    });
+  }
+
+  function hasPurchasedFromDesigner(email, designerId) {
+    var em = String(email || "")
+      .trim()
+      .toLowerCase();
+    var did = String(designerId || "").trim();
+    if (!em || !did) return false;
+    return getArrayStore(PURCHASES_KEY).some(function (p) {
+      return p && p.email === em && p.designerId === did;
+    });
+  }
+
+  function getProductReviews(productId) {
+    var pid = String(productId || "").trim();
+    return getArrayStore(PRODUCT_REVIEWS_KEY)
+      .filter(function (r) {
+        return r && r.productId === pid;
+      })
+      .sort(function (a, b) {
+        return (b.createdAt || 0) - (a.createdAt || 0);
+      });
+  }
+
+  function getAuthorReviews(designerId) {
+    var did = String(designerId || "").trim();
+    return getArrayStore(AUTHOR_REVIEWS_KEY)
+      .filter(function (r) {
+        return r && r.designerId === did;
+      })
+      .sort(function (a, b) {
+        return (b.createdAt || 0) - (a.createdAt || 0);
+      });
+  }
+
+  function userProductReview(email, productId) {
+    var em = String(email || "")
+      .trim()
+      .toLowerCase();
+    return getArrayStore(PRODUCT_REVIEWS_KEY).find(function (r) {
+      return r && r.authorEmail === em && r.productId === productId;
+    });
+  }
+
+  function userAuthorReview(email, designerId) {
+    var em = String(email || "")
+      .trim()
+      .toLowerCase();
+    return getArrayStore(AUTHOR_REVIEWS_KEY).find(function (r) {
+      return r && r.authorEmail === em && r.designerId === designerId;
+    });
+  }
+
+  function formatReviewDate(ts) {
+    if (!ts) return "";
+    try {
+      return new Date(ts).toLocaleDateString("ru-RU", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+    } catch (eD) {
+      return "";
+    }
+  }
+
+  function renderStarsHtml(rating) {
+    var n = Math.max(0, Math.min(5, Math.round(Number(rating) || 0)));
+    var out = '<span class="av-review-stars" aria-label="Оценка ' + n + ' из 5">';
+    for (var i = 1; i <= 5; i++) {
+      out +=
+        '<span class="av-review-stars__star' +
+        (i <= n ? " is-on" : "") +
+        '" aria-hidden="true">★</span>';
+    }
+    return out + "</span>";
+  }
+
+  function renderReviewCardHtml(review, opts) {
+    opts = opts || {};
+    var admin = isAdminSession();
+    var extra = "";
+    if (opts.showProduct && review.productName) {
+      extra =
+        '<p class="av-review-card__product">Товар: ' + escapeHtml(review.productName) + "</p>";
+    }
+    return (
+      '<article class="av-review-card" data-review-id="' +
+      escapeHtml(review.id) +
+      '" data-review-kind="' +
+      escapeHtml(opts.kind || "product") +
+      '">' +
+      '<div class="av-review-card__head">' +
+      renderStarsHtml(review.rating) +
+      '<time class="av-review-card__date" datetime="' +
+      escapeHtml(String(review.createdAt || "")) +
+      '">' +
+      escapeHtml(formatReviewDate(review.createdAt)) +
+      "</time></div>" +
+      '<p class="av-review-card__author">' +
+      escapeHtml(review.authorName || "Покупатель") +
+      "</p>" +
+      extra +
+      '<p class="av-review-card__text">' +
+      escapeHtml(review.text || "") +
+      "</p>" +
+      (admin
+        ? '<button type="button" class="av-review-card__delete" data-review-delete aria-label="Удалить отзыв">Удалить</button>'
+        : "") +
+      "</article>"
+    );
+  }
+
+  function avSheetReviewsPanelHtml() {
+    return (
+      '<div class="av-sheet-reviews" data-av-sheet-reviews>' +
+      '<section class="av-sheet-reviews__block">' +
+      '<h3 class="av-sheet-reviews__title">Отзывы о товаре</h3>' +
+      '<div class="av-sheet-reviews__list" data-product-reviews-list></div>' +
+      '<p class="av-sheet-reviews__empty" data-product-reviews-empty hidden>Пока нет отзывов о товаре.</p>' +
+      '<p class="av-sheet-reviews__hint" data-product-review-hint hidden></p>' +
+      '<div class="av-sheet-reviews__form" data-product-review-form hidden>' +
+      '<p class="av-sheet-reviews__form-label">Ваша оценка</p>' +
+      '<div class="av-review-stars-input" data-star-input="product">' +
+      [1, 2, 3, 4, 5]
+        .map(function (n) {
+          return (
+            '<button type="button" class="av-review-stars-input__btn" data-star-val="' +
+            n +
+            '" aria-label="' +
+            n +
+            ' из 5">★</button>'
+          );
+        })
+        .join("") +
+      "</div>" +
+      '<label class="av-sheet-reviews__textarea-label">Комментарий<textarea rows="3" data-product-review-text maxlength="1200" placeholder="Поделитесь впечатлением"></textarea></label>' +
+      '<div class="av-sheet-reviews__form-actions">' +
+      '<button type="button" class="btn btn--hero-solid" data-submit-product-review>Отправить</button>' +
+      '<button type="button" class="btn btn--outline" data-cancel-product-review>Отмена</button>' +
+      "</div>" +
+      '<p class="form-message" data-product-review-msg aria-live="polite"></p>' +
+      "</div>" +
+      '<button type="button" class="btn btn--outline av-sheet-reviews__write" data-open-product-review>Написать отзыв о товаре</button>' +
+      "</section>" +
+      '<section class="av-sheet-reviews__block">' +
+      '<h3 class="av-sheet-reviews__title">Отзывы об авторе</h3>' +
+      '<div class="av-sheet-reviews__list" data-author-reviews-list></div>' +
+      '<p class="av-sheet-reviews__empty" data-author-reviews-empty hidden>Пока нет отзывов об авторе.</p>' +
+      '<p class="av-sheet-reviews__hint" data-author-review-hint hidden></p>' +
+      '<div class="av-sheet-reviews__form" data-author-review-form hidden>' +
+      '<p class="av-sheet-reviews__form-label">Ваша оценка</p>' +
+      '<div class="av-review-stars-input" data-star-input="author">' +
+      [1, 2, 3, 4, 5]
+        .map(function (n) {
+          return (
+            '<button type="button" class="av-review-stars-input__btn" data-star-val="' +
+            n +
+            '" aria-label="' +
+            n +
+            ' из 5">★</button>'
+          );
+        })
+        .join("") +
+      "</div>" +
+      '<label class="av-sheet-reviews__textarea-label">Комментарий<textarea rows="3" data-author-review-text maxlength="1200" placeholder="Расскажите об авторе"></textarea></label>' +
+      '<div class="av-sheet-reviews__form-actions">' +
+      '<button type="button" class="btn btn--hero-solid" data-submit-author-review>Отправить</button>' +
+      '<button type="button" class="btn btn--outline" data-cancel-author-review>Отмена</button>' +
+      "</div>" +
+      '<p class="form-message" data-author-review-msg aria-live="polite"></p>' +
+      "</div>" +
+      '<button type="button" class="btn btn--outline av-sheet-reviews__write" data-open-author-review>Написать отзыв об авторе</button>' +
+      "</section></div>"
+    );
+  }
+
+  function mountAvSheetReviewsPanel(root) {
+    var gallery = root.querySelector(".av-product-sheet__gallery");
+    if (!gallery) return;
+    var panel = gallery.querySelector("[data-av-sheet-reviews]");
+    if (!panel) {
+      gallery.insertAdjacentHTML("beforeend", avSheetReviewsPanelHtml());
+      panel = gallery.querySelector("[data-av-sheet-reviews]");
+    }
+    if (panel && !root.hasAttribute("data-av-reviews-bound")) {
+      root.setAttribute("data-av-reviews-bound", "1");
+      bindAvSheetReviewEvents(root);
+    }
+  }
+
+  var avSheetReviewRating = { product: 0, author: 0 };
+
+  function setStarInput(group, val) {
+    avSheetReviewRating[group] = val;
+    var root = document.getElementById("av-product-sheet");
+    if (!root) return;
+    var wrap = root.querySelector('[data-star-input="' + group + '"]');
+    if (!wrap) return;
+    wrap.querySelectorAll("[data-star-val]").forEach(function (btn) {
+      var v = parseInt(btn.getAttribute("data-star-val"), 10);
+      btn.classList.toggle("is-on", v <= val);
+    });
+  }
+
+  function bindAvSheetReviewEvents(root) {
+    root.addEventListener("click", function (ev) {
+      var starBtn = ev.target.closest("[data-star-val]");
+      if (starBtn) {
+        var wrap = starBtn.closest("[data-star-input]");
+        if (wrap) {
+          var group = wrap.getAttribute("data-star-input");
+          var val = parseInt(starBtn.getAttribute("data-star-val"), 10);
+          if (group) setStarInput(group, val);
+        }
+        return;
+      }
+      if (ev.target.closest("[data-open-product-review]")) {
+        ev.preventDefault();
+        openReviewForm(root, "product");
+        return;
+      }
+      if (ev.target.closest("[data-open-author-review]")) {
+        ev.preventDefault();
+        openReviewForm(root, "author");
+        return;
+      }
+      if (ev.target.closest("[data-cancel-product-review]")) {
+        ev.preventDefault();
+        closeReviewForm(root, "product");
+        return;
+      }
+      if (ev.target.closest("[data-cancel-author-review]")) {
+        ev.preventDefault();
+        closeReviewForm(root, "author");
+        return;
+      }
+      if (ev.target.closest("[data-submit-product-review]")) {
+        ev.preventDefault();
+        submitProductReview(root);
+        return;
+      }
+      if (ev.target.closest("[data-submit-author-review]")) {
+        ev.preventDefault();
+        submitAuthorReview(root);
+        return;
+      }
+      var del = ev.target.closest("[data-review-delete]");
+      if (del) {
+        ev.preventDefault();
+        var card = del.closest(".av-review-card");
+        if (!card || !isAdminSession()) return;
+        var kind = card.getAttribute("data-review-kind");
+        var rid = card.getAttribute("data-review-id");
+        if (!rid) return;
+        if (kind === "author") {
+          setArrayStore(
+            AUTHOR_REVIEWS_KEY,
+            getArrayStore(AUTHOR_REVIEWS_KEY).filter(function (r) {
+              return r.id !== rid;
+            })
+          );
+        } else {
+          setArrayStore(
+            PRODUCT_REVIEWS_KEY,
+            getArrayStore(PRODUCT_REVIEWS_KEY).filter(function (r) {
+              return r.id !== rid;
+            })
+          );
+        }
+        if (avSheetModel) avRenderSheetReviews(avSheetModel);
+        var pid = getDesignerIdFromPage();
+        if (document.body.classList.contains("page-designer-profile") && pid) {
+          renderAuthorReviewsCarousel(pid);
+        }
+      }
+    });
+  }
+
+  function openReviewForm(root, kind) {
+    var form = root.querySelector(
+      kind === "author" ? "[data-author-review-form]" : "[data-product-review-form]"
+    );
+    var btn = root.querySelector(
+      kind === "author" ? "[data-open-author-review]" : "[data-open-product-review]"
+    );
+    if (form) form.hidden = false;
+    if (btn) btn.hidden = true;
+    setStarInput(kind, 5);
+    var ta = root.querySelector(
+      kind === "author" ? "[data-author-review-text]" : "[data-product-review-text]"
+    );
+    if (ta) ta.value = "";
+  }
+
+  function closeReviewForm(root, kind) {
+    var form = root.querySelector(
+      kind === "author" ? "[data-author-review-form]" : "[data-product-review-form]"
+    );
+    var btn = root.querySelector(
+      kind === "author" ? "[data-open-author-review]" : "[data-open-product-review]"
+    );
+    if (form) form.hidden = true;
+    if (btn) btn.hidden = false;
+  }
+
+  function submitProductReview(root) {
+    if (!avSheetModel) return;
+    var auth = getAuth();
+    var msg = root.querySelector("[data-product-review-msg]");
+    var productId = normalizeProductIdForModel(avSheetModel);
+    if (!auth || !auth.email) {
+      if (msg) {
+        msg.textContent = "Войдите в аккаунт, чтобы оставить отзыв.";
+        msg.classList.add("is-error");
+      }
+      return;
+    }
+    if (!hasPurchasedProduct(auth.email, productId)) {
+      if (msg) {
+        msg.textContent = "Отзыв доступен после покупки этого товара.";
+        msg.classList.add("is-error");
+      }
+      return;
+    }
+    if (userProductReview(auth.email, productId)) {
+      if (msg) {
+        msg.textContent = "Вы уже оставили отзыв об этом товаре.";
+        msg.classList.add("is-error");
+      }
+      return;
+    }
+    var rating = avSheetReviewRating.product || 0;
+    var text = String(
+      (root.querySelector("[data-product-review-text]") || {}).value || ""
+    ).trim();
+    if (rating < 1) {
+      if (msg) {
+        msg.textContent = "Выберите оценку от 1 до 5.";
+        msg.classList.add("is-error");
+      }
+      return;
+    }
+    if (text.length < 5) {
+      if (msg) {
+        msg.textContent = "Напишите комментарий хотя бы из нескольких слов.";
+        msg.classList.add("is-error");
+      }
+      return;
+    }
+    var designerId = resolveDesignerIdForProduct(avSheetModel.designer, avSheetModel.designerId);
+    var list = getArrayStore(PRODUCT_REVIEWS_KEY);
+    list.push({
+      id: "pr-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8),
+      productId: productId,
+      productName: avSheetModel.name || "",
+      designerId: designerId,
+      authorEmail: String(auth.email).toLowerCase(),
+      authorName: reviewAuthorDisplayName(auth),
+      rating: rating,
+      text: text,
+      createdAt: Date.now(),
+    });
+    setArrayStore(PRODUCT_REVIEWS_KEY, list);
+    closeReviewForm(root, "product");
+    if (msg) {
+      msg.textContent = "Спасибо! Отзыв опубликован.";
+      msg.classList.remove("is-error");
+      msg.classList.add("is-success");
+    }
+    avRenderSheetReviews(avSheetModel);
+  }
+
+  function submitAuthorReview(root) {
+    if (!avSheetModel) return;
+    var auth = getAuth();
+    var msg = root.querySelector("[data-author-review-msg]");
+    var designerId = resolveDesignerIdForProduct(avSheetModel.designer, avSheetModel.designerId);
+    if (!designerId) {
+      if (msg) {
+        msg.textContent = "Не удалось определить автора.";
+        msg.classList.add("is-error");
+      }
+      return;
+    }
+    if (!auth || !auth.email) {
+      if (msg) {
+        msg.textContent = "Войдите в аккаунт, чтобы оставить отзыв.";
+        msg.classList.add("is-error");
+      }
+      return;
+    }
+    if (!hasPurchasedFromDesigner(auth.email, designerId)) {
+      if (msg) {
+        msg.textContent = "Отзыв об авторе доступен после покупки его товара.";
+        msg.classList.add("is-error");
+      }
+      return;
+    }
+    if (userAuthorReview(auth.email, designerId)) {
+      if (msg) {
+        msg.textContent = "Вы уже оставили отзыв об этом авторе.";
+        msg.classList.add("is-error");
+      }
+      return;
+    }
+    var rating = avSheetReviewRating.author || 0;
+    var text = String(
+      (root.querySelector("[data-author-review-text]") || {}).value || ""
+    ).trim();
+    if (rating < 1) {
+      if (msg) {
+        msg.textContent = "Выберите оценку от 1 до 5.";
+        msg.classList.add("is-error");
+      }
+      return;
+    }
+    if (text.length < 5) {
+      if (msg) {
+        msg.textContent = "Напишите комментарий хотя бы из нескольких слов.";
+        msg.classList.add("is-error");
+      }
+      return;
+    }
+    var list = getArrayStore(AUTHOR_REVIEWS_KEY);
+    list.push({
+      id: "ar-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8),
+      designerId: designerId,
+      productId: normalizeProductIdForModel(avSheetModel),
+      productName: avSheetModel.name || "",
+      authorEmail: String(auth.email).toLowerCase(),
+      authorName: reviewAuthorDisplayName(auth),
+      rating: rating,
+      text: text,
+      createdAt: Date.now(),
+    });
+    setArrayStore(AUTHOR_REVIEWS_KEY, list);
+    closeReviewForm(root, "author");
+    if (msg) {
+      msg.textContent = "Спасибо! Отзыв опубликован.";
+      msg.classList.remove("is-error");
+      msg.classList.add("is-success");
+    }
+    avRenderSheetReviews(avSheetModel);
+    renderAuthorReviewsCarousel(designerId);
+  }
+
+  function avRenderSheetReviews(model) {
+    var root = document.getElementById("av-product-sheet");
+    if (!root || !model) return;
+    mountAvSheetReviewsPanel(root);
+    var auth = getAuth();
+    var productId = normalizeProductIdForModel(model);
+    var designerId = resolveDesignerIdForProduct(model.designer, model.designerId);
+    var productList = root.querySelector("[data-product-reviews-list]");
+    var productEmpty = root.querySelector("[data-product-reviews-empty]");
+    var authorList = root.querySelector("[data-author-reviews-list]");
+    var authorEmpty = root.querySelector("[data-author-reviews-empty]");
+    var productHint = root.querySelector("[data-product-review-hint]");
+    var authorHint = root.querySelector("[data-author-review-hint]");
+    var openProduct = root.querySelector("[data-open-product-review]");
+    var openAuthor = root.querySelector("[data-open-author-review]");
+    var productReviews = getProductReviews(productId);
+    var authorReviews = designerId ? getAuthorReviews(designerId) : [];
+    if (productList) {
+      productList.innerHTML = productReviews
+        .map(function (r) {
+          return renderReviewCardHtml(r, { kind: "product" });
+        })
+        .join("");
+    }
+    if (productEmpty) productEmpty.hidden = productReviews.length > 0;
+    if (authorList) {
+      authorList.innerHTML = authorReviews
+        .map(function (r) {
+          return renderReviewCardHtml(r, { kind: "author", showProduct: true });
+        })
+        .join("");
+    }
+    if (authorEmpty) authorEmpty.hidden = authorReviews.length > 0;
+    closeReviewForm(root, "product");
+    closeReviewForm(root, "author");
+    var canProduct =
+      auth &&
+      auth.email &&
+      hasPurchasedProduct(auth.email, productId) &&
+      !userProductReview(auth.email, productId);
+    var canAuthor =
+      auth &&
+      auth.email &&
+      designerId &&
+      hasPurchasedFromDesigner(auth.email, designerId) &&
+      !userAuthorReview(auth.email, designerId);
+    if (openProduct) {
+      openProduct.hidden = !canProduct;
+      if (productHint) {
+        if (!auth || !auth.email) {
+          productHint.hidden = false;
+          productHint.textContent = "Войдите и оформите покупку, чтобы оставить отзыв.";
+        } else if (!hasPurchasedProduct(auth.email, productId)) {
+          productHint.hidden = false;
+          productHint.textContent = "Отзыв можно оставить после покупки этого товара.";
+        } else if (userProductReview(auth.email, productId)) {
+          productHint.hidden = false;
+          productHint.textContent = "Вы уже оставили отзыв о товаре.";
+        } else {
+          productHint.hidden = true;
+        }
+      }
+    }
+    if (openAuthor) {
+      openAuthor.hidden = !canAuthor;
+      if (authorHint) {
+        if (!auth || !auth.email) {
+          authorHint.hidden = false;
+          authorHint.textContent = "Войдите и оформите покупку, чтобы оставить отзыв.";
+        } else if (!designerId || !hasPurchasedFromDesigner(auth.email, designerId)) {
+          authorHint.hidden = false;
+          authorHint.textContent = "Отзыв об авторе доступен после покупки его товара.";
+        } else if (userAuthorReview(auth.email, designerId)) {
+          authorHint.hidden = false;
+          authorHint.textContent = "Вы уже оставили отзыв об авторе.";
+        } else {
+          authorHint.hidden = true;
+        }
+      }
+    }
+  }
+
+  function renderAuthorReviewsCarousel(designerId) {
+    var strip = document.querySelector("[data-author-reviews-strip]");
+    var empty = document.querySelector("[data-author-reviews-empty]");
+    var nav = document.querySelector("[data-author-reviews-nav]");
+    if (!strip) return;
+    var reviews = getAuthorReviews(designerId);
+    var sv = document.querySelector("[data-stat-reviews]");
+    if (sv) sv.textContent = reviews.length ? String(reviews.length) : "0";
+    if (empty) empty.hidden = reviews.length > 0;
+    strip.hidden = reviews.length === 0;
+    if (nav) nav.hidden = reviews.length < 2;
+    strip.innerHTML = reviews
+      .map(function (r) {
+        return (
+          '<article class="author-review-card" role="listitem">' +
+          renderReviewCardHtml(r, { kind: "author", showProduct: true }) +
+          "</article>"
+        );
+      })
+      .join("");
+    if (!strip.hasAttribute("data-author-reviews-bound")) {
+      strip.setAttribute("data-author-reviews-bound", "1");
+      strip.addEventListener("click", function (ev) {
+        var del = ev.target.closest("[data-review-delete]");
+        if (!del || !isAdminSession()) return;
+        ev.preventDefault();
+        var card = del.closest(".av-review-card");
+        if (!card) return;
+        var rid = card.getAttribute("data-review-id");
+        if (!rid) return;
+        setArrayStore(
+          AUTHOR_REVIEWS_KEY,
+          getArrayStore(AUTHOR_REVIEWS_KEY).filter(function (r) {
+            return r.id !== rid;
+          })
+        );
+        renderAuthorReviewsCarousel(designerId);
+      });
+    }
+  }
+
+  function initAuthorReviewsCarousel() {
+    var strip = document.querySelector("[data-author-reviews-strip]");
+    if (!strip || strip.hasAttribute("data-carousel-controls")) return;
+    strip.setAttribute("data-carousel-controls", "1");
+    var prev = document.querySelector("[data-author-reviews-prev]");
+    var next = document.querySelector("[data-author-reviews-next]");
+    var step = function (dir) {
+      var card = strip.querySelector(".author-review-card");
+      var w = card ? card.offsetWidth : 300;
+      strip.scrollBy({ left: dir * (w + 16), behavior: "smooth" });
+    };
+    if (prev) prev.addEventListener("click", function () { step(-1); });
+    if (next) next.addEventListener("click", function () { step(1); });
   }
 
   function avSheetSlides(model) {
@@ -1531,7 +2199,10 @@
 
   function ensureAvProductSheet() {
     var root = document.getElementById("av-product-sheet");
-    if (root) return root;
+    if (root) {
+      mountAvSheetReviewsPanel(root);
+      return root;
+    }
     root = document.createElement("div");
     root.id = "av-product-sheet";
     root.className = "av-product-sheet av-product-sheet--fullscreen";
@@ -1549,6 +2220,7 @@
       '<button type="button" class="av-product-sheet__nav av-product-sheet__nav--next" aria-label="Следующее фото">›</button>' +
       "</div>" +
       '<div class="av-product-sheet__thumbs" role="tablist"></div>' +
+      avSheetReviewsPanelHtml() +
       "</div>" +
       '<div class="av-product-sheet__info">' +
       '<p class="av-product-sheet__studio"></p>' +
@@ -1561,6 +2233,8 @@
       '<button type="button" class="btn btn--hero-solid av-product-sheet__cart">В корзину</button>' +
       "</div></div></div></div>";
     document.body.appendChild(root);
+    root.setAttribute("data-av-reviews-bound", "1");
+    bindAvSheetReviewEvents(root);
     root.querySelector(".av-product-sheet__backdrop").addEventListener("click", closeAvProductSheet);
     root.querySelector(".av-product-sheet__close").addEventListener("click", closeAvProductSheet);
     root.querySelector(".av-product-sheet__nav--prev").addEventListener("click", function (ev) {
@@ -1715,6 +2389,8 @@
     }
     avRenderSheetSlide();
     avStartCarousel();
+    mountAvSheetReviewsPanel(root);
+    avRenderSheetReviews(model);
     root.removeAttribute("hidden");
     root.setAttribute("aria-hidden", "false");
     document.body.classList.add("av-product-sheet-open");
@@ -1811,6 +2487,7 @@
       name: p.name || "Товар",
       type: p.type || "",
       designer: p.designer || "Автор",
+      designerId: resolveDesignerIdForProduct(p.designer, p.designerId),
       price: Number(p.price || 0),
       description: String(p.description || "").trim(),
       media: media,
@@ -1866,12 +2543,14 @@
     if (price === null) price = 0;
     var imgSrc = img ? String(img.getAttribute("src") || "").trim() : "";
     var media = imgSrc ? [{ id: "dom", kind: "image", url: imgSrc }] : [];
+    var studioName = studioEl ? studioEl.textContent.trim() : "";
     return {
       listingId: "",
       productId: cardProductId(card),
       name: name || "Товар",
       type: typeEl ? typeEl.textContent.trim() : "",
-      designer: studioEl ? studioEl.textContent.trim() : "",
+      designer: studioName,
+      designerId: resolveDesignerIdForProduct(studioName, ""),
       price: price,
       description: "",
       media: media,
@@ -3412,6 +4091,7 @@
   renderDesignerSliders();
   fillDesignerSelectOptions();
   initDesignerProfilePage();
+  initAuthorReviewsCarousel();
   initAdminDesignersPage();
   initShelfSlotWidthsFromBadges();
   initVkBotChatLinks();

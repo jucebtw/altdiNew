@@ -3260,3 +3260,187 @@ body.av-product-sheet-open {
   text-align: center;
   justify-content: center;
 }
+
+/* ——— Отзывы в модалке товара ——— */
+.av-sheet-reviews {
+  flex: 0 1 auto;
+  min-height: 0;
+  max-height: min(42vh, 22rem);
+  overflow-y: auto;
+  margin-top: 0.65rem;
+  padding: 0.85rem 0.75rem 0.25rem;
+  border-top: 1px solid var(--border);
+  background: #f7f4ef;
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+.av-sheet-reviews__block + .av-sheet-reviews__block {
+  margin-top: 1rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--border);
+}
+.av-sheet-reviews__title {
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+}
+.av-sheet-reviews__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+.av-sheet-reviews__empty,
+.av-sheet-reviews__hint {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.av-sheet-reviews__write {
+  width: 100%;
+  margin-top: 0.35rem;
+  font-size: 0.72rem;
+}
+.av-sheet-reviews__form {
+  margin: 0.5rem 0;
+  padding: 0.75rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.av-sheet-reviews__form-label {
+  margin: 0 0 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.av-sheet-reviews__textarea-label {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.av-sheet-reviews__textarea-label textarea {
+  display: block;
+  width: 100%;
+  margin-top: 0.35rem;
+  font: inherit;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  resize: vertical;
+}
+.av-sheet-reviews__form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+.av-sheet-reviews__form-actions .btn {
+  flex: 1 1 auto;
+  font-size: 0.72rem;
+}
+.av-review-stars__star {
+  color: #c8c0b6;
+  font-size: 0.95rem;
+}
+.av-review-stars__star.is-on {
+  color: #c9a227;
+}
+.av-review-stars-input {
+  display: flex;
+  gap: 0.15rem;
+}
+.av-review-stars-input__btn {
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: 1.35rem;
+  line-height: 1;
+  color: #c8c0b6;
+  cursor: pointer;
+}
+.av-review-stars-input__btn.is-on {
+  color: #c9a227;
+}
+.av-review-card {
+  padding: 0.65rem 0.7rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.av-review-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.av-review-card__date {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+.av-review-card__author {
+  margin: 0.35rem 0 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.av-review-card__product {
+  margin: 0.2rem 0 0;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+.av-review-card__text {
+  margin: 0.35rem 0 0;
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+.av-review-card__delete {
+  margin-top: 0.45rem;
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #b83232;
+  text-decoration: underline;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* ——— Карусель отзывов на профиле автора ——— */
+.profile-author-reviews {
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+.author-reviews-empty {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+.author-reviews-strip {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 0.5rem;
+  -webkit-overflow-scrolling: touch;
+  cursor: grab;
+}
+.author-reviews-strip.is-dragging {
+  cursor: grabbing;
+  scroll-snap-type: none;
+}
+.author-review-card {
+  flex: 0 0 min(100%, 300px);
+  max-width: 340px;
+  scroll-snap-align: start;
+}
+.author-review-card .av-review-card {
+  height: 100%;
+}
+
+@media (max-width: 900px) {
+  .av-product-sheet--fullscreen .av-sheet-reviews {
+    max-height: none;
+  }
+}

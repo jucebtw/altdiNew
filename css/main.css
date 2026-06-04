@@ -2294,6 +2294,19 @@ body.page-seller {
   max-width: 42rem;
 }
 
+.seller-cabinet-notice {
+  margin: 0.75rem 0 0;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  max-width: 42rem;
+}
+
+.seller-cabinet-notice a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .admin-mod-create {
   background: var(--admin-queue-bg);
   border-radius: var(--admin-radius-panel);

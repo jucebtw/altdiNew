@@ -1,0 +1,112 @@
+[
+  {
+    "id": "lst-showcase-shelf-combo",
+    "productId": "prd-shelf-combo",
+    "roomSlug": "furniture",
+    "tier": "middle",
+    "widthTier": "standard",
+    "status": "active",
+    "dynamicRankScore": 10,
+    "ownerUserId": "altay-vitrin@yandex.ru",
+    "product": {
+      "id": "prd-shelf-combo",
+      "name": "Полка настенная «Комбо»",
+      "type": "модульная полка ЛДСП",
+      "designer": "Иван Лыбин",
+      "designerId": "ivan-lybin",
+      "category": "furniture",
+      "material": "wood",
+      "price": 3890,
+      "description": "Настенная полка с асимметричной компоновкой: сочетание фасадов под светлый дуб и белые L-образные секции. Подходит для кабинета, гостиной или зоны чтения: книги, канцелярия, декор. Крепление к стене, компактная глубина около 20 см.",
+      "image": "/assets/images/product-shelf-combo.jpg"
+    }
+  },
+  {
+    "id": "lst-showcase-leather-terra",
+    "productId": "prd-leather-terra",
+    "roomSlug": "texture",
+    "tier": "top",
+    "widthTier": "narrow",
+    "status": "active",
+    "dynamicRankScore": 12,
+    "ownerUserId": "altay-vitrin@yandex.ru",
+    "product": {
+      "id": "prd-leather-terra",
+      "name": "Кожа декоративная «Терра»",
+      "type": "натуральная кожа, тиснение",
+      "designer": "Марина Кожевникова",
+      "designerId": "marina-kozhevnikova",
+      "category": "texture",
+      "material": "textile",
+      "price": 4200,
+      "description": "Фрагмент натуральной кожи с рельефным рисунком «трещины земли» в терракотовой гамме. Для обивки акцентных предметов, панно в кабинете или авторского декора в стиле лофт и современной классики. Формат поставки: лист около 50×70 см.",
+      "image": "/assets/images/product-leather-terracotta.webp"
+    }
+  },
+  {
+    "id": "lst-showcase-mirror-baroque",
+    "productId": "prd-mirror-baroque",
+    "roomSlug": "decor",
+    "tier": "middle",
+    "widthTier": "standard",
+    "status": "active",
+    "dynamicRankScore": 9,
+    "ownerUserId": "altay-vitrin@yandex.ru",
+    "product": {
+      "id": "prd-mirror-baroque",
+      "name": "Зеркало настольное «Барокко»",
+      "type": "зеркало на подставке",
+      "designer": "Татьяна Лань",
+      "designerId": "tatyana-lan",
+      "category": "decor",
+      "material": "metal",
+      "price": 2150,
+      "description": "Настольное овальное зеркало в чёрной раме с ажурным орнаментом. Поворотное крепление для удобного макияжа и ухода. Устойчивая подставка; уместно в спальне, ванной зоне или на туалетном столике.",
+      "image": "/assets/images/product-mirror-vintage.jpeg"
+    }
+  },
+  {
+    "id": "lst-showcase-basket-wicker",
+    "productId": "prd-basket-wicker",
+    "roomSlug": "decor",
+    "tier": "low",
+    "widthTier": "narrow",
+    "status": "active",
+    "dynamicRankScore": 7,
+    "ownerUserId": "altay-vitrin@yandex.ru",
+    "product": {
+      "id": "prd-basket-wicker",
+      "name": "Корзина плетёная «Белый лён»",
+      "type": "корзина для хранения",
+      "designer": "Светлана Речникова",
+      "designerId": "svetlana-rechnikova",
+      "category": "decor",
+      "material": "textile",
+      "price": 1680,
+      "description": "Плетёная корзина из лозы с матовой белой отделкой и высокой дужкой. Для текстиля, фруктов, мелочей в прихожей, гостиной или на кухне. Стиль прованс и сканди, лёгкий уход сухой тканью.",
+      "image": "/assets/images/product-basket-wicker.jpg"
+    }
+  },
+  {
+    "id": "lst-showcase-banquette",
+    "productId": "prd-banquette-elegant",
+    "roomSlug": "furniture",
+    "tier": "top",
+    "widthTier": "wide",
+    "status": "active",
+    "dynamicRankScore": 11,
+    "ownerUserId": "altay-vitrin@yandex.ru",
+    "product": {
+      "id": "prd-banquette-elegant",
+      "name": "Банкетка «Элегант»",
+      "type": "мягкая банкетка",
+      "designer": "Иван Лыбин",
+      "designerId": "ivan-lybin",
+      "category": "furniture",
+      "material": "textile",
+      "price": 4350,
+      "description": "Прямоугольная банкетка с сиденьем в технике каретной стяжки, светлая обивка и белый металлический каркас. Для прихожей, спальни у изножья кровати или зоны отдыха. Устойчивая конструкция, комфортная посадка.",
+      "image": "/assets/images/product-banquette-elegant.webp"
+    }
+  }
+]

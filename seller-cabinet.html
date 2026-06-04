@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Алтай-Витрин · Кабинет продавца</title>
+  <title>Алтай-Витрин · Личный кабинет</title>
   <link rel="icon" href="favicon.png" type="image/png" sizes="64x64" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png" sizes="180x180" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -47,10 +47,11 @@
             <span class="logo__mark" aria-hidden="true">AB</span>
             <span class="logo__name">Алтай-Витрин</span>
           </a>
-          <span class="admin-sidebar__sub">Кабинет продавца</span>
+          <span class="admin-sidebar__sub">Личный кабинет</span>
         </div>
         <nav class="admin-sidebar__nav">
-          <a class="admin-sidebar__link is-active" href="seller-cabinet.html">Добавить товар</a>
+          <a class="admin-sidebar__link is-active" href="seller-cabinet.html">Мои товары</a>
+          <a class="admin-sidebar__link" href="contacts.html#seller">Стать продавцом</a>
           <a class="admin-sidebar__link" href="index.html">На витрину</a>
         </nav>
         <p class="admin-sidebar__user" data-admin-email></p>
@@ -58,109 +59,25 @@
 
       <main id="main" class="admin-main admin-main--wide">
         <header class="admin-mod-head">
-          <h1 class="admin-mod-head__title">Добавить товар на витрину</h1>
+          <h1 class="admin-mod-head__title">Личный кабинет</h1>
           <p class="admin-mod-head__lead">
-            Заполните карточку и загрузите медиа. После отправки модератор проверит заявку и опубликует товар на сайте.
+            Здесь отображаются ваши товары на витрине (если администратор уже подключил вас как продавца). Новые карточки оформляются через заявку на странице контактов — после проверки мы создадим профиль и пришлём данные для входа.
+          </p>
+          <p class="seller-cabinet-notice">
+            Хотите продавать на витрине?
+            <a href="contacts.html#seller">Оставьте заявку</a>
+            или напишите на
+            <a data-contact-mailto href="mailto:altay-vitrin@yandex.ru"><span data-contact-email>altay-vitrin@yandex.ru</span></a>.
           </p>
         </header>
 
         <section class="admin-mod-create" data-seller-server-list>
-          <h2 class="admin-mod-create__title">Мои карточки</h2>
-          <p class="admin-mod-empty" data-seller-server-empty hidden>Пока нет карточек. Отправьте первую заявку ниже.</p>
+          <h2 class="admin-mod-create__title">Мои товары на витрине</h2>
+          <p class="admin-mod-empty" data-seller-server-empty hidden>
+            Пока нет опубликованных товаров. Чтобы начать продавать, отправьте заявку в разделе
+            <a href="contacts.html#seller">«Стать продавцом»</a>.
+          </p>
           <div data-seller-server-list-body class="seller-server-list"></div>
-        </section>
-
-        <section class="admin-mod-create">
-          <h2 class="admin-mod-create__title">Новая заявка</h2>
-          <form data-product-form class="admin-mod-form">
-            <label>
-              Название
-              <input name="name" type="text" required minlength="2" maxlength="80" placeholder="Например: Свет-Линия" />
-            </label>
-            <label>
-              Тип товара
-              <input name="type" type="text" required minlength="2" maxlength="80" placeholder="Например: подвесной светильник" />
-            </label>
-            <label class="admin-mod-form__wide">
-              Описание
-              <textarea name="description" rows="4" maxlength="4000" placeholder="Материалы, размеры, условия доставки…"></textarea>
-            </label>
-            <label>
-              Как подписать на витрине (студия или имя)
-              <input name="designer" type="text" required minlength="2" maxlength="80" placeholder="Ваша студия или имя" />
-            </label>
-            <label>
-              Тип автора
-              <select name="ownerType" required>
-                <option value="designers">Дизайнер</option>
-                <option value="masters">Мастер</option>
-              </select>
-            </label>
-            <label>
-              Категория
-              <select name="category" required>
-                <option value="">Выберите категорию</option>
-                <option value="light">Освещение</option>
-                <option value="texture">Текстура</option>
-                <option value="decor">Декор</option>
-                <option value="furniture">Мебель</option>
-              </select>
-            </label>
-            <label>
-              Материал
-              <select name="material" required>
-                <option value="">Выберите материал</option>
-                <option value="ceramic">Керамика</option>
-                <option value="wood">Дерево</option>
-                <option value="metal">Металл</option>
-                <option value="textile">Текстиль</option>
-              </select>
-            </label>
-            <label>
-              Уровень полки
-              <select name="tier" required>
-                <option value="">Выберите уровень</option>
-                <option value="tier-top">Верх полки</option>
-                <option value="tier-mid">Середина</option>
-                <option value="tier-low">Низ полки</option>
-              </select>
-            </label>
-            <label>
-              Ширина места
-              <select name="width" required>
-                <option value="">Выберите ширину</option>
-                <option value="width-wide">Широкая полка</option>
-                <option value="width-standard">Стандарт</option>
-                <option value="width-narrow">Узкая полка</option>
-              </select>
-            </label>
-            <p class="form-field-hint">
-              Один ряд витрины = 8 узких слотов: узкая — 1, стандарт — 2, широкая — 4. Возможны любые сочетания в строке (например 2 узких + 1 широкая); если ряд не забит до конца — справа останется пустое место.
-              <a href="polki.html#width">Все варианты «ровного» ряда</a>.
-            </p>
-            <label>
-              Цена (₽)
-              <input name="price" type="number" min="1" step="1" required placeholder="656" />
-            </label>
-            <label class="admin-mod-form__wide">
-              Фото/видео товара (до 10 файлов)
-              <input name="mediaFiles" type="file" accept=".jpg,.jpeg,.png,.webp,.mp4" multiple required />
-            </label>
-            <label>
-              Превью (главный файл)
-              <select name="previewIndex" data-preview-index required>
-                <option value="">Сначала выберите файлы</option>
-              </select>
-            </label>
-            <label>
-              Аренда до
-              <input name="leaseEndsAt" type="datetime-local" required />
-            </label>
-            <div class="admin-mod-form__actions">
-              <button type="submit" class="btn btn--admin-solid">Добавить товар</button>
-              <p class="form-message" data-product-form-msg></p>
-            </div>
-          </form>
         </section>
       </main>
     </div>

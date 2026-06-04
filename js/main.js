@@ -2886,6 +2886,7 @@
   }
 
   function initAdminProductModeration() {
+    if (document.body.classList.contains("page-seller")) return;
     var form = document.querySelector("[data-product-form]");
     if (!form) return;
     ensureDesignersStore();

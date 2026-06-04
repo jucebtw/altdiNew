@@ -7,6 +7,7 @@
   "scripts": {
     "start": "node server.cjs",
     "clear-shelf-listings": "node scripts/clear-all-shelf-listings.cjs",
+    "seed-showcase": "node scripts/seed-showcase-products.cjs",
     "build-favicon": "node scripts/build-favicon.cjs"
   },
   "dependencies": {
